@@ -1,6 +1,6 @@
 "use client";
 import { Box, Flex, Text } from "@chakra-ui/react";
-import { Avatar } from "../avatar";
+import { Avatar } from "../ui/avatar";
 
 interface MemberDTO {
   name: string;

@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import {
     Avatar
-} from "../avatar";
+} from "../ui/avatar";
 
 import NextLink from "next/link";
 

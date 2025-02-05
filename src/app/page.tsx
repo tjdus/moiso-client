@@ -1,7 +1,7 @@
 import Image from "next/image";
 import styles from "./page.module.css";
-import PopoverSecondaryOptions from "@/components/ui/sidebar/popover-option";
-import MenuAccordion from "@/components/ui/sidebar/accordion";
+import PopoverSecondaryOptions from "@/components/sidebar/popover-option";
+import MenuAccordion from "@/components/sidebar/accordion";
 
 export default function Home() {
   return (
