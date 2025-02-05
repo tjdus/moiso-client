@@ -1,6 +1,6 @@
-'use client'
+"use client";
 import { useState } from "react";
-import { Button, Stack, StackSeparator} from "@chakra-ui/react";
+import { Button, Stack, StackSeparator } from "@chakra-ui/react";
 import {
   PopoverArrow,
   PopoverBody,
@@ -10,33 +10,22 @@ import {
 } from "@/components/ui/popover";
 
 interface TeamDTO {
-    name: string
+  name: string;
 }
 
-const teams = [
-    { name: "Team1" },
-    { name: "Team2"}
-  ];
+const teams = [{ name: "Team1" }, { name: "Team2" }];
 
-function TeamItem({team} : {team: TeamDTO}) {
-    return (
-        <Button>
-            {team.name}
-        </Button>
-    );
+function TeamItem({ team }: { team: TeamDTO }) {
+  return <Button>{team.name}</Button>;
 }
 
-export default function PopoverSecondaryOptions() {
+export default function TeamSelectOption() {
   const [open, setOpen] = useState(false);
 
   return (
     <PopoverRoot open={open} onOpenChange={(e) => setOpen(e.open)}>
       <PopoverTrigger asChild>
-        <Button
-          aria-label="More server options"
-          variant="solid"
-          size="2xl"
-        >
+        <Button aria-label="More server options" variant="solid" size="2xl">
           Team
         </Button>
       </PopoverTrigger>
@@ -45,7 +34,7 @@ export default function PopoverSecondaryOptions() {
         <PopoverBody>
           <Stack separator={<StackSeparator />}>
             {teams.map((team) => (
-                <TeamItem key={team.name} team={team} />
+              <TeamItem key={team.name} team={team} />
             ))}
           </Stack>
         </PopoverBody>

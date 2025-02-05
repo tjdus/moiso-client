@@ -49,7 +49,7 @@ const authOptions: AuthOptions = {
 
         if (!result.success || !result.accessToken) return null;
 
-        const payload: { user: string } = decodeJwt(result.accessToken);
+        const payload = decodeJwt(result.accessToken) as { user: string };
 
         return {
           id: payload.user,

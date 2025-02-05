@@ -1,10 +1,8 @@
 import Image from "next/image";
 import styles from "./page.module.css";
-import PopoverSecondaryOptions from "@/components/sidebar/popover-option";
-import MenuAccordion from "@/components/sidebar/accordion";
+import TeamSelectOption from "@/components/sidebar/TeamSelectOption";
+import MenuAccordion from "@/components/sidebar/MenuAccordion";
 
 export default function Home() {
-  return (
-    <div></div>
-  );
+  return <div></div>;
 }

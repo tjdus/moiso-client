@@ -1,5 +1,5 @@
-import NavBar from "@/components/navbar/nav-bar";
-import SideBar from "@/components/sidebar/side-bar";
+import NavBar from "@/components/navbar/NavBar";
+import SideBar from "@/components/sidebar/SideBar";
 
 export default function WorkspaceLayout({
   children,
