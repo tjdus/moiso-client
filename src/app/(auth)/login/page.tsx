@@ -15,7 +15,7 @@ import {
 import { Field } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
 import { LoginDTO } from "@/lib/interface/login";
-import { login } from "@/lib/api/login";
+import { signIn } from "next-auth/react";
 
 export default function Login() {
   const [error, setError] = useState("");
@@ -27,11 +27,14 @@ export default function Login() {
   } = useForm<LoginDTO>();
 
   const onSubmit = handleSubmit(async (data) => {
-    const result = await login(data);
-    if (result.success) {
+    const result = await signIn("credentials", {
+      ...data,
+      redirect: false,
+    });
+    if (result && result.ok) {
       router.push("/");
     } else {
-      setError(result.message ?? "");
+      setError("아이디 또는 비밀번호를 확인해주세요.");
     }
   });
   return (
