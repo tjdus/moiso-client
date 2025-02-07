@@ -8,15 +8,18 @@ declare module "next-auth" {
     user: {
       id: string;
     };
+    accessToken: string;
   }
   interface User {
     id: string;
+    accessTokne: string;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
     user: string;
+    accessToken: string;
   }
 }
 
@@ -49,10 +52,11 @@ const authOptions: AuthOptions = {
 
         if (!result.success || !result.accessToken) return null;
 
-        const payload = decodeJwt(result.accessToken) as { user: string };
+        const payload: { user: string } = decodeJwt(result.accessToken);
 
         return {
           id: payload.user,
+          accessToken: result.accessToken,
         };
       },
     }),
@@ -66,15 +70,17 @@ const authOptions: AuthOptions = {
     signOut: "/logout",
   },
   callbacks: {
-    async jwt({ token, account }) {
-      if (account && account.providerAccountId) {
-        token.user = account.providerAccountId;
+    async jwt({ token, user }) {
+      if (user) {
+        token.user = user.id;
+        token.accessToken = user.accessToken;
       }
       return token;
     },
     async session({ session, token }) {
       if (session && token) {
         session.user.id = token.user;
+        session.accessToken = token.accessToken;
       }
       return session;
     },

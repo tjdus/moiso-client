@@ -1,7 +1,6 @@
 "use server";
 import { LoginDTO, SignupDTO } from "../interface/login";
 import axiosInstance from "../axiosInstance";
-import { setCookie, deleteCookie } from "../cookies";
 
 export async function login({ username, password }: LoginDTO) {
   try {
@@ -11,7 +10,6 @@ export async function login({ username, password }: LoginDTO) {
     });
 
     const token = response.data.accessToken;
-    setCookie("accessToken", token);
 
     return { success: true };
   } catch (error) {
@@ -37,7 +35,6 @@ export async function signup({ email, password, username }: SignupDTO) {
 
 export async function logout() {
   try {
-    deleteCookie("accessToken");
     return { success: true };
   } catch (error) {
     console.error("로그아웃 실패:", error);

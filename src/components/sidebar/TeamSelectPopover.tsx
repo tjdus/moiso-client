@@ -1,7 +1,14 @@
 "use client";
 
 import { createListCollection } from "@chakra-ui/react";
-import { Button, Box } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
+import {
+  PopoverBody,
+  PopoverContent,
+  PopoverHeader,
+  PopoverRoot,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   SelectContent,
   SelectItem,
@@ -61,24 +68,35 @@ export default function TeamSelectPopOver() {
   }, [teamList]);
 
   return (
-    <Box width="100%">
-      <SelectRoot
-        collection={teams}
-        size="md"
-        color="black"
-        onValueChange={(e) => handleTeamChange(e.value)}
-      >
-        <SelectTrigger>
-          <SelectValueText padding={4} placeholder="Team" />
-        </SelectTrigger>
-        <SelectContent>
-          {teams.items.map((team) => (
-            <SelectItem item={team} key={team.name} padding={4}>
-              {team.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </SelectRoot>
-    </Box>
+    <PopoverRoot size="xs">
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm" color="black">
+          {teamName}
+        </Button>
+      </PopoverTrigger>
+
+      <PopoverContent>
+        <PopoverBody>
+          <SelectRoot
+            collection={teams}
+            size="md"
+            width="320px"
+            value={teamID}
+            onValueChange={(e) => handleTeamChange(e.value)}
+          >
+            <SelectTrigger>
+              <SelectValueText placeholder="Team" />
+            </SelectTrigger>
+            <SelectContent>
+              {teams.items.map((team) => (
+                <SelectItem item={team} key={team.name} fontSize="md">
+                  {team.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </SelectRoot>
+        </PopoverBody>
+      </PopoverContent>
+    </PopoverRoot>
   );
 }

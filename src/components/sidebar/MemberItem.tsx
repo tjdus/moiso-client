@@ -1,12 +1,7 @@
 "use client";
 import { Box, Flex, Text } from "@chakra-ui/react";
 import { Avatar } from "../ui/avatar";
-
-interface MemberDTO {
-  name: string;
-  role: string;
-  avatarUrl?: string; // 프로필 사진 URL (선택적)
-}
+import { MemberDTO } from "@/lib/interface/work";
 
 export default function MemberItem({ member }: { member: MemberDTO }) {
   return (
@@ -19,11 +14,13 @@ export default function MemberItem({ member }: { member: MemberDTO }) {
       gap={3}
     >
       {/* Avatar */}
-      <Avatar name={member.name} src={member.avatarUrl} size="sm" />
+      <Avatar name={member.name} size="sm" />
 
       {/* 이름 및 역할 */}
       <Box>
-        <Text fontSize="xs" fontWeight="bold">{member.name}</Text>
+        <Text fontSize="xs" fontWeight="bold" color="black">
+          {member.name}
+        </Text>
       </Box>
     </Flex>
   );

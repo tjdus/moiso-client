@@ -1,18 +1,19 @@
 "use client";
 import { Stack } from "@chakra-ui/react";
-import MemberItem from "./member-item";
-
-const members = [
-  { name: "Alice Johnson", role: "Project Manager", avatarUrl: "/avatars/alice.jpg" },
-  { name: "Bob Smith", role: "Backend Developer", avatarUrl: "/avatars/bob.jpg" },
-  { name: "Charlie Kim", role: "Frontend Developer", avatarUrl: "/avatars/charlie.jpg" },
-];
+import { useContext, useEffect, useState } from "react";
+import { MemberDTO } from "@/lib/interface/work";
+import MemberItem from "./MemberItem";
+import { TeamSpaceContext } from "@/lib/context/TeamContext";
+import { fetchProjectsByTeamId } from "@/lib/api/api";
 
 export default function MemberList() {
+  const { teamSpace, setTeamSpace } = useContext(TeamSpaceContext);
+  const MemberList = teamSpace?.members || [];
+
   return (
     <Stack gap={3} p={4}>
-      {members.map((member) => (
-        <MemberItem key={member.name} member={member} />
+      {MemberList.map((member) => (
+        <MemberItem key={member.id} member={member.member} />
       ))}
     </Stack>
   );

@@ -1,5 +1,7 @@
+import MainCard from "@/components/card/MainCard";
 import NavBar from "@/components/navbar/NavBar";
 import SideBar from "@/components/sidebar/SideBar";
+import TeamProvider from "@/lib/context/TeamContext";
 
 export default function WorkspaceLayout({
   children,
@@ -8,9 +10,11 @@ export default function WorkspaceLayout({
 }>) {
   return (
     <div style={{ display: "flex" }}>
-      <SideBar />
-      <NavBar />
-      <main style={{ flex: 1, padding: "16px" }}>{children}</main>
+      <TeamProvider>
+        <SideBar />
+        <NavBar />
+        <MainCard>{children}</MainCard>
+      </TeamProvider>
     </div>
   );
 }

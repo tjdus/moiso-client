@@ -9,33 +9,47 @@ import {
   AccordionRoot,
 } from "@chakra-ui/react";
 
-import MemberList from "./member-list";
-import ProjectList from "./project-list";
+import MemberList from "./MemberList";
+import ProjectList from "./ProjectList";
 
 export default function MenuAccordion() {
   return (
-      <AccordionRoot collapsible defaultValue={["members"]}>
-        <AccordionItem value="members">
-            <AccordionItemTrigger fontSize="lg" fontWeight="bold" p={3} color="black">
-                Team Members
-            </AccordionItemTrigger>
-            <AccordionItemContent p={4} fontSize="md" color="gray.700">
-                <MemberList />
-            </AccordionItemContent>
-        </AccordionItem>
-        <AccordionItem value="projects">
-            <AccordionItemTrigger fontSize="lg" fontWeight="bold" p={3} color="black">
-                Project List
-            </AccordionItemTrigger>
-            <AccordionItemContent p={4} fontSize="md" color="gray.700">
-                <ProjectList />
-            </AccordionItemContent>
-        </AccordionItem>
-      </AccordionRoot>
+    <AccordionRoot collapsible defaultValue={["members"]}>
+      <AccordionItem value="members">
+        <AccordionItemTrigger
+          fontSize="lg"
+          fontWeight="bold"
+          p={3}
+          color="black"
+        >
+          Team Members
+        </AccordionItemTrigger>
+        <AccordionItemContent p={4} fontSize="md" color="gray.700">
+          <MemberList />
+        </AccordionItemContent>
+      </AccordionItem>
+      <AccordionItem value="projects">
+        <AccordionItemTrigger
+          fontSize="lg"
+          fontWeight="bold"
+          p={3}
+          color="black"
+        >
+          Project List
+        </AccordionItemTrigger>
+        <AccordionItemContent p={4} fontSize="md" color="gray.700">
+          <ProjectList />
+        </AccordionItemContent>
+      </AccordionItem>
+    </AccordionRoot>
   );
 }
 
 const items = [
   { value: "members", title: "Team Members", text: "List of all members..." },
-  { value: "project-list", title: "Project List", text: "All active projects..." },
+  {
+    value: "project-list",
+    title: "Project List",
+    text: "All active projects...",
+  },
 ];
