@@ -7,25 +7,25 @@ export default function MainCard({
 }>) {
   return (
     <Box
-      width="100%"
       display="flex"
       justifyContent="center"
-      alignItems="center"
+      alignItems="flex-start"
       padding="4"
+      width="100%"
+      overflow="hidden"
     >
       <Box
         bg="white"
         width="100%"
         height="100%"
         display="flex"
-        justifyContent="center"
-        alignItems="center"
+        flexDirection="column"
         borderRadius="md"
         boxShadow="lg"
+        overflow="auto"
+        padding="4"
       >
-        <Card.Root>
-          <Card.Body>{children}</Card.Body>
-        </Card.Root>
+        {children}
       </Box>
     </Box>
   );

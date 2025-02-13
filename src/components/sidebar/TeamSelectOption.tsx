@@ -16,22 +16,26 @@ import { TeamSpaceContext } from "@/lib/context/TeamContext";
 import { TeamDTO, TeamDetailDTO } from "@/lib/interface/work";
 import { useSession } from "next-auth/react";
 import { fetchMyTeams, fetchTeamDetail } from "@/lib/api/api";
-
-const baseUrl = "http://localhost:8000";
+import { getSession } from "next-auth/react";
+import { useDispatch, useSelector } from "react-redux";
+import { setTeam } from "@/lib/slice/teamSlice";
+import { RootState } from "@/lib/store";
+import { useTeam } from "@/lib/hooks";
 
 export default function TeamSelectPopOver() {
-  const { data: session } = useSession();
-  const { teamSpace, setTeamSpace } = useContext(TeamSpaceContext);
+  //const { teamSpace, setTeamSpace } = useContext(TeamSpaceContext);
+  const dispatch = useDispatch();
+  const team = useTeam() as TeamDetailDTO | null;
+  const teamName = team?.name || "Select Team";
   const [teamList, setTeamList] = useState<TeamDTO[]>([]);
-  const [teamName, setTeamName] = useState<string>("");
   const [teamID, setTeamId] = useState<string>("");
   const router = useRouter();
 
   useEffect(() => {
     const loadTeams = async () => {
       try {
-        const data = await fetchMyTeams();
-        setTeamList(data);
+        const response = await fetchMyTeams();
+        setTeamList(response.data);
       } catch (error) {
         console.error("팀 목록 가져오기 실패:", error);
       }
@@ -44,9 +48,11 @@ export default function TeamSelectPopOver() {
     setTeamId(selectedId);
 
     try {
-      const data = await fetchTeamDetail(selectedId);
-      setTeamSpace(data);
-      setTeamName(data.name);
+      const response = await fetchTeamDetail(selectedId);
+      //TODO: Remove
+      // setTeamSpace(data);
+      // setTeamName(data.name);
+      dispatch(setTeam(response.data));
     } catch (error) {
       console.error("팀 정보 조회 실패:", error);
     }
@@ -66,10 +72,11 @@ export default function TeamSelectPopOver() {
         collection={teams}
         size="md"
         color="black"
+        defaultValue={teamName}
         onValueChange={(e) => handleTeamChange(e.value)}
       >
         <SelectTrigger>
-          <SelectValueText padding={4} placeholder="Team" />
+          <SelectValueText padding={4} placeholder={teamName || "Team"} />
         </SelectTrigger>
         <SelectContent>
           {teams.items.map((team) => (

@@ -25,6 +25,13 @@ export interface TeamMemberInfoDTO {
   joined_at: string;
 }
 
+export interface ProjectMemberInfoDTO {
+  id: string;
+  member: MemberDTO;
+  role: string;
+  joined_at: string;
+}
+
 export interface ProjectDTO {
   id: string;
   name: string;
@@ -33,6 +40,17 @@ export interface ProjectDTO {
   category: string;
   start_at: Date;
   end_at: Date;
+}
+
+export interface ProjectDetailDTO {
+  id: string;
+  name: string;
+  members: ProjectMemberInfoDTO[];
+  category: string;
+  description: string;
+  start_date: string;
+  end_date: string;
+  status: string;
 }
 
 export interface TeamDetailDTO {
@@ -45,3 +63,44 @@ export interface TeamDetailDTO {
   created_by: MemberDTO;
   updated_by: MemberDTO;
 }
+
+export interface TagDTO {
+  id: string;
+  name: string;
+}
+
+export interface TaskDTO {
+  id: string;
+  tags: TagDTO[];
+  members: MemberDTO[];
+  title: string;
+  description: string;
+  status: string;
+  start_at: string;
+  end_at: string;
+}
+
+export interface TaskAssignmentInfoDTO {
+  id: string;
+  status: string;
+  assigned_at: string;
+  completed_at: string;
+}
+
+export interface TaskDetailDTO {
+  id: string;
+  project: string;
+  assigned_members: TaskAssignmentInfoDTO[];
+  tags: TagDTO[];
+  title: string;
+  description: string;
+  status: string;
+  start_at: string;
+  end_at: string;
+  created_at: string;
+  updatedt_at: string;
+  created_by: MemberDTO;
+  updated_by: MemberDTO;
+}
+
+export type Role = 'manager' | 'member' | 'leader';

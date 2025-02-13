@@ -6,6 +6,7 @@ type FetchOptions<TBody = unknown> = Omit<RequestInit, "headers" | "body"> & {
   body?: TBody;
   withAuth?: boolean;
   contentType?: string;
+  params?: Record<string, string | number>;
 };
 
 export class FetchClient {
@@ -38,6 +39,7 @@ export class FetchClient {
       contentType = "application/json",
       headers,
       body,
+      params,
       ...restOptions
     } = options;
     const tokenResponse = await fetch("/api/auth/session");
@@ -59,7 +61,18 @@ export class FetchClient {
       )
     );
 
-    const response = await fetch(`${this.baseUrl}${url}`, {
+    let queryString = "";
+    if (params) {
+      const searchParams = new URLSearchParams();
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          searchParams.append(key, String(value));
+        }
+      });
+      queryString = `?${searchParams.toString()}`;
+    }
+
+    const response = await fetch(`${this.baseUrl}${url}${queryString}`, {
       ...restOptions,
       headers: allHeaders,
       body: body ? JSON.stringify(body) : undefined,
@@ -75,7 +88,10 @@ export class FetchClient {
       throw responseData as ApiResponseError;
     }
 
-    return responseData as ApiResponseWithData<TResponse>;
+    return {
+      data: responseData,
+      status: response.status,
+    } as ApiResponseWithData<TResponse>;
   }
 
   public get<TResponse>(url: string, options?: FetchOptions) {

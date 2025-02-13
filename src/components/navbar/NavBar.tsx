@@ -12,11 +12,12 @@ import {
 import { Avatar } from "../ui/avatar";
 
 import NextLink from "next/link";
+import { useProject } from "@/lib/hooks";
 
 const menuItems = [
-  { name: "Project", href: "/project" },
-  { name: "Task", href: "/task" },
-  { name: "Document", href: "/document" },
+  { name: "Overview", href: "/overview" },
+  { name: "Task", href: "/workspace/task" },
+  { name: "Members", href: "/workspace/members" },
   { name: "Budget", href: "/budget" },
 ];
 
@@ -37,14 +38,17 @@ function NavBarItem({ item }: { item: ItemDTO }) {
 }
 
 export default function NavBar() {
+  const project = useProject();
+  if (project === null) {
+    return <div></div>;
+  }
   return (
     <Box
       px={6}
       py={3}
       position="fixed"
       top={0}
-      left="250px"
-      width="calc(100% - 250px)"
+      width="100%"
       height="20px"
       zIndex={1000}
     >

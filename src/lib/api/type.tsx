@@ -8,6 +8,7 @@ export type ApiResponseError = ApiResponse & {
 };
 
 export type ApiResponseWithData<T> = ApiResponse & {
+  status: string;
   data: T;
 };
 

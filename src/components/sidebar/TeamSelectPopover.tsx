@@ -37,8 +37,8 @@ export default function TeamSelectPopOver() {
   useEffect(() => {
     const loadTeams = async () => {
       try {
-        const data = await fetchMyTeams();
-        setTeamList(data);
+        const response = await fetchMyTeams();
+        setTeamList(response.data);
       } catch (error) {
         console.error("팀 목록 가져오기 실패:", error);
       }
@@ -51,9 +51,9 @@ export default function TeamSelectPopOver() {
     setTeamId(selectedId);
 
     try {
-      const data = await fetchTeamDetail(selectedId);
-      setTeamSpace(data);
-      setTeamName(data.name);
+      const response = await fetchTeamDetail(selectedId);
+      setTeamSpace(response.data);
+      setTeamName(response.data.name);
     } catch (error) {
       console.error("팀 정보 조회 실패:", error);
     }

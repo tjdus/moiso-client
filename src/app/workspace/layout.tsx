@@ -12,8 +12,7 @@ export default function WorkspaceLayout({
     <div style={{ display: "flex" }}>
       <TeamProvider>
         <SideBar />
-        <NavBar />
-        <MainCard>{children}</MainCard>
+        {children}
       </TeamProvider>
     </div>
   );
