@@ -1,0 +1,6 @@
+{
+  "github.copilot.editor.enableAutoCompletions": false,
+  "github.copilot.chat.edits.codesearch.enabled": false,
+  "github.copilot.nextEditSuggestions.enabled": true,
+  "github.copilot.advanced": {}
+}

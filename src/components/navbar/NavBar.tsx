@@ -52,7 +52,7 @@ export default function NavBar() {
       height="20px"
       zIndex={1000}
     >
-      <Box bg="white" color="black" boxShadow="md" borderRadius="md" mt={2}>
+      <Box boxShadow="md" borderRadius="md" mt={2}>
         <Flex justify="space-between" align="center" margin={4}>
           <Stack margin={4} direction="row" h="10" gap={10}>
             {/* 네비게이션 메뉴 */}

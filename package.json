@@ -9,12 +9,17 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@chakra-ui/icons": "^2.2.4",
     "@chakra-ui/react": "^3.8.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@reduxjs/toolkit": "^2.5.1",
     "axios": "^1.7.9",
+    "chakra-dayzed-datepicker": "^0.3.0",
+    "date-fns": "^4.1.0",
+    "dayzed": "^3.2.3",
     "framer-motion": "^12.4.2",
+    "lodash": "^4.17.21",
     "next": "15.1.6",
     "next-auth": "^4.24.11",
     "next-themes": "^0.4.4",
@@ -28,6 +33,7 @@
   },
   "devDependencies": {
     "@types/axios": "^0.14.4",
+    "@types/lodash": "^4.17.15",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

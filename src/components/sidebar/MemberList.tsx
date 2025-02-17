@@ -1,10 +1,10 @@
 "use client";
 import { Stack } from "@chakra-ui/react";
 import { useContext, useEffect, useState } from "react";
-import { MemberDTO } from "@/lib/interface/work";
+import { MemberDTO } from "@/lib/interface/fetchDTOs";
 import MemberItem from "./MemberItem";
 import { TeamSpaceContext } from "@/lib/context/TeamContext";
-import { fetchProjectsByTeamId } from "@/lib/api/api";
+import { fetchProjectsByTeamId } from "@/lib/api/fetchApi";
 import { useTeam } from "@/lib/hooks";
 
 export default function MemberList() {

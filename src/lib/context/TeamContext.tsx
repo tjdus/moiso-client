@@ -1,6 +1,6 @@
 "use client";
 import { createContext, ReactNode, useState, useContext } from "react";
-import { TeamDetailDTO } from "../interface/work";
+import { TeamDetailDTO } from "../interface/fetchDTOs";
 
 interface TeamSpaceContextType {
   teamSpace: TeamDetailDTO | null;

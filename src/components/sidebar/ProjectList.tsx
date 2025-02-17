@@ -1,22 +1,25 @@
 "use client";
 import { Box, Flex, Text, Stack } from "@chakra-ui/react";
 import { useContext, useEffect, useState } from "react";
-import { ProjectDTO, TeamDetailDTO } from "@/lib/interface/work";
+import { ProjectDTO, TeamDetailDTO } from "@/lib/interface/fetchDTOs";
 import { TeamSpaceContext } from "@/lib/context/TeamContext";
 import { FaFolderOpen } from "react-icons/fa";
 import { useTeam } from "@/lib/hooks";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { setProject } from "@/lib/slice/projectSlice";
-import { fetchProjectDetail } from "@/lib/api/api";
+import { fetchProjectDetail } from "@/lib/api/fetchApi";
+import { useRouter } from "next/navigation";
 
 function ProjectItem({ project }: { project: ProjectDTO }) {
   const dispatch = useDispatch();
+  const router = useRouter();
 
   const handleClick = async () => {
     try {
       const response = await fetchProjectDetail(project.id);
       dispatch(setProject(response.data));
+      router.push("/workspace/project");
     } catch (error) {
       console.error("팀 정보 조회 실패:", error);
     }
@@ -26,7 +29,6 @@ function ProjectItem({ project }: { project: ProjectDTO }) {
       align="center"
       p={3}
       borderRadius="md"
-      bg="white"
       _hover={{ bg: "gray.100" }}
       gap={3}
       onClick={handleClick}
@@ -56,10 +58,8 @@ export default function ProjectList() {
         ))
       ) : (
         <Stack align="center" gap={2}>
-          <FaFolderOpen size={50} color="gray.400" />
-          <Text textAlign="center" color="gray.500">
-            등록된 프로젝트가 없습니다.
-          </Text>
+          <FaFolderOpen size={50} />
+          <Text textAlign="center">등록된 프로젝트가 없습니다.</Text>
         </Stack>
       )}
     </Stack>

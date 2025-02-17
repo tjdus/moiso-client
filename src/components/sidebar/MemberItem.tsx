@@ -1,7 +1,7 @@
 "use client";
 import { Box, Flex, Text } from "@chakra-ui/react";
 import { Avatar } from "../ui/avatar";
-import { MemberDTO } from "@/lib/interface/work";
+import { MemberDTO } from "@/lib/interface/fetchDTOs";
 
 export default function MemberItem({ member }: { member: MemberDTO }) {
   return (
@@ -9,7 +9,6 @@ export default function MemberItem({ member }: { member: MemberDTO }) {
       align="center"
       p={3}
       borderRadius="md"
-      bg="white"
       _hover={{ bg: "gray.100" }}
       gap={3}
     >
@@ -18,7 +17,7 @@ export default function MemberItem({ member }: { member: MemberDTO }) {
 
       {/* 이름 및 역할 */}
       <Box>
-        <Text fontSize="xs" fontWeight="bold" color="black">
+        <Text fontSize="xs" fontWeight="bold">
           {member.name}
         </Text>
       </Box>

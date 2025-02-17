@@ -8,15 +8,5 @@ export default function ProjectLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <Flex
-      direction="column"
-      minH="100vh"
-      left="250px"
-      height="100%"
-      width="calc(100% - 250px)"
-    >
-      {children}
-    </Flex>
-  );
+  return <>{children}</>;
 }

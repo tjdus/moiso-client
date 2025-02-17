@@ -13,12 +13,12 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useProject } from "@/lib/hooks";
-import { ProjectDetailDTO } from "@/lib/interface/work";
+import { ProjectDetailDTO } from "@/lib/interface/fetchDTOs";
 
 import { Avatar } from "../ui/avatar";
-import { ProjectMemberInfoDTO } from "@/lib/interface/work";
+import { ProjectMemberInfoDTO } from "@/lib/interface/fetchDTOs";
 import { RoleBadge } from "../custom-ui/RoleBadge";
-import type { Role } from "@/lib/interface/work";
+import type { Role } from "@/lib/interface/common";
 
 const ProjectMemberRow = ({
   id,
@@ -27,15 +27,17 @@ const ProjectMemberRow = ({
   joined_at,
 }: ProjectMemberInfoDTO) => {
   return (
-    <TableRow _hover={{ bg: "gray.300" }} backgroundColor="white">
+    <TableRow _hover={{ bg: "gray.300" }}>
       <TableCell align="center" height="48px">
         <HStack>
           <Avatar size="xs" />
-          <Text color="text.default" fontWeight="light" fontSize="sm">{member.name}</Text>
+          <Text fontWeight="light" fontSize="sm">
+            {member.name}
+          </Text>
         </HStack>
       </TableCell>
 
-      <TableCell color="gray.600" fontSize="xs" textAlign="center" height="48px">
+      <TableCell fontSize="xs" textAlign="center" height="48px">
         {member.email}
       </TableCell>
 
@@ -43,19 +45,14 @@ const ProjectMemberRow = ({
         <RoleBadge role={role as Role} />
       </TableCell>
 
-      <TableCell color="text.default" fontSize="xs" textAlign="center" height="48px">
+      <TableCell fontSize="xs" textAlign="center" height="48px">
         {joined_at}
       </TableCell>
     </TableRow>
   );
-}
+};
 
-const headers = [
-  "이름",
-  "이메일",
-  "역할",
-  "가입일",
-];
+const headers = ["이름", "이메일", "역할", "가입일"];
 
 export default function ProjectMemberTable() {
   const project = useProject() as ProjectDetailDTO | null;
@@ -69,18 +66,16 @@ export default function ProjectMemberTable() {
     <TableRoot
       size="lg"
       interactive
-      backgroundColor="white"
       border="1px solid gray.700"
       overflow="hidden"
     >
       <TableHeader fontSize="sm">
-        <TableRow backgroundColor="white">
+        <TableRow>
           {headers.map((header, index) => (
-            <TableColumnHeader 
-              key={index} 
-              padding={4} 
-              textAlign="center" 
-              color="gray.600"
+            <TableColumnHeader
+              key={index}
+              padding={4}
+              textAlign="center"
               height="48px"
             >
               {header}

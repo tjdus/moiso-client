@@ -58,7 +58,6 @@ export default function Signup() {
           p={6}
           borderRadius="md"
           boxShadow="lg"
-          bg="white"
         >
           <form onSubmit={onSubmit}>
             <Stack

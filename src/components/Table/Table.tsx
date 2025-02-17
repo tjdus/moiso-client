@@ -24,13 +24,7 @@ export default function Table() {
   }
 
   return (
-    <TableRoot
-      size="lg"
-      interactive
-      backgroundColor="white"
-      border="1px solid #E2E8F0"
-      overflow="hidden"
-    >
+    <TableRoot size="lg" interactive border="1px solid" overflow="hidden">
       <TableHeader fontSize="xl">
         <TableRow>
           {headers.map((header, index) => (

@@ -15,7 +15,6 @@ export default function MainCard({
       overflow="hidden"
     >
       <Box
-        bg="white"
         width="100%"
         height="100%"
         display="flex"

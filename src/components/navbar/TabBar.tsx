@@ -5,10 +5,11 @@ import { ReactNode } from "react";
 import { useProject, useTab } from "@/lib/hooks";
 import { setTab } from "@/lib/slice/tabSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { ProjectDTO } from "@/lib/interface/work";
+import { ProjectDTO } from "@/lib/interface/fetchDTOs";
 import ProjectMemberTable from "../Table/ProjectMemberTable";
 import TaskList from "../Table/TaskList";
 import { LuFolder, LuSquareCheck, LuUser, LuSettings } from "react-icons/lu";
+import TaskCreationDialog from "../dialog/TaskCreationDialog";
 
 interface TabContentProps {
   value: string;
@@ -76,19 +77,18 @@ function TabBar() {
   }
 
   return (
-    <Box borderBottom="1px" borderColor="gray.200" bg="white" height="100%">
+    <Box borderBottom="1px">
       <Box px={6} pt={4}>
-        <Text fontSize="xl" fontWeight="bold" mb={4} color="text.default">
+        <Text fontSize="xl" fontWeight="bold" mb={4}>
           {project.name}
         </Text>
+        <TaskCreationDialog />
       </Box>
       <Tabs.Root
         value={tab}
         onValueChange={handleTabChange}
         px={6}
         variant="line"
-        width="100%"
-        height="100%"
         colorPalette="blue"
         lazyMount
         unmountOnExit

@@ -60,7 +60,6 @@ export default function Login() {
           p={6}
           borderRadius="md"
           boxShadow="lg"
-          bg="white"
         >
           <form onSubmit={onSubmit}>
             <Stack

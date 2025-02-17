@@ -1,6 +1,6 @@
 import { Badge, TableCell, TableRow } from "@chakra-ui/react";
 import { Avatar } from "../ui/avatar";
-import { TeamMemberInfoDTO } from "@/lib/interface/work";
+import { TeamMemberInfoDTO } from "@/lib/interface/fetchDTOs";
 
 export default function TableMemberRow({
   id,
@@ -23,7 +23,7 @@ export default function TableMemberRow({
         {member.name}
       </TableCell>
 
-      <TableCell color="gray.600" fontSize="sm" textAlign="left">
+      <TableCell fontSize="sm" textAlign="left">
         {member.email}
       </TableCell>
 

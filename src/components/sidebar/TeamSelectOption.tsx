@@ -1,10 +1,11 @@
 "use client";
 
-import { createListCollection } from "@chakra-ui/react";
+import { Card, createListCollection } from "@chakra-ui/react";
 import { Button, Box } from "@chakra-ui/react";
 import {
   SelectContent,
   SelectItem,
+  SelectItemGroup,
   SelectLabel,
   SelectRoot,
   SelectTrigger,
@@ -13,16 +14,17 @@ import {
 import { useMemo, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { TeamSpaceContext } from "@/lib/context/TeamContext";
-import { TeamDTO, TeamDetailDTO } from "@/lib/interface/work";
+import { TeamDTO, TeamDetailDTO } from "@/lib/interface/fetchDTOs";
 import { useSession } from "next-auth/react";
-import { fetchMyTeams, fetchTeamDetail } from "@/lib/api/api";
+import { fetchMyTeams, fetchTeamDetail } from "@/lib/api/fetchApi";
 import { getSession } from "next-auth/react";
 import { useDispatch, useSelector } from "react-redux";
 import { setTeam } from "@/lib/slice/teamSlice";
 import { RootState } from "@/lib/store";
 import { useTeam } from "@/lib/hooks";
+import TeamCreationDialog from "../dialog/TeamCeationDialog";
 
-export default function TeamSelectPopOver() {
+export default function TeamSelectOption() {
   //const { teamSpace, setTeamSpace } = useContext(TeamSpaceContext);
   const dispatch = useDispatch();
   const team = useTeam() as TeamDetailDTO | null;
@@ -56,6 +58,7 @@ export default function TeamSelectPopOver() {
     } catch (error) {
       console.error("팀 정보 조회 실패:", error);
     }
+    router.push("/workspace/team");
   };
 
   const teams = useMemo(() => {
@@ -67,25 +70,30 @@ export default function TeamSelectPopOver() {
   }, [teamList]);
 
   return (
-    <Box width="100%">
-      <SelectRoot
-        collection={teams}
-        size="md"
-        color="black"
-        defaultValue={teamName}
-        onValueChange={(e) => handleTeamChange(e.value)}
-      >
-        <SelectTrigger>
-          <SelectValueText padding={4} placeholder={teamName || "Team"} />
-        </SelectTrigger>
-        <SelectContent>
-          {teams.items.map((team) => (
-            <SelectItem item={team} key={team.name} padding={4}>
-              {team.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </SelectRoot>
-    </Box>
+    <SelectRoot
+      collection={teams}
+      variant="outline"
+      size="md"
+      defaultValue={[teamName]}
+      onValueChange={(e) => handleTeamChange(e.value[0])}
+    >
+      <SelectTrigger>
+        <SelectValueText padding={4} placeholder={teamName || "Team"} />
+      </SelectTrigger>
+      <SelectContent>
+        {teams.items.map((team) => (
+          <SelectItem
+            item={team}
+            key={team.id}
+            padding={4}
+            _light={{ bg: "gray.100", color: "black" }}
+            _dark={{ bg: "gray.700", color: "white" }}
+          >
+            {team.name}
+          </SelectItem>
+        ))}
+        <TeamCreationDialog />
+      </SelectContent>
+    </SelectRoot>
   );
 }

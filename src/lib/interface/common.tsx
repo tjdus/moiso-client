@@ -4,3 +4,5 @@ export interface PaginationResponse<T> {
   previous: string | null;
   results: T[];
 }
+export type Role = "manager" | "member" | "leader";
+export type Status = "not_started" | "in_progress" | "completed";

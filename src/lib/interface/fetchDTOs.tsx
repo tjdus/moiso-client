@@ -25,8 +25,24 @@ export interface TeamMemberInfoDTO {
   joined_at: string;
 }
 
+export interface TeamMemberDTO {
+  id: string;
+  team_id: string;
+  member: MemberDTO;
+  role: string;
+  joined_at: string;
+}
+
 export interface ProjectMemberInfoDTO {
   id: string;
+  member: MemberDTO;
+  role: string;
+  joined_at: string;
+}
+
+export interface ProjectMemberDTO {
+  id: string;
+  project_id: string;
   member: MemberDTO;
   role: string;
   joined_at: string;
@@ -103,4 +119,7 @@ export interface TaskDetailDTO {
   updated_by: MemberDTO;
 }
 
-export type Role = 'manager' | 'member' | 'leader';
+export interface CategoryNameDTO {
+  id: string;
+  name: string;
+}

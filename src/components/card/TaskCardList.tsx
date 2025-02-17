@@ -1,9 +1,9 @@
 "use client";
 
-import { fetchTaskDetail, fetchTasksByProjectId } from "@/lib/api/api";
+import { fetchTaskDetail, fetchTasksByProjectId } from "@/lib/api/fetchApi";
 import { useProject } from "@/lib/hooks";
-import { ProjectDetailDTO, TaskDTO } from "@/lib/interface/work";
-import { PaginationResponse } from "@/lib/interface/core";
+import { ProjectDetailDTO, TaskDTO } from "@/lib/interface/fetchDTOs";
+import { PaginationResponse } from "@/lib/interface/common";
 import { useEffect, useState } from "react";
 import TaskCard from "./TaksCard";
 import { Stack, HStack, Flex } from "@chakra-ui/react";
