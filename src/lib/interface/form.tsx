@@ -32,6 +32,7 @@ export interface TagForm {
 
 export interface TaskForm {
   id?: string;
+  project?: string;
   tags?: string[];
   members?: string[];
   title?: string;
@@ -39,4 +40,24 @@ export interface TaskForm {
   status?: string;
   start_at?: string;
   end_at?: string;
+}
+
+export interface TaskAssignmentForm {
+  id?: string;
+  task?: string;
+  member?: string;
+  status?: string;
+}
+
+export interface RoleGroupForm {
+  id?: string;
+  name?: string;
+  team?: string;
+}
+
+export interface RoleGroupMemberForm {
+  id?: string;
+  member?: string;
+  role_group?: string;
+  is_leader?: boolean;
 }

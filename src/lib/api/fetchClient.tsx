@@ -1,5 +1,9 @@
+"use client";
+
+import { signIn, useSession } from "next-auth/react";
 import getSession from "../auth/auth";
 import { type ApiResponseError, type ApiResponseWithData } from "./type";
+import { getCookie, setCookie } from "../util/cookies";
 
 type FetchOptions<TBody = unknown> = Omit<RequestInit, "headers" | "body"> & {
   headers?: Record<string, string>;
@@ -42,14 +46,13 @@ export class FetchClient {
       params,
       ...restOptions
     } = options;
-    const tokenResponse = await fetch("/api/auth/session");
-    const tokenData = await tokenResponse.json();
 
-    if (!tokenResponse.ok) {
-      throw new Error("토큰을 가져올 수 없습니다.");
+    let accessToken = await getCookie("accessToken");
+
+    if (!accessToken && withAuth) {
+      console.error("No access token available for authorization.");
+      throw new Error("Unauthorized request.");
     }
-
-    const accessToken = tokenData.accessToken;
 
     const allHeaders = new Headers(
       Object.assign(
@@ -72,11 +75,25 @@ export class FetchClient {
       queryString = `?${searchParams.toString()}`;
     }
 
-    const response = await fetch(`${this.baseUrl}${url}${queryString}`, {
+    let response = await fetch(`${this.baseUrl}${url}${queryString}`, {
       ...restOptions,
       headers: allHeaders,
       body: body ? JSON.stringify(body) : undefined,
     });
+
+    if (response.status === 401 && withAuth) {
+      const newAccessToken = await this.refreshToken();
+      if (newAccessToken) {
+        allHeaders.set("Authorization", `Bearer ${newAccessToken}`);
+        response = await fetch(`${this.baseUrl}${url}${queryString}`, {
+          ...restOptions,
+          headers: allHeaders,
+          body: body ? JSON.stringify(body) : undefined,
+        });
+      } else {
+        await signIn();
+      }
+    }
 
     if (response.status === 204) {
       return null;
@@ -92,6 +109,37 @@ export class FetchClient {
       data: responseData,
       status: response.status,
     } as ApiResponseWithData<TResponse>;
+  }
+
+  private async refreshToken() {
+    try {
+      const refreshToken = await getCookie("refreshToken");
+      if (!refreshToken) {
+        throw new Error("Refresh Token is missing");
+      }
+      const response = await fetch(`${this.baseUrl}/api/auth/refresh/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refreshToken }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Refresh Token expired or invalid");
+        } else {
+          throw new Error("Failed to refresh token");
+        }
+      }
+
+      const data = await response.json();
+      setCookie("accessToken", data.accessToken);
+      return data.accessToken;
+    } catch (error) {
+      console.error("Failed to refresh token:", error);
+      return null;
+    }
   }
 
   public get<TResponse>(url: string, options?: FetchOptions) {

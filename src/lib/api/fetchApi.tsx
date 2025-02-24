@@ -10,6 +10,9 @@ import {
   TeamMemberDTO,
   CategoryNameDTO,
   ProjectMemberDTO,
+  TaskAssignmentDTO,
+  MemberDTO,
+  TeamMemberDetailDTO,
 } from "../interface/fetchDTOs";
 import { PaginationResponse } from "../interface/common";
 
@@ -23,9 +26,53 @@ export async function fetchTeamDetail(teamId: string) {
   });
 }
 
-export async function fetchProjectsByTeamId(teamId: string) {
-  return apiClient.get<ProjectDTO[]>(
-    `/api/projects?team=${encodeURIComponent(teamId)}`
+export async function fetchProjects({
+  searchQuery,
+  page,
+  pageSize,
+  teamId,
+}: {
+  searchQuery?: string;
+  page?: number;
+  pageSize?: number;
+  teamId?: string;
+}) {
+  return apiClient.get<PaginationResponse<ProjectDTO>>(`/api/projects/`, {
+    params: {
+      ...(searchQuery && { search: searchQuery }),
+      ...(page && { page }),
+      ...(pageSize && { page_size: pageSize }),
+      ...(teamId && { team: teamId }),
+    },
+    withAuth: true,
+  });
+}
+
+export async function fetchProjectMembers({
+  searchQuery,
+  page,
+  pageSize,
+  memberId,
+  teamId,
+}: {
+  searchQuery?: string;
+  page?: number;
+  pageSize?: number;
+  memberId?: string;
+  teamId?: string;
+}) {
+  return apiClient.get<PaginationResponse<ProjectMemberDTO>>(
+    `/api/project_members/`,
+    {
+      params: {
+        ...(searchQuery && { search: searchQuery }),
+        ...(page && { page }),
+        ...(pageSize && { page_size: pageSize }),
+        ...(memberId && { member: memberId }),
+        ...(teamId && { team: teamId }),
+      },
+      withAuth: true,
+    }
   );
 }
 
@@ -49,30 +96,64 @@ export async function fetchTaskDetail(taskId: string) {
 
 export async function fetchTasksByProjectId(
   projectId: string,
+  searchQuery: string,
   page: number,
   pageSize: number
 ) {
   return apiClient.get<PaginationResponse<TaskDTO>>(`/api/tasks`, {
-    params: { project: projectId, page, page_size: pageSize },
+    params: {
+      project: projectId,
+      page,
+      page_size: pageSize,
+      search: searchQuery,
+    },
     withAuth: true,
   });
 }
 
-export async function fetchTeamMembers(teamId: string) {
-  return apiClient.get<PaginationResponse<TeamMemberDTO>>(
-    `/api/team_members/`,
+export async function fetchTaskAssignmentsByTaskId(taskId: string) {
+  return apiClient.get<PaginationResponse<TaskAssignmentDTO>>(
+    `/api/task_assignments/`,
     {
-      params: { team: teamId },
+      params: {
+        task: taskId,
+      },
       withAuth: true,
     }
   );
 }
 
-export async function fetchProjectMembers(projectId: string) {
+export async function fetchMyTaskAssignments(taskId?: string) {
+  return apiClient.get<PaginationResponse<TaskAssignmentDTO>>(
+    `/api/task_assignments/`,
+    {
+      params: taskId ? { task: taskId } : {},
+      withAuth: true,
+    }
+  );
+}
+
+export async function fetchTeamMembers(
+  teamId: string,
+  page: number,
+  page_size: number
+) {
+  return apiClient.get<PaginationResponse<TeamMemberDTO>>(
+    `/api/team_members/`,
+    {
+      params: { team: teamId, page, page_size },
+      withAuth: true,
+    }
+  );
+}
+
+export async function fetchProjectMembersAll(projectId: string) {
   return apiClient.get<PaginationResponse<ProjectMemberDTO>>(
     `/api/project_members/`,
     {
-      params: { project: projectId },
+      params: {
+        project: projectId,
+      },
       withAuth: true,
     }
   );
@@ -92,4 +173,34 @@ export async function fetchTagsByProjectId(projectId: string) {
     params: { project: projectId },
     withAuth: true,
   });
+}
+
+export async function fetchMemberDetail(memberId: string) {
+  return apiClient.get<MemberDTO>(`/api/members/${memberId}/`, {
+    withAuth: true,
+  });
+}
+
+export async function fetchTeamMemberDetail({
+  memberId,
+  teamId,
+  page,
+  pageSize,
+}: {
+  memberId?: string;
+  teamId: string;
+  page?: number;
+  pageSize?: number;
+}) {
+  return apiClient.get<PaginationResponse<TeamMemberDetailDTO>>(
+    `/api/team_member_details/${teamId}/`,
+    {
+      params: {
+        ...(memberId && { member: memberId }),
+        ...(page && { page }),
+        ...(pageSize && { page_size: pageSize }),
+      },
+      withAuth: true,
+    }
+  );
 }

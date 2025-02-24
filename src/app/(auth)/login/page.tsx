@@ -32,7 +32,7 @@ export default function Login() {
       redirect: false,
     });
     if (result && result.ok) {
-      router.push("/");
+      router.push("/workspace");
     } else {
       setError("아이디 또는 비밀번호를 확인해주세요.");
     }

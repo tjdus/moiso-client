@@ -2,6 +2,7 @@ import { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { cookies } from "next/headers";
 import { decodeJwt } from "jose";
+import { login } from "../api/login";
 
 declare module "next-auth" {
   interface Session {
@@ -9,10 +10,12 @@ declare module "next-auth" {
       id: string;
     };
     accessToken: string;
+    refreshToken: string;
   }
   interface User {
     id: string;
-    accessTokne: string;
+    accessToken: string;
+    refreshToken: string;
   }
 }
 
@@ -20,6 +23,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     user: string;
     accessToken: string;
+    refreshToken: string;
   }
 }
 
@@ -32,31 +36,27 @@ const authOptions: AuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
-        console.log("au");
-        const response = await fetch(
-          `http://${process.env.API_BASE_URL}/api/login/`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(credentials),
-          }
+        const response = await login(
+          credentials as { username: string; password: string }
         );
-        console.log(response);
 
-        if (!response.ok) return null;
+        if (
+          !response.success ||
+          !response.accessToken ||
+          !response.refreshToken
+        ) {
+          return null;
+        }
+        const payload = decodeJwt(response.accessToken) as { user_id: string };
 
-        const result: {
-          success: boolean;
-          accessToken: string | null;
-        } = await response.json();
-
-        if (!result.success || !result.accessToken) return null;
-
-        const payload: { user: string } = decodeJwt(result.accessToken);
+        if (!payload.user_id) {
+          return null;
+        }
 
         return {
-          id: payload.user,
-          accessToken: result.accessToken,
+          id: payload.user_id,
+          accessToken: response.accessToken,
+          refreshToken: response.refreshToken,
         };
       },
     }),
@@ -74,6 +74,7 @@ const authOptions: AuthOptions = {
       if (user) {
         token.user = user.id;
         token.accessToken = user.accessToken;
+        token.refreshToken = user.refreshToken;
       }
       return token;
     },

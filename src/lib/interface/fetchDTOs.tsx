@@ -42,7 +42,7 @@ export interface ProjectMemberInfoDTO {
 
 export interface ProjectMemberDTO {
   id: string;
-  project_id: string;
+  project: string;
   member: MemberDTO;
   role: string;
   joined_at: string;
@@ -51,11 +51,10 @@ export interface ProjectMemberDTO {
 export interface ProjectDTO {
   id: string;
   name: string;
-  description: Text;
-  team: TeamDTO;
-  category: string;
-  start_at: Date;
-  end_at: Date;
+  description: string;
+  category: CategoryNameDTO;
+  start_date: string;
+  end_date: string;
 }
 
 export interface ProjectDetailDTO {
@@ -98,9 +97,21 @@ export interface TaskDTO {
 
 export interface TaskAssignmentInfoDTO {
   id: string;
+  member: MemberDTO;
   status: string;
   assigned_at: string;
   completed_at: string;
+}
+
+export interface TaskAssignmentDTO {
+  id: string;
+  member: MemberDTO;
+  task: string;
+  status: string;
+  assigned_at: string;
+  completed_at: string;
+  created_by: MemberDTO;
+  updated_by: MemberDTO;
 }
 
 export interface TaskDetailDTO {
@@ -114,7 +125,7 @@ export interface TaskDetailDTO {
   start_at: string;
   end_at: string;
   created_at: string;
-  updatedt_at: string;
+  updated_at: string;
   created_by: MemberDTO;
   updated_by: MemberDTO;
 }
@@ -122,4 +133,28 @@ export interface TaskDetailDTO {
 export interface CategoryNameDTO {
   id: string;
   name: string;
+}
+
+export interface RoleGroupDTO {
+  id: string;
+  name: string;
+  team: string;
+}
+
+export interface RoleGroupNameDTO {
+  id: string;
+  name: string;
+}
+
+export interface RoleGroupMemberDTO {
+  id: string;
+  role_group: RoleGroupDTO;
+  member: MemberDTO;
+  is_leader: boolean;
+}
+
+export interface TeamMemberDetailDTO {
+  member: TeamMemberInfoDTO;
+  projects: ProjectDTO[];
+  role_groups: RoleGroupDTO[];
 }

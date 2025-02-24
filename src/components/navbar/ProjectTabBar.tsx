@@ -1,15 +1,15 @@
 "use client";
 
-import { Box, Tabs, Text } from "@chakra-ui/react";
-import { ReactNode } from "react";
-import { useProject, useTab } from "@/lib/hooks";
-import { setTab } from "@/lib/slice/tabSlice";
-import { useDispatch, useSelector } from "react-redux";
-import { ProjectDTO } from "@/lib/interface/fetchDTOs";
+import { useState } from "react";
+import { Box, HStack, Tabs, Text, Skeleton } from "@chakra-ui/react";
+import { ReactNode, useEffect } from "react";
+import { ProjectDetailDTO, ProjectDTO } from "@/lib/interface/fetchDTOs";
 import ProjectMemberTable from "../Table/ProjectMemberTable";
 import TaskList from "../Table/TaskList";
 import { LuFolder, LuSquareCheck, LuUser, LuSettings } from "react-icons/lu";
-import TaskCreationDialog from "../dialog/TaskCreationDialog";
+import TaskCreationDialog from "../dialog/create/TaskCreationDialog";
+import { useParams } from "next/navigation";
+import { fetchProjectDetail } from "@/lib/api/fetchApi";
 
 interface TabContentProps {
   value: string;
@@ -64,29 +64,50 @@ function TabTrigger({ icon, value, label }: TabTriggerProps) {
 }
 
 function TabBar() {
-  const project = useProject() as ProjectDTO | null;
-  const tab = useTab() || "overview";
-  const dispatch = useDispatch();
+  const params = useParams();
+  const [project, setProject] = useState<ProjectDetailDTO | null>(null);
+  const [loading, setLoading] = useState(true);
+  const projectId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const [tab, setTab] = useState<string>("overview");
 
-  const handleTabChange = (details: { value: string }) => {
-    dispatch(setTab(details.value));
-  };
-
-  if (!project) {
+  if (!projectId) {
     return <Text>Select Project</Text>;
   }
 
+  useEffect(() => {
+    const loadProjectDetail = async () => {
+      try {
+        const response = await fetchProjectDetail(projectId);
+        setProject(response.data);
+      } catch (error) {
+        setProject(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProjectDetail();
+  }, [projectId]);
+
   return (
     <Box borderBottom="1px">
-      <Box px={6} pt={4}>
-        <Text fontSize="xl" fontWeight="bold" mb={4}>
-          {project.name}
-        </Text>
+      <HStack px={6} pt={4}>
+        {loading ? (
+          <Skeleton height="20px" width="200px" mb={4} />
+        ) : project ? (
+          <Text fontSize="xl" fontWeight="bold" mb={4}>
+            {project.name}
+          </Text>
+        ) : (
+          <Text fontSize="xl" fontWeight="bold" mb={4} color="red.500">
+            Error loading project
+          </Text>
+        )}
         <TaskCreationDialog />
-      </Box>
+      </HStack>
       <Tabs.Root
         value={tab}
-        onValueChange={handleTabChange}
+        onValueChange={(e) => setTab(e.value)}
         px={6}
         variant="line"
         colorPalette="blue"
@@ -103,10 +124,13 @@ function TabBar() {
           value="overview"
           children={<Text>Overview</Text>}
         ></TabContent>
-        <TabContent value="tasks" children={<TaskList />}></TabContent>
+        <TabContent
+          value="tasks"
+          children={<TaskList projectId={projectId} />}
+        />
         <TabContent
           value="members"
-          children={<ProjectMemberTable />}
+          children={<ProjectMemberTable projectId={projectId} />}
         ></TabContent>
         <TabContent
           value="settings"

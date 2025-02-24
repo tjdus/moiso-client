@@ -8,12 +8,21 @@ export async function getCookie(name: string) {
   return cookie ? cookie.value : "";
 }
 
-export async function setCookie(name: string, value: string) {
+export async function setCookie(
+  name: string,
+  value: string,
+  options: any = {}
+) {
   const cookieStore = await cookies();
-  cookieStore.set(name, value);
+  cookieStore.set(name, value, {
+    path: "/",
+    httpOnly: true,
+    secure: true,
+    ...options,
+  });
 }
 
 export async function deleteCookie(name: string) {
   const cookieStore = await cookies();
-  cookieStore.delete(name);
+  await cookieStore.delete(name);
 }

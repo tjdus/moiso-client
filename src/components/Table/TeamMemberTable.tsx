@@ -12,6 +12,7 @@ import {
   HStack,
   Text,
   Flex,
+  Tag,
 } from "@chakra-ui/react";
 import { Skeleton, SkeletonText } from "@/components/ui/skeleton";
 
@@ -23,14 +24,27 @@ import {
   PaginationRoot,
 } from "@/components/ui/pagination";
 import { useProject } from "@/lib/hooks";
-import { ProjectDetailDTO } from "@/lib/interface/fetchDTOs";
+import {
+  ProjectDetailDTO,
+  ProjectDTO,
+  ProjectMemberDTO,
+  TeamMemberDetailDTO,
+  TeamMemberInfoDTO,
+} from "@/lib/interface/fetchDTOs";
 
 import { Avatar } from "../ui/avatar";
 import { ProjectMemberInfoDTO } from "@/lib/interface/fetchDTOs";
 import { RoleBadge } from "../custom-ui/RoleBadge";
 import type { Role } from "@/lib/interface/common";
 import { useEffect, useState } from "react";
-import { fetchProjectMembers } from "@/lib/api/fetchApi";
+import {
+  fetchProjectMembers,
+  fetchProjects,
+  fetchTeamMemberDetail,
+  fetchTeamMembers,
+} from "@/lib/api/fetchApi";
+import TeamMemberDetailDialog from "../dialog/TeamMember/TeamMemberDetailDialog";
+import { set } from "lodash";
 
 const ProjectMemberRow = ({
   id,
@@ -64,29 +78,27 @@ const ProjectMemberRow = ({
   );
 };
 
-const headers = ["이름", "이메일", "역할", "가입일"];
+const headers = ["이름", "이메일", "역할", "프로젝트", "가입일"];
 
-export default function ProjectMemberTable({
-  projectId,
-}: {
-  projectId: string;
-}) {
-  const [memberList, setMemberList] = useState<ProjectMemberInfoDTO[]>([]);
+export default function TeamMemberTable({ teamId }: { teamId: string }) {
+  const [memberList, setMemberList] = useState<TeamMemberDetailDTO[]>([]);
+  const [memberDetails, setMemberDetails] =
+    useState<TeamMemberDetailDTO | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const pageSize = 10;
 
   useEffect(() => {
     const loadMembers = async () => {
       setIsLoading(true);
       try {
-        const response = await fetchProjectMembers(
-          projectId,
-          currentPage,
-          pageSize
-        );
-        console.log(response);
+        const response = await fetchTeamMemberDetail({
+          teamId,
+          page: currentPage,
+          pageSize: pageSize,
+        });
         setMemberList(response.data.results);
         setTotalCount(response.data.count);
       } catch (error) {
@@ -97,7 +109,17 @@ export default function ProjectMemberTable({
     };
 
     loadMembers();
-  }, [projectId, currentPage]);
+  }, [teamId, currentPage]);
+
+  const handleMemberClick = (details: TeamMemberDetailDTO) => {
+    setIsDialogOpen(true);
+    setMemberDetails(details);
+  };
+
+  const handleDialogClose = () => {
+    setIsDialogOpen(false);
+    setMemberDetails(null);
+  };
 
   return (
     <Flex
@@ -129,7 +151,7 @@ export default function ProjectMemberTable({
             Array(5)
               .fill(0)
               .map((_, index) => (
-                <TableRow key={index} borderBottom="1px">
+                <TableRow key={`loading-${index}`} borderBottom="1px">
                   <TableCell padding={4}>
                     <SkeletonText width="100%" />
                   </TableCell>
@@ -148,27 +170,62 @@ export default function ProjectMemberTable({
                 </TableRow>
               ))
           ) : memberList.length > 0 ? (
-            memberList.map((member) => (
-              <TableRow _hover={{ bg: "gray.300" }}>
+            memberList.map((details) => (
+              <TableRow
+                key={details.member.id}
+                cursor="pointer"
+                onClick={() => handleMemberClick(details)}
+                _hover={{ backgroundColor: "brand.200" }}
+                borderBottom="1px"
+                fontSize="sm"
+              >
                 <TableCell align="center" height="48px">
                   <HStack padding={2} gap={2} align="center">
                     <Avatar size="xs" />
                     <Text fontWeight="light" fontSize="sm">
-                      {member.member.name}
+                      {details.member.member.name}
                     </Text>
                   </HStack>
                 </TableCell>
 
                 <TableCell fontSize="xs" textAlign="center" height="48px">
-                  {member.member.email}
+                  {details.member.member.email}
                 </TableCell>
 
                 <TableCell textAlign="center" height="48px">
-                  <RoleBadge role={member.role as Role} />
+                  {details.role_groups && details.role_groups.length > 0 ? (
+                    <VStack gap={2} justify="center">
+                      {details.role_groups.map((roleGroup) => (
+                        <Tag.Root key={roleGroup.id}>
+                          <Tag.Label>{roleGroup.name}</Tag.Label>
+                        </Tag.Root>
+                      ))}
+                    </VStack>
+                  ) : (
+                    <Text fontSize="xs" textAlign="center">
+                      없음
+                    </Text>
+                  )}
+                </TableCell>
+
+                <TableCell textAlign="center">
+                  {details.projects && details.projects.length > 0 ? (
+                    <VStack gap={2} justify="center">
+                      {details.projects.map((project) => (
+                        <Badge key={project.id} colorScheme="blue">
+                          {project.name}
+                        </Badge>
+                      ))}
+                    </VStack>
+                  ) : (
+                    <Text fontSize="xs" textAlign="center">
+                      없음
+                    </Text>
+                  )}
                 </TableCell>
 
                 <TableCell fontSize="xs" textAlign="center" height="48px">
-                  {member.joined_at}
+                  {details.member.joined_at}
                 </TableCell>
               </TableRow>
             ))
@@ -195,6 +252,14 @@ export default function ProjectMemberTable({
             <PaginationNextTrigger />
           </HStack>
         </PaginationRoot>
+      )}
+
+      {isDialogOpen && memberDetails && (
+        <TeamMemberDetailDialog
+          details={memberDetails}
+          isOpen={isDialogOpen}
+          onClose={handleDialogClose}
+        />
       )}
     </Flex>
   );

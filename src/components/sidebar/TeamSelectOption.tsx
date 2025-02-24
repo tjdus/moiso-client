@@ -12,26 +12,15 @@ import {
   SelectValueText,
 } from "@/components/ui/select";
 import { useMemo, useContext, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { TeamSpaceContext } from "@/lib/context/TeamContext";
+import { useParams, useRouter } from "next/navigation";
+import { TeamSpaceContext, useTeamSpace } from "@/lib/context/TeamContext";
 import { TeamDTO, TeamDetailDTO } from "@/lib/interface/fetchDTOs";
-import { useSession } from "next-auth/react";
 import { fetchMyTeams, fetchTeamDetail } from "@/lib/api/fetchApi";
-import { getSession } from "next-auth/react";
-import { useDispatch, useSelector } from "react-redux";
-import { setTeam } from "@/lib/slice/teamSlice";
-import { RootState } from "@/lib/store";
-import { useTeam } from "@/lib/hooks";
-import TeamCreationDialog from "../dialog/TeamCeationDialog";
+import TeamCreationDialog from "../dialog/create/TeamCeationDialog";
 
 export default function TeamSelectOption() {
-  //const { teamSpace, setTeamSpace } = useContext(TeamSpaceContext);
-  const dispatch = useDispatch();
-  const team = useTeam() as TeamDetailDTO | null;
-  const teamName = team?.name || "Select Team";
+  const { teamSpace, setTeamSpace } = useTeamSpace();
   const [teamList, setTeamList] = useState<TeamDTO[]>([]);
-  const [teamID, setTeamId] = useState<string>("");
-  const router = useRouter();
 
   useEffect(() => {
     const loadTeams = async () => {
@@ -47,21 +36,15 @@ export default function TeamSelectOption() {
   }, []);
 
   const handleTeamChange = async (selectedId: string) => {
-    setTeamId(selectedId);
-
     try {
       const response = await fetchTeamDetail(selectedId);
-      //TODO: Remove
-      // setTeamSpace(data);
-      // setTeamName(data.name);
-      dispatch(setTeam(response.data));
+      setTeamSpace(response.data);
     } catch (error) {
       console.error("팀 정보 조회 실패:", error);
     }
-    router.push("/workspace/team");
   };
 
-  const teams = useMemo(() => {
+  const teamCollection = useMemo(() => {
     return createListCollection({
       items: teamList || [],
       itemToString: (item: TeamDTO) => item.name,
@@ -71,17 +54,16 @@ export default function TeamSelectOption() {
 
   return (
     <SelectRoot
-      collection={teams}
+      collection={teamCollection}
       variant="outline"
       size="md"
-      defaultValue={[teamName]}
       onValueChange={(e) => handleTeamChange(e.value[0])}
     >
       <SelectTrigger>
-        <SelectValueText padding={4} placeholder={teamName || "Team"} />
+        <SelectValueText padding={4} placeholder={teamSpace?.name || ""} />
       </SelectTrigger>
       <SelectContent>
-        {teams.items.map((team) => (
+        {teamCollection.items.map((team) => (
           <SelectItem
             item={team}
             key={team.id}

@@ -1,7 +1,7 @@
 import NavBar from "@/components/navbar/NavBar";
 import MainCard from "@/components/card/MainCard";
 import { Flex, Box } from "@chakra-ui/react";
-import TabBar from "@/components/navbar/TabBar";
+import TabBar from "@/components/navbar/ProjectTabBar";
 
 export default function ProjectLayout({
   children,

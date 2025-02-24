@@ -80,16 +80,7 @@ const ProjectCreationForm = () => {
     getCategories({ teamId });
   }, [teamId]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProject((prevDetails) => ({
-      ...prevDetails,
-      [name]: value,
-    }));
-  };
-
   const handleCreateProject = async () => {
-    console.log(project);
     const response = createProject(project);
     toaster.promise(response, {
       success: {

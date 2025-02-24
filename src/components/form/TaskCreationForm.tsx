@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Button,
   Input,
@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/select";
 import { Avatar } from "../ui/avatar";
 import { toaster } from "@/components/ui/toaster";
-import { useState } from "react";
 import { createProject, createTag, createTask } from "@/lib/api/postApi";
 import {
   DialogActionTrigger,
@@ -38,7 +37,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { TagForm, TaskForm } from "@/lib/interface/form";
-import { fetchProjectMembers, fetchTagsByProjectId } from "@/lib/api/fetchApi";
+import {
+  fetchProjectMembers,
+  fetchProjectMembersAll,
+  fetchTagsByProjectId,
+} from "@/lib/api/fetchApi";
 import { ProjectMemberDTO, TagDTO } from "@/lib/interface/fetchDTOs";
 import { createListCollection } from "@chakra-ui/react";
 import { StatusTag, TagItem } from "../custom-ui/Tag";
@@ -46,6 +49,9 @@ import { Status } from "@/lib/interface/common";
 import { Radio, RadioGroup } from "../ui/radio";
 import { SingleDatepicker } from "../date-picker/DayzedDatepicker";
 import { LuPlus } from "react-icons/lu";
+import { useTeamSpace } from "@/lib/context/TeamContext";
+import { useParams } from "next/navigation";
+import { SingleDateTimepicker } from "../date-picker/DayzedDateTimepicker";
 
 const SelectMemberItem = () => (
   <SelectValueText placeholder="멤버를 선택하세요">
@@ -76,6 +82,8 @@ const SelectTagItem = () => (
 );
 
 const TaskCreationForm = () => {
+  const params = useParams();
+  const projectId = Array.isArray(params.id) ? params.id[0] : params.id;
   const [task, setTask] = useState<TaskForm>({});
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -83,22 +91,28 @@ const TaskCreationForm = () => {
   const [tags, setTags] = useState<TagDTO[]>([]);
   const [status, setStatus] = useState<string>("not_started");
   const [newTagName, setNewTagName] = useState<string>("");
-  const [start_date, setStartDate] = useState<Date | null>(null);
-  const [end_date, setEndDate] = useState<Date | null>(null);
-  const teamId = "1";
-  const projectId = "1";
+  const [start_at, setStartAt] = useState<Date | null>(null);
+  const [end_at, setEndAt] = useState<Date | null>(null);
 
   useEffect(() => {
-    setTask((prev) => ({ ...prev, team: teamId }));
-    getProjectMembers({ project: projectId });
-    getTags({ projectId });
-  }, [teamId]);
+    getProjectMembers({ project: projectId! });
+    getTags({ projectId: projectId! });
+  }, [projectId]);
 
   const handleCreateTask = async () => {
-    const response = createTask(task);
+    const requestData: TaskForm = {
+      ...task,
+      project: projectId,
+      title,
+      description,
+      status,
+      start_at: start_at?.toISOString(),
+      end_at: end_at?.toISOString(),
+    };
+    const response = createTask(requestData);
     toaster.promise(response, {
       success: {
-        title: "업부 생성 성공",
+        title: "업무 생성 성공",
         description: "새로운 업무가 생성되었습니다",
       },
       error: {
@@ -114,7 +128,7 @@ const TaskCreationForm = () => {
 
   const getProjectMembers = async ({ project }: { project: string }) => {
     try {
-      const response = await fetchProjectMembers(project);
+      const response = await fetchProjectMembersAll(project);
       setProjectMembers(response.data.results);
     } catch (error) {
       toaster.error({
@@ -197,7 +211,7 @@ const TaskCreationForm = () => {
                   setTitle(e.target.value);
                   setTask((prevDetails) => ({
                     ...prevDetails,
-                    name: e.target.value,
+                    title: e.target.value,
                   }));
                 }}
               />
@@ -316,10 +330,6 @@ const TaskCreationForm = () => {
                 value={status}
                 onValueChange={(e) => {
                   setStatus(e.value);
-                  setTask((prevDetails) => ({
-                    ...prevDetails,
-                    status: e.value as Status,
-                  }));
                 }}
               >
                 <HStack gap={2}>
@@ -336,26 +346,18 @@ const TaskCreationForm = () => {
               </RadioGroup>
             </Field>
             <Field label="시작 날짜">
-              <SingleDatepicker
-                date={start_date || new Date()}
+              <SingleDateTimepicker
+                date={start_at || new Date()}
                 onDateChange={(date) => {
-                  setStartDate(date);
-                  setTask((prevDetails) => ({
-                    ...prevDetails,
-                    start_date: date.toISOString().split("T")[0],
-                  }));
+                  setStartAt(date);
                 }}
               />
             </Field>
             <Field label="종료 날짜">
-              <SingleDatepicker
-                date={end_date || new Date()}
+              <SingleDateTimepicker
+                date={end_at || new Date()}
                 onDateChange={(date) => {
-                  setEndDate(date);
-                  setTask((prevDetails) => ({
-                    ...prevDetails,
-                    end_date: date.toISOString().split("T")[0], // Removed redundant '|| ""'
-                  }));
+                  setEndAt(date);
                 }}
               />
             </Field>

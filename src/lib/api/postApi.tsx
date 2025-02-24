@@ -5,6 +5,8 @@ import {
   CategoryForm,
   TagForm,
   TaskForm,
+  TaskAssignmentForm,
+  RoleGroupForm,
 } from "../interface/form";
 
 export async function createTeam({ name }: TeamForm) {
@@ -54,6 +56,7 @@ export async function createTag({ project, name }: TagForm) {
 }
 
 export async function createTask({
+  project,
   tags,
   members,
   title,
@@ -65,6 +68,7 @@ export async function createTask({
   return apiClient.post<TaskForm, TaskForm>("/api/tasks/", {
     withAuth: true,
     body: {
+      project,
       tags,
       members,
       title,
@@ -72,6 +76,34 @@ export async function createTask({
       status,
       start_at: start_at,
       end_at: end_at,
+    },
+  });
+}
+
+export async function createTaskAssignment({
+  task,
+  member,
+  status,
+}: TaskAssignmentForm) {
+  return apiClient.post<TaskAssignmentForm, TaskAssignmentForm>(
+    "/api/task_assignments/",
+    {
+      withAuth: true,
+      body: {
+        task,
+        member,
+        status,
+      },
+    }
+  );
+}
+
+export async function createRoleGroup({ team, name }: RoleGroupForm) {
+  return apiClient.post<RoleGroupForm, RoleGroupForm>("/api/role_groups/", {
+    withAuth: true,
+    body: {
+      team,
+      name,
     },
   });
 }

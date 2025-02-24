@@ -11,16 +11,17 @@ interface CreationDialogProps {
   children: React.ReactNode;
 }
 
-const CreationDialog = ({ children }: CreationDialogProps) => {
+const CreationDialog = ({
+  children,
+  triggerButton,
+}: CreationDialogProps & { triggerButton: React.ReactNode }) => {
   return (
     <DialogRoot placement="center">
-      <DialogTrigger asChild>
-        <Button>+</Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{triggerButton}</DialogTrigger>
       <DialogContent>
-        <Card.Root>
-          <Card.Body>{children}</Card.Body>
-        </Card.Root>
+        <CardRoot>
+          <Box>{children}</Box>
+        </CardRoot>
       </DialogContent>
     </DialogRoot>
   );

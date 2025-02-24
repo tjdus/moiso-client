@@ -1,6 +1,5 @@
-import Table from "@/components/Table/Table";
-import { Flex } from "@chakra-ui/react";
+import TaskAssignTable from "@/components/dialog/TaskDetail/TaskAssignTable";
 
 export default function TeamPage() {
-  return <Table />;
+  return <></>;
 }
