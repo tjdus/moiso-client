@@ -9,11 +9,16 @@ import { Button, Box, IconButton } from "@chakra-ui/react";
 import ProjectCreationForm from "../../form/ProjectCreationForm";
 import CreationDialog from "../CreationDialog";
 import TaskCreationForm from "../../form/TaskCreationForm";
-import { LuClipboard, LuClipboardPlus, LuPlus } from "react-icons/lu";
+import {
+  LuClipboard,
+  LuClipboardPen,
+  LuClipboardPlus,
+  LuPlus,
+} from "react-icons/lu";
 
 const triggerButton = (
-  <IconButton colorPalette="gray" size="2xs">
-    <LuPlus />
+  <IconButton colorPalette="gray" size="sm" variant="surface">
+    <LuClipboardPen />
   </IconButton>
 );
 

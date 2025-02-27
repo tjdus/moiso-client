@@ -20,7 +20,7 @@ const CreationDialog = ({
       <DialogTrigger asChild>{triggerButton}</DialogTrigger>
       <DialogContent>
         <CardRoot>
-          <Box>{children}</Box>
+          <Box p={4}>{children}</Box>
         </CardRoot>
       </DialogContent>
     </DialogRoot>

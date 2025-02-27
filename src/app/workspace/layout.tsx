@@ -15,8 +15,8 @@ export default function WorkspaceLayout({
     <div style={{ display: "flex" }}>
       <TeamProvider>
         <SideBar />
-        <ProfileBar />
         <Card.Root variant={"elevated"} width={"100%"}>
+          <ProfileBar />
           <Card.Body>{children}</Card.Body>
         </Card.Root>
         <Toaster />

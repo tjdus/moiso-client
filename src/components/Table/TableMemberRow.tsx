@@ -1,6 +1,6 @@
 import { Badge, TableCell, TableRow } from "@chakra-ui/react";
 import { Avatar } from "../ui/avatar";
-import { TeamMemberInfoDTO } from "@/lib/interface/fetchDTOs";
+import { TeamMemberInfoDTO } from "@/lib/api/interface/fetchDTOs";
 
 export default function TableMemberRow({
   id,

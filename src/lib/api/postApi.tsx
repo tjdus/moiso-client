@@ -7,7 +7,7 @@ import {
   TaskForm,
   TaskAssignmentForm,
   RoleGroupForm,
-} from "../interface/form";
+} from "./interface/form";
 
 export async function createTeam({ name }: TeamForm) {
   return apiClient.post<TeamForm, TeamForm>("/api/teams/", {

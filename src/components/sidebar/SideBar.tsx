@@ -1,9 +1,14 @@
-import { Stack, StackSeparator, Card } from "@chakra-ui/react";
+"use client";
+
+import { Stack, StackSeparator, Card, Link } from "@chakra-ui/react";
 
 import MenuAccordion from "./MenuAccordion";
 import TeamSelectOption from "./TeamSelectOption";
+import { useTeamSpace } from "@/lib/context/TeamContext";
 
 export default function SideBar() {
+  const { teamSpace, setTeamSpace } = useTeamSpace();
+
   return (
     <Card.Root
       w="250px"
@@ -18,6 +23,9 @@ export default function SideBar() {
         <Stack gap="2" separator={<StackSeparator />}>
           <TeamSelectOption />
           <MenuAccordion />
+          {teamSpace && (
+            <Link href={`/workspace/team/${teamSpace.id}`}>Team Details</Link>
+          )}
         </Stack>
       </Card.Body>
     </Card.Root>

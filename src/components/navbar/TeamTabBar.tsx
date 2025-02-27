@@ -7,7 +7,7 @@ import {
   ProjectDetailDTO,
   ProjectDTO,
   TeamDetailDTO,
-} from "@/lib/interface/fetchDTOs";
+} from "@/lib/api/interface/fetchDTOs";
 import ProjectMemberTable from "../Table/ProjectMemberTable";
 import TaskList from "../Table/TaskList";
 import { LuFolder, LuSquareCheck, LuUser, LuSettings } from "react-icons/lu";

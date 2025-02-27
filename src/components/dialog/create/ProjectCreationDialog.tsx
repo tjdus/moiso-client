@@ -5,11 +5,16 @@ import {
   DialogRoot,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button, Box } from "@chakra-ui/react";
+import { Button, Box, IconButton } from "@chakra-ui/react";
 import ProjectCreationForm from "../../form/ProjectCreationForm";
 import CreationDialog from "../CreationDialog";
+import { LuFilePlus2 } from "react-icons/lu";
 
-const triggerButton = <Button>새로운 프로젝트 만들기</Button>;
+const triggerButton = (
+  <IconButton>
+    <LuFilePlus2 />
+  </IconButton>
+);
 
 const ProjectCreationDialog = () => {
   return (

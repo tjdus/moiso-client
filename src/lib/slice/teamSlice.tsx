@@ -5,7 +5,7 @@ import {
   TeamMemberInfoDTO,
   ProjectDTO,
   MemberDTO,
-} from "../interface/fetchDTOs";
+} from "../api/interface/fetchDTOs";
 
 // Define a type for the slice state
 

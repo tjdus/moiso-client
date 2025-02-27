@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchProjects, fetchTasksByProjectId } from "@/lib/api/fetchApi";
-import { ProjectDTO, TaskDTO } from "@/lib/interface/fetchDTOs";
+
+import { ProjectDTO, TaskDTO } from "@/lib/api/interface/fetchDTOs";
 import {
   TableRoot,
   TableHeader,
@@ -30,6 +30,7 @@ import { TagItem, StatusTag } from "@/components/custom-ui/Tag";
 import { AvatarList } from "@/components/custom-ui/Avatar";
 import { formatToKST } from "@/lib/util/dateFormat";
 import { format } from "path";
+import { fetchProjectList } from "@/lib/api/fetchApi";
 
 const headers = ["이름", "설명", "분류", "시작일", "종료일"];
 
@@ -72,7 +73,7 @@ const TaskSearchBar = ({ onSearch }: { onSearch: (query: string) => void }) => {
 
 export default function ProjectTable({ teamId }: { teamId: string }) {
   const [projectList, setProjectList] = useState<ProjectDTO[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -84,9 +85,9 @@ export default function ProjectTable({ teamId }: { teamId: string }) {
     const loadProjects = async () => {
       setIsLoading(true);
       try {
-        const response = await fetchProjects({
+        const response = await fetchProjectList({
           searchQuery,
-          page: currentPage,
+          page,
           pageSize,
           teamId,
         });
@@ -100,7 +101,7 @@ export default function ProjectTable({ teamId }: { teamId: string }) {
     };
 
     loadProjects();
-  }, [teamId, currentPage, searchQuery]);
+  }, [teamId, page, searchQuery]);
 
   const handleProjectClick = (id: string) => {
     setProjectId(id);
@@ -114,7 +115,7 @@ export default function ProjectTable({ teamId }: { teamId: string }) {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setCurrentPage(1); // Reset to first page on new search
+    setPage(1); // Reset to first page on new search
   };
 
   return (
@@ -250,9 +251,9 @@ export default function ProjectTable({ teamId }: { teamId: string }) {
         <PaginationRoot
           count={totalCount}
           pageSize={pageSize}
-          page={currentPage}
+          page={page}
           defaultPage={1}
-          onPageChange={(e) => setCurrentPage(e.page)}
+          onPageChange={(e) => setPage(e.page)}
         >
           <HStack justify="center">
             <PaginationPrevTrigger />

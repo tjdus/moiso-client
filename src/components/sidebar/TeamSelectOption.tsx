@@ -14,30 +14,35 @@ import {
 import { useMemo, useContext, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { TeamSpaceContext, useTeamSpace } from "@/lib/context/TeamContext";
-import { TeamDTO, TeamDetailDTO } from "@/lib/interface/fetchDTOs";
-import { fetchMyTeams, fetchTeamDetail } from "@/lib/api/fetchApi";
+import {
+  TeamDTO,
+  TeamDetailDTO,
+  TeamMemberDTO,
+} from "@/lib/api/interface/fetchDTOs";
+
 import TeamCreationDialog from "../dialog/create/TeamCeationDialog";
+import { fetchMyTeamMemberList, fetchTeamDetail } from "@/lib/api/fetchApi";
 
 export default function TeamSelectOption() {
   const { teamSpace, setTeamSpace } = useTeamSpace();
-  const [teamList, setTeamList] = useState<TeamDTO[]>([]);
+  const [teamMemberList, setTeamMemberList] = useState<TeamMemberDTO[]>([]);
 
   useEffect(() => {
-    const loadTeams = async () => {
+    const getTeams = async () => {
       try {
-        const response = await fetchMyTeams();
-        setTeamList(response.data);
+        const response = await fetchMyTeamMemberList({});
+        setTeamMemberList(response.data.results);
       } catch (error) {
         console.error("팀 목록 가져오기 실패:", error);
       }
     };
 
-    loadTeams();
+    getTeams();
   }, []);
 
-  const handleTeamChange = async (selectedId: string) => {
+  const handleTeamChange = async (teamId: string) => {
     try {
-      const response = await fetchTeamDetail(selectedId);
+      const response = await fetchTeamDetail(teamId);
       setTeamSpace(response.data);
     } catch (error) {
       console.error("팀 정보 조회 실패:", error);
@@ -46,11 +51,11 @@ export default function TeamSelectOption() {
 
   const teamCollection = useMemo(() => {
     return createListCollection({
-      items: teamList || [],
-      itemToString: (item: TeamDTO) => item.name,
-      itemToValue: (item: TeamDTO) => item.id,
+      items: teamMemberList || [],
+      itemToString: (item: TeamMemberDTO) => item.team.name,
+      itemToValue: (item: TeamMemberDTO) => item.team.id,
     });
-  }, [teamList]);
+  }, [teamMemberList]);
 
   return (
     <SelectRoot
@@ -63,15 +68,15 @@ export default function TeamSelectOption() {
         <SelectValueText padding={4} placeholder={teamSpace?.name || ""} />
       </SelectTrigger>
       <SelectContent>
-        {teamCollection.items.map((team) => (
+        {teamCollection.items.map((teamMember) => (
           <SelectItem
-            item={team}
-            key={team.id}
+            item={teamMember}
+            key={teamMember.team.id}
             padding={4}
             _light={{ bg: "gray.100", color: "black" }}
             _dark={{ bg: "gray.700", color: "white" }}
           >
-            {team.name}
+            {teamMember.team.name}
           </SelectItem>
         ))}
         <TeamCreationDialog />

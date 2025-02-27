@@ -23,28 +23,19 @@ import {
   PaginationPrevTrigger,
   PaginationRoot,
 } from "@/components/ui/pagination";
-import { useProject } from "@/lib/hooks";
-import {
-  ProjectDetailDTO,
-  ProjectDTO,
-  ProjectMemberDTO,
-  TeamMemberDetailDTO,
-  TeamMemberInfoDTO,
-} from "@/lib/interface/fetchDTOs";
 
 import { Avatar } from "../ui/avatar";
-import { ProjectMemberInfoDTO } from "@/lib/interface/fetchDTOs";
-import { RoleBadge } from "../custom-ui/RoleBadge";
-import type { Role } from "@/lib/interface/common";
-import { useEffect, useState } from "react";
 import {
-  fetchProjectMembers,
-  fetchProjects,
-  fetchTeamMemberDetail,
-  fetchTeamMembers,
-} from "@/lib/api/fetchApi";
+  ProjectMemberInfoDTO,
+  TeamMemberDTO,
+} from "@/lib/api/interface/fetchDTOs";
+import { RoleBadge } from "../custom-ui/RoleBadge";
+import type { Role } from "@/lib/api/interface/common";
+import { useEffect, useState } from "react";
+
 import TeamMemberDetailDialog from "../dialog/TeamMember/TeamMemberDetailDialog";
-import { set } from "lodash";
+import { TagItem } from "../custom-ui/Tag";
+import { fetchTeamMemberList } from "@/lib/api/fetchApi";
 
 const ProjectMemberRow = ({
   id,
@@ -81,44 +72,57 @@ const ProjectMemberRow = ({
 const headers = ["이름", "이메일", "역할", "프로젝트", "가입일"];
 
 export default function TeamMemberTable({ teamId }: { teamId: string }) {
-  const [memberList, setMemberList] = useState<TeamMemberDetailDTO[]>([]);
-  const [memberDetails, setMemberDetails] =
-    useState<TeamMemberDetailDTO | null>(null);
+  const [teamMemberList, setTeamMemberList] = useState<TeamMemberDTO[]>([]);
+  const [teamMember, setTeamMember] = useState<TeamMemberDTO | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const pageSize = 10;
 
-  useEffect(() => {
-    const loadMembers = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetchTeamMemberDetail({
-          teamId,
-          page: currentPage,
-          pageSize: pageSize,
-        });
-        setMemberList(response.data.results);
-        setTotalCount(response.data.count);
-      } catch (error) {
-        console.error("프로젝트 멤버 목록 가져오기 실패:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const loadMembers = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetchTeamMemberList({
+        teamId,
+        page: currentPage,
+        pageSize: pageSize,
+      });
+      setTeamMemberList(response.data.results);
+      setTotalCount(response.data.count);
+    } catch (error) {
+      console.error("프로젝트 멤버 목록 가져오기 실패:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     loadMembers();
   }, [teamId, currentPage]);
 
-  const handleMemberClick = (details: TeamMemberDetailDTO) => {
+  const handleMemberClick = (teamMember: TeamMemberDTO) => {
     setIsDialogOpen(true);
-    setMemberDetails(details);
+    setTeamMember(teamMember);
   };
 
   const handleDialogClose = () => {
     setIsDialogOpen(false);
-    setMemberDetails(null);
+    setTeamMember(null);
+  };
+  const handleUpdateMember = async (
+    teamMemberId: string,
+    updatedData: TeamMemberDTO
+  ) => {
+    try {
+      setTeamMemberList((prevList) =>
+        prevList.map((teamMember) =>
+          teamMember.id === teamMemberId ? updatedData : teamMember
+        )
+      );
+    } catch (error) {
+      console.error("Failed to update member:", error);
+    }
   };
 
   return (
@@ -169,12 +173,12 @@ export default function TeamMemberTable({ teamId }: { teamId: string }) {
                   </TableCell>
                 </TableRow>
               ))
-          ) : memberList.length > 0 ? (
-            memberList.map((details) => (
+          ) : teamMemberList.length > 0 ? (
+            teamMemberList.map((teamMember) => (
               <TableRow
-                key={details.member.id}
+                key={teamMember.id}
                 cursor="pointer"
-                onClick={() => handleMemberClick(details)}
+                onClick={() => handleMemberClick(teamMember)}
                 _hover={{ backgroundColor: "brand.200" }}
                 borderBottom="1px"
                 fontSize="sm"
@@ -183,38 +187,26 @@ export default function TeamMemberTable({ teamId }: { teamId: string }) {
                   <HStack padding={2} gap={2} align="center">
                     <Avatar size="xs" />
                     <Text fontWeight="light" fontSize="sm">
-                      {details.member.member.name}
+                      {teamMember.member.name}
                     </Text>
                   </HStack>
                 </TableCell>
 
                 <TableCell fontSize="xs" textAlign="center" height="48px">
-                  {details.member.member.email}
+                  {teamMember.member.email}
                 </TableCell>
 
                 <TableCell textAlign="center" height="48px">
-                  {details.role_groups && details.role_groups.length > 0 ? (
+                  {teamMember.team_groups &&
+                  teamMember.team_groups.length > 0 ? (
                     <VStack gap={2} justify="center">
-                      {details.role_groups.map((roleGroup) => (
-                        <Tag.Root key={roleGroup.id}>
-                          <Tag.Label>{roleGroup.name}</Tag.Label>
-                        </Tag.Root>
-                      ))}
-                    </VStack>
-                  ) : (
-                    <Text fontSize="xs" textAlign="center">
-                      없음
-                    </Text>
-                  )}
-                </TableCell>
-
-                <TableCell textAlign="center">
-                  {details.projects && details.projects.length > 0 ? (
-                    <VStack gap={2} justify="center">
-                      {details.projects.map((project) => (
-                        <Badge key={project.id} colorScheme="blue">
-                          {project.name}
-                        </Badge>
+                      {teamMember.team_groups.map((teamGroup) => (
+                        <TagItem
+                          key={teamGroup.id}
+                          id={teamGroup.id}
+                          name={teamGroup.team_group.name}
+                          size="md"
+                        />
                       ))}
                     </VStack>
                   ) : (
@@ -225,7 +217,7 @@ export default function TeamMemberTable({ teamId }: { teamId: string }) {
                 </TableCell>
 
                 <TableCell fontSize="xs" textAlign="center" height="48px">
-                  {details.member.joined_at}
+                  {teamMember.joined_at}
                 </TableCell>
               </TableRow>
             ))
@@ -239,7 +231,7 @@ export default function TeamMemberTable({ teamId }: { teamId: string }) {
         </TableBody>
       </TableRoot>
 
-      {!isLoading && memberList.length > 0 && (
+      {!isLoading && teamMemberList.length > 0 && (
         <PaginationRoot
           count={totalCount}
           pageSize={pageSize}
@@ -254,11 +246,12 @@ export default function TeamMemberTable({ teamId }: { teamId: string }) {
         </PaginationRoot>
       )}
 
-      {isDialogOpen && memberDetails && (
+      {isDialogOpen && teamMember && (
         <TeamMemberDetailDialog
-          details={memberDetails}
+          teamMember={teamMember}
           isOpen={isDialogOpen}
           onClose={handleDialogClose}
+          onUpdate={handleUpdateMember}
         />
       )}
     </Flex>

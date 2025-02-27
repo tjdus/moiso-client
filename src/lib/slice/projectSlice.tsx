@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "../store";
-import { ProjectDetailDTO } from "../interface/fetchDTOs";
+import { ProjectDetailDTO } from "../api/interface/fetchDTOs";
 
 const initialState: ProjectDetailDTO | null = null;
 

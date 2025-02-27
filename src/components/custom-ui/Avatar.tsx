@@ -1,7 +1,7 @@
 import { AvatarGroup, HStack, VStack, Text } from "@chakra-ui/react";
 import { Tooltip } from "../ui/tooltip";
 import { Avatar } from "../ui/avatar";
-import { MemberDTO } from "@/lib/interface/fetchDTOs";
+import { MemberDTO } from "@/lib/api/interface/fetchDTOs";
 
 const AvatarList = ({ members }: { members: MemberDTO[] }) => {
   return (

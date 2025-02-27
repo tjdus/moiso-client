@@ -36,22 +36,19 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { TagForm, TaskForm } from "@/lib/interface/form";
-import {
-  fetchProjectMembers,
-  fetchProjectMembersAll,
-  fetchTagsByProjectId,
-} from "@/lib/api/fetchApi";
-import { ProjectMemberDTO, TagDTO } from "@/lib/interface/fetchDTOs";
+import { TagForm, TaskForm } from "@/lib/api/interface/form";
+
+import { ProjectMemberDTO, TagDTO } from "@/lib/api/interface/fetchDTOs";
 import { createListCollection } from "@chakra-ui/react";
 import { StatusTag, TagItem } from "../custom-ui/Tag";
-import { Status } from "@/lib/interface/common";
+import { Status } from "@/lib/api/interface/common";
 import { Radio, RadioGroup } from "../ui/radio";
 import { SingleDatepicker } from "../date-picker/DayzedDatepicker";
 import { LuPlus } from "react-icons/lu";
 import { useTeamSpace } from "@/lib/context/TeamContext";
 import { useParams } from "next/navigation";
 import { SingleDateTimepicker } from "../date-picker/DayzedDateTimepicker";
+import { fetchProjectMemberList, fetchTagList } from "@/lib/api/fetchApi";
 
 const SelectMemberItem = () => (
   <SelectValueText placeholder="멤버를 선택하세요">
@@ -95,7 +92,7 @@ const TaskCreationForm = () => {
   const [end_at, setEndAt] = useState<Date | null>(null);
 
   useEffect(() => {
-    getProjectMembers({ project: projectId! });
+    getProjectMembers({ projectId: projectId! });
     getTags({ projectId: projectId! });
   }, [projectId]);
 
@@ -126,9 +123,9 @@ const TaskCreationForm = () => {
     });
   };
 
-  const getProjectMembers = async ({ project }: { project: string }) => {
+  const getProjectMembers = async ({ projectId }: { projectId: string }) => {
     try {
-      const response = await fetchProjectMembersAll(project);
+      const response = await fetchProjectMemberList({ projectId });
       setProjectMembers(response.data.results);
     } catch (error) {
       toaster.error({
@@ -140,7 +137,7 @@ const TaskCreationForm = () => {
 
   const getTags = async ({ projectId }: { projectId: string }) => {
     try {
-      const response = await fetchTagsByProjectId(projectId);
+      const response = await fetchTagList({ projectId });
       setTags(response.data.results);
     } catch (error) {
       toaster.error({

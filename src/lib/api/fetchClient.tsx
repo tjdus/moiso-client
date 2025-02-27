@@ -4,6 +4,7 @@ import { signIn, useSession } from "next-auth/react";
 import getSession from "../auth/auth";
 import { type ApiResponseError, type ApiResponseWithData } from "./type";
 import { getCookie, setCookie } from "../util/cookies";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 type FetchOptions<TBody = unknown> = Omit<RequestInit, "headers" | "body"> & {
   headers?: Record<string, string>;
@@ -11,6 +12,8 @@ type FetchOptions<TBody = unknown> = Omit<RequestInit, "headers" | "body"> & {
   withAuth?: boolean;
   contentType?: string;
   params?: Record<string, string | number>;
+  revalidatePath?: string;
+  revalidateTag?: string;
 };
 
 export class FetchClient {
@@ -44,6 +47,8 @@ export class FetchClient {
       headers,
       body,
       params,
+      revalidatePath: pathToRevalidate,
+      revalidateTag: tagToRevalidate,
       ...restOptions
     } = options;
 
@@ -103,6 +108,14 @@ export class FetchClient {
 
     if (!response.ok) {
       throw responseData as ApiResponseError;
+    }
+
+    // Revalidate path or tag if provided
+    if (pathToRevalidate) {
+      revalidatePath(pathToRevalidate);
+    }
+    if (tagToRevalidate) {
+      revalidateTag(tagToRevalidate);
     }
 
     return {

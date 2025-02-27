@@ -21,10 +21,10 @@ import {
   Tabs,
 } from "@chakra-ui/react";
 import { RadioGroup, Radio } from "../../ui/radio";
-import { fetchTaskDetail } from "@/lib/api/fetchApi";
-import { TaskDetailDTO } from "@/lib/interface/fetchDTOs";
+
+import { TaskDetailDTO } from "@/lib/api/interface/fetchDTOs";
 import { StatusTag } from "../../custom-ui/Tag";
-import { TaskForm } from "@/lib/interface/form";
+import { TaskForm } from "@/lib/api/interface/form";
 import { Avatar } from "../../ui/avatar";
 import { formatToKST } from "@/lib/util/dateFormat";
 import { SingleDateTimepicker } from "../../date-picker/DayzedDateTimepicker";
@@ -36,6 +36,7 @@ import { deleteTask } from "@/lib/api/deleteApi";
 import TaskAssignTable from "./TaskAssignTable";
 import TaskDetails from "./TaskDetails";
 import MyTaskAssignments from "./MyTaskAssignments";
+import { fetchTaskDetail } from "@/lib/api/fetchApi";
 
 interface TaskDetailDialogProps {
   taskId: string;
@@ -73,7 +74,7 @@ const TaskDetailDialog = ({
     title: "",
     description: "",
     status: "",
-    members: taskDetail?.assigned_members.map((member) => member.id) || [],
+    members: taskDetail?.members.map((member) => member.id) || [],
     start_at: "",
     end_at: "",
   });

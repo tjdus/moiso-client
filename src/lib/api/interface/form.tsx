@@ -47,17 +47,13 @@ export interface TaskAssignmentForm {
   task?: string;
   member?: string;
   status?: string;
+  assigned_at?: string;
+  completed_at?: string;
 }
 
-export interface RoleGroupForm {
+export interface TeamMemberForm {
   id?: string;
-  name?: string;
   team?: string;
-}
-
-export interface RoleGroupMemberForm {
-  id?: string;
   member?: string;
-  role_group?: string;
-  is_leader?: boolean;
+  team_groups?: string[];
 }

@@ -44,20 +44,21 @@ import {
   ProjectMemberDTO,
   TaskAssignmentDTO,
   TaskAssignmentInfoDTO,
-} from "@/lib/interface/fetchDTOs";
-import {
-  fetchProjectMembersAll,
-  fetchTaskAssignmentsByTaskId,
-} from "@/lib/api/fetchApi";
+} from "@/lib/api/interface/fetchDTOs";
+
 import { toaster } from "../../ui/toaster";
 import { useParams } from "next/navigation";
-import { TaskAssignmentForm } from "@/lib/interface/form";
+import { TaskAssignmentForm } from "@/lib/api/interface/form";
 import { StatusTag } from "../../custom-ui/Tag";
 import { formatToKST } from "@/lib/util/dateFormat";
 import { LuUserRoundMinus } from "react-icons/lu";
 import { deleteTaskAssignment } from "@/lib/api/deleteApi";
 import { createTaskAssignment } from "@/lib/api/postApi";
 import CreationDialog from "../CreationDialog";
+import {
+  fetchProjectMemberList,
+  fetchTaskAssignmentList,
+} from "@/lib/api/fetchApi";
 
 const headers = ["담당자", "진행 상태", "할당일", "완료일", "-"];
 
@@ -99,13 +100,17 @@ const TaskAssignmetCreateDialog = ({
   const [status, setStatus] = useState<string>("not_started");
   const [projectMembers, setProjectMembers] = useState<ProjectMemberDTO[]>([]);
 
+  if (!projectId) {
+    return;
+  }
+
   useEffect(() => {
-    getProjectMembers({ project: projectId! });
+    getProjectMembers({ projectId: projectId });
   }, [projectId]);
 
-  const getProjectMembers = async ({ project }: { project: string }) => {
+  const getProjectMembers = async ({ projectId }: { projectId: string }) => {
     try {
-      const response = await fetchProjectMembersAll(project);
+      const response = await fetchProjectMemberList({ projectId });
       setProjectMembers(response.data.results);
     } catch (error) {
       toaster.error({
@@ -228,7 +233,7 @@ const TaskAssignTable = ({ taskId }: { taskId: string }) => {
 
   const getTaskAssignments = async ({ taskId }: { taskId: string }) => {
     try {
-      const response = await fetchTaskAssignmentsByTaskId(taskId);
+      const response = await fetchTaskAssignmentList({ taskId });
       setAssignedMembers(response.data.results);
     } catch (error) {
       toaster.error({

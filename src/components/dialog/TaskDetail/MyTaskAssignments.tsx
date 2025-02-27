@@ -1,7 +1,7 @@
 import react, { useEffect, useState } from "react";
 
-import { TaskAssignmentDTO } from "@/lib/interface/fetchDTOs";
-import { fetchMyTaskAssignments } from "@/lib/api/fetchApi";
+import { TaskAssignmentDTO } from "@/lib/api/interface/fetchDTOs";
+
 import { toaster } from "@/components/ui/toaster";
 import {
   DataList,
@@ -15,9 +15,10 @@ import {
   Card,
 } from "@chakra-ui/react";
 import { Radio, RadioGroup } from "@/components/ui/radio";
-import { TaskAssignmentForm } from "@/lib/interface/form";
+import { TaskAssignmentForm } from "@/lib/api/interface/form";
 import { StatusTag } from "@/components/custom-ui/Tag";
 import { LuClipboardX, LuPencilLine, LuX, LuCheck } from "react-icons/lu";
+import { fetchMyTaskAssignmentList } from "@/lib/api/fetchApi";
 
 const editableControl = (
   <Editable.Control>
@@ -50,7 +51,7 @@ const MyTaskAssignments = ({ taskId }: { taskId: string }) => {
 
   const fetchTaskAssignments = async () => {
     try {
-      const response = await fetchMyTaskAssignments(taskId);
+      const response = await fetchMyTaskAssignmentList({ taskId });
       setTaskAssignment(response.data.results[0]);
     } catch (error) {
       toaster.error({

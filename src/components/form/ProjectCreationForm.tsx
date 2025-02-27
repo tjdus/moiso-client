@@ -29,15 +29,16 @@ import {
   DialogFooter,
   DialogHeader,
 } from "@/components/ui/dialog";
-import { CategoryForm, ProjectForm } from "@/lib/interface/form";
-import { fetchCategoriesByTeamId, fetchTeamMembers } from "@/lib/api/fetchApi";
-import { CategoryNameDTO, TeamMemberDTO } from "@/lib/interface/fetchDTOs";
+import { CategoryForm, ProjectForm } from "@/lib/api/interface/form";
+
+import { CategoryNameDTO, TeamMemberDTO } from "@/lib/api/interface/fetchDTOs";
 import { createListCollection } from "@chakra-ui/react";
 import { createCategory as createCategory } from "@/lib/api/postApi";
 import { StatusTag, TagItem } from "../custom-ui/Tag";
-import { Status } from "@/lib/interface/common";
+import { Status } from "@/lib/api/interface/common";
 import { Radio, RadioGroup } from "../ui/radio";
 import { SingleDatepicker } from "../date-picker/DayzedDatepicker";
+import { fetchCategoryList, fetchTeamMemberList } from "@/lib/api/fetchApi";
 
 const SelectMemberItem = () => (
   <SelectValueText placeholder="멤버를 선택하세요">
@@ -100,7 +101,7 @@ const ProjectCreationForm = () => {
 
   const getTeamMembers = async ({ teamId }: { teamId: string }) => {
     try {
-      const response = await fetchTeamMembers(teamId);
+      const response = await fetchTeamMemberList({ teamId });
       setTeamMembers(response.data.results);
     } catch (error) {
       toaster.error({
@@ -112,7 +113,7 @@ const ProjectCreationForm = () => {
 
   const getCategories = async ({ teamId }: { teamId: string }) => {
     try {
-      const response = await fetchCategoriesByTeamId(teamId);
+      const response = await fetchCategoryList({ teamId });
       setCategories(response.data.results);
     } catch (error) {
       toaster.error({

@@ -30,15 +30,16 @@ import {
   ProjectMemberDTO,
   TaskAssignmentDTO,
   TaskAssignmentInfoDTO,
-} from "@/lib/interface/fetchDTOs";
-import {
-  fetchProjectMembersAll,
-  fetchTaskAssignmentsByTaskId,
-} from "@/lib/api/fetchApi";
+} from "@/lib/api/interface/fetchDTOs";
+
 import { toaster } from "../../ui/toaster";
 import { useParams } from "next/navigation";
-import { TaskAssignmentForm } from "@/lib/interface/form";
+import { TaskAssignmentForm } from "@/lib/api/interface/form";
 import { get } from "lodash";
+import {
+  fetchProjectMemberList,
+  fetchTaskAssignmentList,
+} from "@/lib/api/fetchApi";
 
 const TaskAssignDialog = ({ taskId }: { taskId: string }) => {
   //   const params = useParams();
@@ -57,8 +58,8 @@ const TaskAssignDialog = ({ taskId }: { taskId: string }) => {
 
   const getTaskAssignments = async ({ taskId }: { taskId: string }) => {
     try {
-      const response = await fetchTaskAssignmentsByTaskId(taskId);
-      setAssignedMembers(response.data);
+      const response = await fetchTaskAssignmentList({ taskId });
+      setAssignedMembers(response.data.results);
     } catch (error) {
       toaster.error({
         title: "멤버 불러오기 실패",
@@ -67,9 +68,9 @@ const TaskAssignDialog = ({ taskId }: { taskId: string }) => {
     }
   };
 
-  const getProjectMembers = async ({ project }: { project: string }) => {
+  const getProjectMembers = async ({ projectId }: { projectId: string }) => {
     try {
-      const response = await fetchProjectMembersAll(project);
+      const response = await fetchProjectMemberList({ projectId });
       setProjectMembers(response.data.results);
     } catch (error) {
       toaster.error({

@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { Field } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
-import { SignupDTO } from "@/lib/interface/login";
+import { SignupDTO } from "@/lib/api/interface/login";
 import { signup } from "@/lib/api/login";
 
 export default function Signup() {

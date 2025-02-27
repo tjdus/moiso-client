@@ -23,14 +23,17 @@ import {
   PaginationRoot,
 } from "@/components/ui/pagination";
 import { useProject } from "@/lib/hooks";
-import { ProjectDetailDTO } from "@/lib/interface/fetchDTOs";
+import {
+  ProjectDetailDTO,
+  ProjectMemberDTO,
+} from "@/lib/api/interface/fetchDTOs";
 
 import { Avatar } from "../ui/avatar";
-import { ProjectMemberInfoDTO } from "@/lib/interface/fetchDTOs";
+import { ProjectMemberInfoDTO } from "@/lib/api/interface/fetchDTOs";
 import { RoleBadge } from "../custom-ui/RoleBadge";
-import type { Role } from "@/lib/interface/common";
+import type { Role } from "@/lib/api/interface/common";
 import { useEffect, useState } from "react";
-import { fetchProjectMembers } from "@/lib/api/fetchApi";
+import { fetchProjectMemberList } from "@/lib/api/fetchApi";
 
 const ProjectMemberRow = ({
   id,
@@ -71,8 +74,10 @@ export default function ProjectMemberTable({
 }: {
   projectId: string;
 }) {
-  const [memberList, setMemberList] = useState<ProjectMemberInfoDTO[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [projectMemberList, setProjectMemberList] = useState<
+    ProjectMemberDTO[]
+  >([]);
+  const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const pageSize = 10;
@@ -81,13 +86,13 @@ export default function ProjectMemberTable({
     const loadMembers = async () => {
       setIsLoading(true);
       try {
-        const response = await fetchProjectMembers(
+        const response = await fetchProjectMemberList({
           projectId,
-          currentPage,
-          pageSize
-        );
+          page,
+          pageSize,
+        });
         console.log(response);
-        setMemberList(response.data.results);
+        setProjectMemberList(response.data.results);
         setTotalCount(response.data.count);
       } catch (error) {
         console.error("프로젝트 멤버 목록 가져오기 실패:", error);
@@ -97,7 +102,7 @@ export default function ProjectMemberTable({
     };
 
     loadMembers();
-  }, [projectId, currentPage]);
+  }, [projectId, page]);
 
   return (
     <Flex
@@ -129,7 +134,7 @@ export default function ProjectMemberTable({
             Array(5)
               .fill(0)
               .map((_, index) => (
-                <TableRow key={index} borderBottom="1px">
+                <TableRow key={`loading-${index}`} borderBottom="1px">
                   <TableCell padding={4}>
                     <SkeletonText width="100%" />
                   </TableCell>
@@ -147,28 +152,28 @@ export default function ProjectMemberTable({
                   </TableCell>
                 </TableRow>
               ))
-          ) : memberList.length > 0 ? (
-            memberList.map((member) => (
-              <TableRow _hover={{ bg: "gray.300" }}>
+          ) : projectMemberList.length > 0 ? (
+            projectMemberList.map((projectMember) => (
+              <TableRow key={projectMember.id} _hover={{ bg: "gray.300" }}>
                 <TableCell align="center" height="48px">
                   <HStack padding={2} gap={2} align="center">
                     <Avatar size="xs" />
                     <Text fontWeight="light" fontSize="sm">
-                      {member.member.name}
+                      {projectMember.member.name}
                     </Text>
                   </HStack>
                 </TableCell>
 
                 <TableCell fontSize="xs" textAlign="center" height="48px">
-                  {member.member.email}
+                  {projectMember.member.email}
                 </TableCell>
 
                 <TableCell textAlign="center" height="48px">
-                  <RoleBadge role={member.role as Role} />
+                  <RoleBadge role={projectMember.role as Role} />
                 </TableCell>
 
                 <TableCell fontSize="xs" textAlign="center" height="48px">
-                  {member.joined_at}
+                  {projectMember.joined_at}
                 </TableCell>
               </TableRow>
             ))
@@ -182,12 +187,13 @@ export default function ProjectMemberTable({
         </TableBody>
       </TableRoot>
 
-      {!isLoading && memberList.length > 0 && (
+      {!isLoading && projectMemberList.length > 0 && (
         <PaginationRoot
           count={totalCount}
           pageSize={pageSize}
+          page={page}
           defaultPage={1}
-          onPageChange={(e) => setCurrentPage(e.page)}
+          onPageChange={(e) => setPage(e.page)}
         >
           <HStack justify="center">
             <PaginationPrevTrigger />

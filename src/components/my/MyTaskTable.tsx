@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-import { TaskDTO } from "@/lib/api/interface/fetchDTOs";
+import { fetchMyTaskAssignmentList } from "@/lib/api/fetchApi";
+import { TaskAssignmentDTO, TaskDTO } from "@/lib/api/interface/fetchDTOs";
 import {
   TableRoot,
   TableHeader,
@@ -22,16 +22,103 @@ import {
   PaginationPrevTrigger,
   PaginationRoot,
 } from "@/components/ui/pagination";
+import {
+  RadioCardItem,
+  RadioCardRoot,
+  RadioCardLabel,
+} from "@/components/ui/radio-card";
 import { Skeleton, SkeletonText } from "../ui/skeleton";
 import { LuSearch } from "react-icons/lu";
 import TaskCreationDialog from "../dialog/create/TaskCreationDialog";
 import TaskDetailDialog from "../dialog/TaskDetail/TaskDetailDialog";
 import { TagItem, StatusTag } from "@/components/custom-ui/Tag";
 import { AvatarList } from "@/components/custom-ui/Avatar";
-import { fetchTaskList } from "@/lib/api/fetchApi";
-import { InputGroup } from "../ui/input-group";
+import { get } from "lodash";
+import { formatToKST } from "@/lib/util/dateFormat";
+import { ProjectButton, ProjectLink } from "../custom-ui/ProjectLink";
+import { Radio, RadioGroup } from "../ui/radio";
 
-const headers = ["제목", "설명", "태그", "상태", "담당자", "시작일", "마감일"];
+const headers = [
+  "프로젝트",
+  "제목",
+  "설명",
+  "태그",
+  "상태",
+  "담당일",
+  "완료일",
+  "시작일",
+  "마감일",
+];
+
+// const TaskStatusSelector = ({
+//   onStatusChange,
+// }: {
+//   onStatusChange: (status: string) => void;
+// }) => {
+//   return (
+//     <RadioCardRoot
+//       onValueChange={(e) => onStatusChange(e.value)}
+//       align="center"
+//       justify="center"
+//       maxW="sm"
+//       defaultValue="all"
+//     >
+//       <RadioCardLabel>진행 상태</RadioCardLabel>
+//       <HStack align="stretch">
+//         <RadioCardItem
+//           value="all"
+//           indicator={false}
+//           icon={<StatusTag status="all" size="md" />}
+//         />
+//         <RadioCardItem
+//           value="not_started"
+//           indicator={false}
+//           icon={<StatusTag status="not_started" size="md" />}
+//         />
+//         <RadioCardItem
+//           value="in_progress"
+//           indicator={false}
+//           icon={<StatusTag status="in_progress" size="md" />}
+//         />
+//         <RadioCardItem
+//           value="completed"
+//           indicator={false}
+//           icon={<StatusTag status="completed" size="md" />}
+//         />
+//       </HStack>
+//     </RadioCardRoot>
+//   );
+// };
+
+const TaskStatusSelector = ({
+  onStatusChange,
+}: {
+  onStatusChange: (status: string) => void;
+}) => {
+  return (
+    <RadioGroup
+      defaultValue="all"
+      onValueChange={(e) => {
+        onStatusChange(e.value);
+      }}
+    >
+      <HStack gap={2}>
+        <Radio value="all">
+          <StatusTag status="all" size="md" />
+        </Radio>
+        <Radio value="not_started">
+          <StatusTag status="not_started" size="md" />
+        </Radio>
+        <Radio value="in_progress">
+          <StatusTag status="in_progress" size="md" />
+        </Radio>
+        <Radio value="completed">
+          <StatusTag status="completed" size="md" />
+        </Radio>
+      </HStack>
+    </RadioGroup>
+  );
+};
 
 const TaskSearchBar = ({ onSearch }: { onSearch: (query: string) => void }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -42,61 +129,71 @@ const TaskSearchBar = ({ onSearch }: { onSearch: (query: string) => void }) => {
 
   return (
     <HStack width="40%">
-      <InputGroup
-        flex="1"
-        startElement={<LuSearch style={{ marginLeft: "8px" }} />}
+      <Input
+        padding={2}
+        colorPalette="gray"
+        variant="outline"
+        placeholder="검색하기"
+        size="sm"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            handleSearch();
+          }
+        }}
+      />
+      <IconButton
+        variant="ghost"
+        aria-label="Search"
+        size="sm"
+        boxSizing="border-box"
+        colorPalette="gray"
+        onClick={handleSearch}
       >
-        <Input
-          padding={2}
-          colorPalette="gray"
-          variant="outline"
-          placeholder="검색하기"
-          size="sm"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSearch();
-            }
-          }}
-        />
-      </InputGroup>
-      <TaskCreationDialog />
+        <LuSearch size="sm" />{" "}
+      </IconButton>
     </HStack>
   );
 };
 
-export default function TaskList({ projectId }: { projectId: string }) {
-  const [taskList, setTaskList] = useState<TaskDTO[]>([]);
+export default function MyTaskTable() {
+  const [taskAssignmentList, setTaskAssignmentList] = useState<
+    TaskAssignmentDTO[]
+  >([]);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [status, setStatus] = useState<string>("all");
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const pageSize = 10;
 
-  useEffect(() => {
-    const loadTasks = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetchTaskList({
-          projectId,
-          searchQuery,
-          page,
-          pageSize,
-        });
-        setTaskList(response.data.results);
-        setTotalCount(response.data.count);
-      } catch (error) {
-        console.error("업무 목록 가져오기 실패:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const getTaskList = async () => {
+    try {
+      const today = new Date();
+      const startDate = new Date(today);
+      startDate.setDate(today.getDate() - 3);
+      const endDate = new Date(today);
+      endDate.setDate(today.getDate() + 3);
 
-    loadTasks();
-  }, [projectId, page, searchQuery]);
+      const response = await fetchMyTaskAssignmentList({
+        status: status !== "all" ? status : undefined,
+        page,
+        searchQuery,
+      });
+      setTaskAssignmentList(response.data.results);
+      setTotalCount(response.data.count);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error fetching task assignments:", error);
+    }
+  };
+
+  useEffect(() => {
+    getTaskList();
+  }, [page, searchQuery, status]);
 
   const handleTaskClick = (selectedId: string) => {
     setSelectedTaskId(selectedId);
@@ -110,7 +207,12 @@ export default function TaskList({ projectId }: { projectId: string }) {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setPage(1); // Reset to first page on new search
+    setPage(1);
+  };
+
+  const handleStatusChange = (status: string) => {
+    setStatus(status);
+    setPage(1);
   };
 
   return (
@@ -126,6 +228,7 @@ export default function TaskList({ projectId }: { projectId: string }) {
       <Flex justify="end" align="center">
         <TaskSearchBar onSearch={handleSearch} />
       </Flex>
+      <TaskStatusSelector onStatusChange={handleStatusChange} />
       <Separator />
       <TableRoot size="lg" borderRadius="md" border="1px">
         <TableHeader fontSize="sm" textAlign="center">
@@ -194,27 +297,38 @@ export default function TaskList({ projectId }: { projectId: string }) {
                   </TableCell>
                 </TableRow>
               ))
-          ) : taskList.length > 0 ? (
-            taskList.map((task) => (
+          ) : taskAssignmentList.length > 0 ? (
+            taskAssignmentList.map((taskAssignment) => (
               <TableRow
-                key={task.id}
+                key={taskAssignment.id}
                 cursor="pointer"
-                onClick={() => handleTaskClick(task.id)}
+                onClick={() => handleTaskClick(taskAssignment.id)}
                 _hover={{ backgroundColor: "brand.200" }}
                 borderBottom="1px"
                 fontSize="sm"
               >
-                <TableCell padding={4}>{task.title}</TableCell>
+                <TableCell
+                  padding={4}
+                  align="center"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ProjectLink
+                    size="sm"
+                    projectId={taskAssignment.task.project.id}
+                    name={taskAssignment.task.project.name}
+                  />
+                </TableCell>
+                <TableCell padding={4}>{taskAssignment.task.title}</TableCell>
                 <TableCell padding={4}>
-                  {task.description?.length > 50
-                    ? `${task.description.substring(0, 50)}...`
-                    : task.description || "-"}
+                  {taskAssignment.task.description?.length > 50
+                    ? `${taskAssignment.task.description.substring(0, 50)}...`
+                    : taskAssignment.task.description || "-"}
                 </TableCell>
                 <TableCell padding={4}>
                   <Flex gap={2} wrap="wrap">
-                    {task.tags?.map((taskTag) => (
+                    {taskAssignment.task.tags?.map((taskTag) => (
                       <TagItem
-                        key={taskTag.id}
+                        key={taskTag.tag.id}
                         id={taskTag.tag.id}
                         name={taskTag.tag.name}
                         size="sm"
@@ -223,44 +337,20 @@ export default function TaskList({ projectId }: { projectId: string }) {
                   </Flex>
                 </TableCell>
                 <TableCell padding={4} align="center">
-                  <StatusTag status={task.status} size="md" />
-                </TableCell>
-                <TableCell padding={4}>
-                  {task.members && task.members.length > 0 ? (
-                    <AvatarList
-                      members={task.members.map((member) => member.member)}
-                    />
-                  ) : (
-                    "-"
-                  )}
+                  <StatusTag status={taskAssignment.status} size="md" />
                 </TableCell>
                 <TableCell padding={4} textAlign="center" fontSize="xs">
-                  {task.start_at
-                    ? new Date(task.start_at)
-                        .toLocaleString("ko-KR", {
-                          timeZone: "Asia/Seoul",
-                          year: "numeric",
-                          month: "2-digit",
-                          day: "2-digit",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
-                        .replace(" 00:00", "")
-                    : "-"}
+                  {formatToKST({ dateString: taskAssignment.assigned_at })}
                 </TableCell>
                 <TableCell padding={4} textAlign="center" fontSize="xs">
-                  {task.end_at
-                    ? new Date(task.end_at)
-                        .toLocaleString("ko-KR", {
-                          timeZone: "Asia/Seoul",
-                          year: "numeric",
-                          month: "2-digit",
-                          day: "2-digit",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
-                        .replace(" 00:00", "")
-                    : "-"}
+                  {formatToKST({ dateString: taskAssignment.completed_at })}
+                </TableCell>
+
+                <TableCell padding={4} textAlign="center" fontSize="xs">
+                  {formatToKST({ dateString: taskAssignment.task.start_at })}
+                </TableCell>
+                <TableCell padding={4} textAlign="center" fontSize="xs">
+                  {formatToKST({ dateString: taskAssignment.task.end_at })}
                 </TableCell>
               </TableRow>
             ))
@@ -274,7 +364,7 @@ export default function TaskList({ projectId }: { projectId: string }) {
         </TableBody>
       </TableRoot>
 
-      {!isLoading && taskList.length > 0 && (
+      {!isLoading && taskAssignmentList.length > 0 && (
         <PaginationRoot
           count={totalCount}
           pageSize={pageSize}

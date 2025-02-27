@@ -3,13 +3,24 @@
 import { useState } from "react";
 import { Box, HStack, Tabs, Text, Skeleton } from "@chakra-ui/react";
 import { ReactNode, useEffect } from "react";
-import { ProjectDetailDTO, ProjectDTO } from "@/lib/api/interface/fetchDTOs";
+import {
+  ProjectDetailDTO,
+  ProjectDTO,
+  TeamDetailDTO,
+} from "@/lib/api/interface/fetchDTOs";
 import ProjectMemberTable from "../Table/ProjectMemberTable";
 import TaskList from "../Table/TaskList";
 import { LuFolder, LuSquareCheck, LuUser, LuSettings } from "react-icons/lu";
 import TaskCreationDialog from "../dialog/create/TaskCreationDialog";
 import { useParams } from "next/navigation";
-import { fetchProjectDetail } from "@/lib/api/fetchApi";
+import { fetchProjectDetail, fetchTeamDetail } from "@/lib/api/fetchApi";
+import ProjectCardList from "../card/ProjectCardList";
+import { set } from "lodash";
+import ProjectTable from "../Table/ProjectTable";
+import TeamMemberTable from "../Table/TeamMemberTable";
+import RoleCreationDialog from "../dialog/create/RoleCreationDialog";
+import MyProjectTable from "./MyProjectTable";
+import MyTaskTable from "./MyTaskTable";
 
 interface TabContentProps {
   value: string;
@@ -63,46 +74,15 @@ function TabTrigger({ icon, value, label }: TabTriggerProps) {
   );
 }
 
-function TabBar() {
-  const params = useParams();
-  const [project, setProject] = useState<ProjectDetailDTO | null>(null);
-  const [loading, setLoading] = useState(true);
-  const projectId = Array.isArray(params.id) ? params.id[0] : params.id;
+function MyTabBar() {
   const [tab, setTab] = useState<string>("overview");
-
-  if (!projectId) {
-    return <Text>Select Project</Text>;
-  }
-
-  useEffect(() => {
-    const loadProjectDetail = async () => {
-      try {
-        const response = await fetchProjectDetail(projectId);
-        setProject(response.data);
-      } catch (error) {
-        setProject(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadProjectDetail();
-  }, [projectId]);
 
   return (
     <Box borderBottom="1px">
       <HStack px={6} pt={4}>
-        {loading ? (
-          <Skeleton height="20px" width="200px" mb={4} />
-        ) : project ? (
-          <Text fontSize="xl" fontWeight="bold" mb={4}>
-            {project.name}
-          </Text>
-        ) : (
-          <Text fontSize="xl" fontWeight="bold" mb={4} color="red.500">
-            Error loading project
-          </Text>
-        )}
+        <Text fontSize="xl" fontWeight="bold" mb={4}>
+          데이터베이스
+        </Text>
       </HStack>
       <Tabs.Root
         value={tab}
@@ -115,22 +95,25 @@ function TabBar() {
       >
         <Tabs.List gap={4}>
           <TabTrigger value="overview" label="Overview" icon={<LuFolder />} />
-          <TabTrigger value="tasks" label="Tasks" icon={<LuSquareCheck />} />
-          <TabTrigger value="members" label="Members" icon={<LuUser />} />
+          <TabTrigger value="tasks" label="Task" icon={<LuUser />} />
+          <TabTrigger
+            value="projects"
+            label="Projects"
+            icon={<LuSquareCheck />}
+          />
+
           <TabTrigger value="settings" label="Settings" icon={<LuSettings />} />
         </Tabs.List>
-        <TabContent
-          value="overview"
-          children={<Text>Overview</Text>}
-        ></TabContent>
-        <TabContent
-          value="tasks"
-          children={<TaskList projectId={projectId} />}
-        />
-        <TabContent
-          value="members"
-          children={<ProjectMemberTable projectId={projectId} />}
-        ></TabContent>
+        <TabContent value="overview">
+          <ProjectCardList />
+        </TabContent>
+        <TabContent value="tasks">
+          <MyTaskTable />
+        </TabContent>
+        <TabContent value="projects">
+          <MyProjectTable />
+        </TabContent>
+
         <TabContent
           value="settings"
           children={<Text>Settings</Text>}
@@ -140,4 +123,4 @@ function TabBar() {
   );
 }
 
-export default TabBar;
+export default MyTabBar;

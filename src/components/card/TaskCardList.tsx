@@ -1,11 +1,10 @@
 "use client";
 
-import { fetchTaskDetail, fetchTasksByProjectId } from "@/lib/api/fetchApi";
 import { useProject } from "@/lib/hooks";
-import { ProjectDetailDTO, TaskDTO } from "@/lib/interface/fetchDTOs";
-import { PaginationResponse } from "@/lib/interface/common";
+import { ProjectDetailDTO, TaskDTO } from "@/lib/api/interface/fetchDTOs";
+import { PaginationResponse } from "@/lib/api/interface/common";
 import { useEffect, useState } from "react";
-import TaskCard from "./TaksCard";
+import TaskCard from "./TaskCard";
 import { Stack, HStack, Flex } from "@chakra-ui/react";
 import {
   PaginationItems,
@@ -15,24 +14,25 @@ import {
   PaginationRoot,
 } from "@/components/ui/pagination";
 import { useRouter } from "next/navigation";
+import { fetchTaskList } from "@/lib/api/fetchApi";
 
 export default function TaskCardList() {
   const router = useRouter();
   const project = useProject() as ProjectDetailDTO | null;
   const projectId = project?.id || "";
   const [taskList, setTaskList] = useState<TaskDTO[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const pageSize = 4;
 
   useEffect(() => {
     const loadTasks = async () => {
       try {
-        const response = await fetchTasksByProjectId(
+        const response = await fetchTaskList({
           projectId,
-          currentPage,
-          pageSize
-        );
+          page,
+          pageSize,
+        });
         console.log(response.data);
         setTaskList(response.data.results);
         setTotalCount(response.data.count);
@@ -42,7 +42,7 @@ export default function TaskCardList() {
     };
 
     loadTasks();
-  }, [projectId, currentPage]);
+  }, [projectId, page]);
 
   const handleTaskClick = (selectedId: string) => {
     router.push(`/task/${selectedId}`);
@@ -66,7 +66,7 @@ export default function TaskCardList() {
             count={totalCount}
             pageSize={pageSize}
             defaultPage={1}
-            onPageChange={(e) => setCurrentPage(e.page)}
+            onPageChange={(e) => setPage(e.page)}
           >
             <HStack justify="center">
               <PaginationPrevTrigger />

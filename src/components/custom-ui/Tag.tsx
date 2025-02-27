@@ -20,6 +20,7 @@ const STATUS_LABELS = {
   not_started: "시작 전",
   in_progress: "진행 중",
   completed: "완료됨",
+  all: "모두",
 } as const;
 
 function StatusTag({
@@ -68,7 +69,7 @@ export type TaskStatus = "not_started" | "in_progress" | "completed";
 export function getStatusTagColor(status: TaskStatus): TagColor {
   switch (status) {
     case "not_started":
-      return "gray";
+      return "red";
     case "in_progress":
       return "blue";
     case "completed":

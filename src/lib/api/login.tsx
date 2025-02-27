@@ -1,12 +1,12 @@
 "use server";
-import { LoginDTO, SignupDTO } from "../interface/login";
+import { LoginDTO, SignupDTO } from "./interface/login";
 import { setCookie } from "../util/cookies";
 
 const baseUrl = "http://localhost:8000";
 
 export async function login({ username, password }: LoginDTO) {
   try {
-    const response = await fetch(`${baseUrl}/api/login/`, {
+    const response = await fetch(`${baseUrl}/api/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

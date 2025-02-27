@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { Field } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
-import { LoginDTO } from "@/lib/interface/login";
+import { LoginDTO } from "@/lib/api/interface/login";
 import { signIn } from "next-auth/react";
 
 export default function Login() {

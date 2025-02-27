@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 
-import { TaskDTO } from "@/lib/api/interface/fetchDTOs";
+import {
+  ProjectDTO,
+  ProjectMemberDTO,
+  TaskDTO,
+} from "@/lib/api/interface/fetchDTOs";
 import {
   TableRoot,
   TableHeader,
@@ -28,10 +32,12 @@ import TaskCreationDialog from "../dialog/create/TaskCreationDialog";
 import TaskDetailDialog from "../dialog/TaskDetail/TaskDetailDialog";
 import { TagItem, StatusTag } from "@/components/custom-ui/Tag";
 import { AvatarList } from "@/components/custom-ui/Avatar";
-import { fetchTaskList } from "@/lib/api/fetchApi";
+import { formatToKST } from "@/lib/util/dateFormat";
+import { format } from "path";
+import { fetchMyProjectMemberList, fetchProjectList } from "@/lib/api/fetchApi";
 import { InputGroup } from "../ui/input-group";
 
-const headers = ["제목", "설명", "태그", "상태", "담당자", "시작일", "마감일"];
+const headers = ["이름", "설명", "분류", "시작일", "종료일"];
 
 const TaskSearchBar = ({ onSearch }: { onSearch: (query: string) => void }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -66,46 +72,47 @@ const TaskSearchBar = ({ onSearch }: { onSearch: (query: string) => void }) => {
   );
 };
 
-export default function TaskList({ projectId }: { projectId: string }) {
-  const [taskList, setTaskList] = useState<TaskDTO[]>([]);
+export default function MyProjectTable() {
+  const [projectMemberList, setProjectMemberList] = useState<
+    ProjectMemberDTO[]
+  >([]);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [projectId, setProjectId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const pageSize = 10;
 
+  const getProjects = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetchMyProjectMemberList({
+        searchQuery,
+        page,
+        pageSize,
+      });
+      setProjectMemberList(response.data.results);
+      setTotalCount(response.data.count);
+    } catch (error) {
+      console.error("프로젝트 목록 가져오기 실패:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const loadTasks = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetchTaskList({
-          projectId,
-          searchQuery,
-          page,
-          pageSize,
-        });
-        setTaskList(response.data.results);
-        setTotalCount(response.data.count);
-      } catch (error) {
-        console.error("업무 목록 가져오기 실패:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    getProjects();
+  }, [page, searchQuery]);
 
-    loadTasks();
-  }, [projectId, page, searchQuery]);
-
-  const handleTaskClick = (selectedId: string) => {
-    setSelectedTaskId(selectedId);
+  const handleProjectClick = (id: string) => {
+    setProjectId(id);
     setIsDialogOpen(true);
   };
 
   const handleDialogClose = () => {
     setIsDialogOpen(false);
-    setSelectedTaskId(null);
+    setProjectId(null);
   };
 
   const handleSearch = (query: string) => {
@@ -194,87 +201,56 @@ export default function TaskList({ projectId }: { projectId: string }) {
                   </TableCell>
                 </TableRow>
               ))
-          ) : taskList.length > 0 ? (
-            taskList.map((task) => (
+          ) : projectMemberList.length > 0 ? (
+            projectMemberList.map((projectMember) => (
               <TableRow
-                key={task.id}
+                key={projectMember.project.id}
                 cursor="pointer"
-                onClick={() => handleTaskClick(task.id)}
+                onClick={() => handleProjectClick(projectMember.project.id)}
                 _hover={{ backgroundColor: "brand.200" }}
                 borderBottom="1px"
                 fontSize="sm"
               >
-                <TableCell padding={4}>{task.title}</TableCell>
+                <TableCell padding={4}>{projectMember.project.name}</TableCell>
                 <TableCell padding={4}>
-                  {task.description?.length > 50
-                    ? `${task.description.substring(0, 50)}...`
-                    : task.description || "-"}
+                  {projectMember.project.description?.length > 50
+                    ? `${projectMember.project.description.substring(0, 50)}...`
+                    : projectMember.project.description || "-"}
                 </TableCell>
                 <TableCell padding={4}>
                   <Flex gap={2} wrap="wrap">
-                    {task.tags?.map((taskTag) => (
+                    {projectMember.project.category ? (
                       <TagItem
-                        key={taskTag.id}
-                        id={taskTag.tag.id}
-                        name={taskTag.tag.name}
-                        size="sm"
+                        id={projectMember.project.category.id}
+                        name={projectMember.project.category.name}
+                        size="md"
                       />
-                    ))}
+                    ) : (
+                      "-"
+                    )}
                   </Flex>
                 </TableCell>
-                <TableCell padding={4} align="center">
-                  <StatusTag status={task.status} size="md" />
-                </TableCell>
-                <TableCell padding={4}>
-                  {task.members && task.members.length > 0 ? (
-                    <AvatarList
-                      members={task.members.map((member) => member.member)}
-                    />
-                  ) : (
-                    "-"
-                  )}
+                <TableCell padding={4} textAlign="center" fontSize="xs">
+                  {formatToKST({
+                    dateString: projectMember.project.start_date,
+                  })}
                 </TableCell>
                 <TableCell padding={4} textAlign="center" fontSize="xs">
-                  {task.start_at
-                    ? new Date(task.start_at)
-                        .toLocaleString("ko-KR", {
-                          timeZone: "Asia/Seoul",
-                          year: "numeric",
-                          month: "2-digit",
-                          day: "2-digit",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
-                        .replace(" 00:00", "")
-                    : "-"}
-                </TableCell>
-                <TableCell padding={4} textAlign="center" fontSize="xs">
-                  {task.end_at
-                    ? new Date(task.end_at)
-                        .toLocaleString("ko-KR", {
-                          timeZone: "Asia/Seoul",
-                          year: "numeric",
-                          month: "2-digit",
-                          day: "2-digit",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
-                        .replace(" 00:00", "")
-                    : "-"}
+                  {formatToKST({ dateString: projectMember.project.end_date })}
                 </TableCell>
               </TableRow>
             ))
           ) : (
             <TableRow>
               <TableCell colSpan={7} textAlign="center" padding={4}>
-                업무 목록이 없습니다.
+                프로젝트 목록이 없습니다.
               </TableCell>
             </TableRow>
           )}
         </TableBody>
       </TableRoot>
 
-      {!isLoading && taskList.length > 0 && (
+      {!isLoading && projectMemberList.length > 0 && (
         <PaginationRoot
           count={totalCount}
           pageSize={pageSize}
@@ -290,9 +266,9 @@ export default function TaskList({ projectId }: { projectId: string }) {
         </PaginationRoot>
       )}
 
-      {isDialogOpen && selectedTaskId && (
+      {isDialogOpen && projectId && (
         <TaskDetailDialog
-          taskId={selectedTaskId}
+          taskId={projectId}
           isOpen={isDialogOpen}
           onClose={handleDialogClose}
         />

@@ -1,7 +1,7 @@
 "use client";
 import { Box, Flex, Text, Stack, EmptyState } from "@chakra-ui/react";
 import { useContext, useEffect, useState } from "react";
-import { ProjectDTO, TeamDetailDTO } from "@/lib/interface/fetchDTOs";
+import { ProjectDTO, TeamDetailDTO } from "@/lib/api/interface/fetchDTOs";
 import { TeamSpaceContext, useTeamSpace } from "@/lib/context/TeamContext";
 import { FaFolderOpen } from "react-icons/fa";
 import { useTeam } from "@/lib/hooks";

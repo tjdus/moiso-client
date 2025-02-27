@@ -1,16 +1,16 @@
-import type { Role } from "@/lib/interface/common";
+import type { Role } from "@/lib/api/interface/common";
 import { Badge } from "@chakra-ui/react";
 
 const roleColor = {
   manager: "orange",
-  member: "blue",
-  leader: "gray",
+  viewer: "blue",
+  editor: "gray",
 } as const;
 
 const roleLabel = {
-  manager: "관리자",
-  member: "멤버",
-  leader: "리더",
+  manager: "관리",
+  viewer: "조회",
+  editor: "수정",
 } as const;
 
 const RoleBadge = ({ role }: { role: Role }) => {

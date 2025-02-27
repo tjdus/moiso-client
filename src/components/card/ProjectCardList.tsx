@@ -4,10 +4,10 @@ import React, { useEffect, useState } from "react";
 import { Box, HStack, VStack } from "@chakra-ui/react";
 
 import { Card, Tag, Text } from "@chakra-ui/react";
-import { ProjectDTO } from "@/lib/interface/fetchDTOs";
+import { ProjectDTO } from "@/lib/api/interface/fetchDTOs";
 import { formatToKST } from "@/lib/util/dateFormat";
 import { useParams } from "next/navigation";
-import { fetchProjects } from "@/lib/api/fetchApi";
+import { fetchProjectList } from "@/lib/api/fetchApi";
 
 interface TeamCardProps {
   project: ProjectDTO;
@@ -56,9 +56,9 @@ const ProjectCardList = () => {
   }
 
   useEffect(() => {
-    const fetchProjectList = async () => {
+    const getProjectList = async () => {
       try {
-        const response = await fetchProjects({ teamId: teamId });
+        const response = await fetchProjectList({ teamId: teamId });
         console.log(response);
         setProjectList(response.data.results);
       } catch (error) {
@@ -66,7 +66,7 @@ const ProjectCardList = () => {
       }
     };
 
-    fetchProjectList();
+    getProjectList();
   }, [teamId]);
 
   return (

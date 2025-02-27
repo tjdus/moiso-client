@@ -5,7 +5,7 @@ import { EmptyState, Box, HStack, Text } from "@chakra-ui/react";
 import { Avatar } from "../ui/avatar";
 import { TeamSpaceContext, useTeamSpace } from "@/lib/context/TeamContext";
 import { LuCircle, LuCircleAlert, LuUserRound } from "react-icons/lu";
-import { MemberDTO } from "@/lib/interface/fetchDTOs";
+import { MemberDTO } from "@/lib/api/interface/fetchDTOs";
 
 export function MemberItem({ member }: { member: MemberDTO }) {
   return (

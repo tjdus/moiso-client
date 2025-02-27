@@ -1,6 +1,6 @@
 import { Button, Card, Badge, HStack, VStack, Text } from "@chakra-ui/react";
 import { Avatar, AvatarGroup } from "../ui/avatar";
-import { TaskDTO } from "@/lib/interface/fetchDTOs";
+import { TaskDTO } from "@/lib/api/interface/fetchDTOs";
 
 export default function TaskCard({
   task,
@@ -23,9 +23,9 @@ export default function TaskCard({
         </Text>
 
         <HStack gap={1}>
-          {task.tags.map((tag) => (
-            <Badge key={tag.id} colorScheme="purple">
-              {tag.name}
+          {task.tags.map((taskTag) => (
+            <Badge key={taskTag.tag.id} colorScheme="purple">
+              {taskTag.tag.name}
             </Badge>
           ))}
         </HStack>
@@ -33,13 +33,13 @@ export default function TaskCard({
         <Text fontSize="sm">{task.description}</Text>
 
         <AvatarGroup gap="0" spaceX="-3" size="sm">
-          {task.members.map((member) => (
-            <Avatar name={member.name} size="sm" />
+          {task.members.map((taskAssignment) => (
+            <Avatar name={taskAssignment.member.name} size="sm" />
           ))}
         </AvatarGroup>
 
         <Text fontSize="xs">
-          📅 {formatDate(task.start_at)} ~ {formatDate(task.end_at)}
+          {formatDate(task.start_at)} ~ {formatDate(task.end_at)}
         </Text>
       </VStack>
     </Card.Root>

@@ -1,23 +1,24 @@
 "use client";
 
-import { fetchMemberDetail } from "@/lib/api/fetchApi";
-import { MemberDTO, TeamMemberDetailDTO } from "@/lib/interface/fetchDTOs";
 import { Card, DataList, Tabs } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import TeamMemberDetails from "./TeamMemberDetails";
 import TeamMemberProjectTable from "./TeamMemberProjects";
 import { DialogBody, DialogContent, DialogRoot } from "@/components/ui/dialog";
+import { TeamMemberDTO } from "@/lib/api/interface/fetchDTOs";
 
 interface TeamMemberDetailDialogProps {
-  details: TeamMemberDetailDTO;
+  teamMember: TeamMemberDTO;
   isOpen: boolean;
   onClose: () => void;
+  onUpdate: (memberId: string, updatedData: TeamMemberDTO) => void;
 }
 
 const TeamMemberDetailDialog = ({
-  details,
+  teamMember,
   isOpen,
   onClose,
+  onUpdate,
 }: TeamMemberDetailDialogProps) => {
   return (
     <DialogRoot
@@ -29,7 +30,7 @@ const TeamMemberDetailDialog = ({
     >
       <DialogContent mt={10}>
         <DialogBody>
-          <Card.Root padding={10}>
+          <Card.Root padding={4}>
             <Card.Body>
               <Tabs.Root variant="outline" border="1px" defaultValue="details">
                 <Tabs.List gap={1}>
@@ -46,13 +47,12 @@ const TeamMemberDetailDialog = ({
                 </Tabs.List>
                 <Tabs.Content value="details">
                   <TeamMemberDetails
-                    member={details.member}
-                    projects={details.projects}
-                    role_groups={details.role_groups}
+                    teamMemberId={teamMember.id}
+                    onUpdate={onUpdate}
                   />
                 </Tabs.Content>
                 <Tabs.Content value="projects">
-                  <TeamMemberProjectTable projects={details.projects} />
+                  <TeamMemberProjectTable teamMember={teamMember} />
                 </Tabs.Content>
                 <Tabs.Content value="my"></Tabs.Content>
               </Tabs.Root>
