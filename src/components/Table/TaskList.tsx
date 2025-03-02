@@ -70,32 +70,29 @@ export default function TaskList({ projectId }: { projectId: string }) {
   const [taskList, setTaskList] = useState<TaskDTO[]>([]);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const pageSize = 10;
 
-  useEffect(() => {
-    const loadTasks = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetchTaskList({
-          projectId,
-          searchQuery,
-          page,
-          pageSize,
-        });
-        setTaskList(response.data.results);
-        setTotalCount(response.data.count);
-      } catch (error) {
-        console.error("업무 목록 가져오기 실패:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const getTasks = async () => {
+    try {
+      const response = await fetchTaskList({
+        projectId,
+        searchQuery,
+        page,
+        pageSize,
+      });
+      setTaskList(response.data.results);
+      setTotalCount(response.data.count);
+    } catch (error) {
+      console.error("업무 목록 가져오기 실패:", error);
+    }
+  };
 
-    loadTasks();
+  useEffect(() => {
+    getTasks();
   }, [projectId, page, searchQuery]);
 
   const handleTaskClick = (selectedId: string) => {
@@ -106,6 +103,7 @@ export default function TaskList({ projectId }: { projectId: string }) {
   const handleDialogClose = () => {
     setIsDialogOpen(false);
     setSelectedTaskId(null);
+    getTasks();
   };
 
   const handleSearch = (query: string) => {
@@ -143,58 +141,7 @@ export default function TaskList({ projectId }: { projectId: string }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {isLoading ? (
-            Array(5)
-              .fill(0)
-              .map((_, index) => (
-                <TableRow key={`loading-${index}`} borderBottom="1px">
-                  <TableCell padding={4}>
-                    <Skeleton height="20px" width="180px" />
-                  </TableCell>
-                  <TableCell padding={4}>
-                    <SkeletonText noOfLines={2} gap="2" width="200px" />
-                  </TableCell>
-                  <TableCell padding={4}>
-                    <Flex gap={2}>
-                      <Skeleton
-                        height="20px"
-                        width="60px"
-                        borderRadius="full"
-                      />
-                      <Skeleton
-                        height="20px"
-                        width="70px"
-                        borderRadius="full"
-                      />
-                    </Flex>
-                  </TableCell>
-                  <TableCell padding={4}>
-                    <Skeleton height="24px" width="80px" borderRadius="md" />
-                  </TableCell>
-                  <TableCell padding={4}>
-                    <Flex>
-                      <Skeleton
-                        height="32px"
-                        width="32px"
-                        borderRadius="full"
-                      />
-                      <Skeleton
-                        height="32px"
-                        width="32px"
-                        borderRadius="full"
-                        ml="-2"
-                      />
-                    </Flex>
-                  </TableCell>
-                  <TableCell padding={4}>
-                    <Skeleton height="20px" width="80px" />
-                  </TableCell>
-                  <TableCell padding={4}>
-                    <Skeleton height="20px" width="80px" />
-                  </TableCell>
-                </TableRow>
-              ))
-          ) : taskList.length > 0 ? (
+          {taskList.length > 0 ? (
             taskList.map((task) => (
               <TableRow
                 key={task.id}
@@ -274,7 +221,7 @@ export default function TaskList({ projectId }: { projectId: string }) {
         </TableBody>
       </TableRoot>
 
-      {!isLoading && taskList.length > 0 && (
+      {taskList.length > 0 && (
         <PaginationRoot
           count={totalCount}
           pageSize={pageSize}
@@ -292,6 +239,7 @@ export default function TaskList({ projectId }: { projectId: string }) {
 
       {isDialogOpen && selectedTaskId && (
         <TaskDetailDialog
+          projectId={projectId}
           taskId={selectedTaskId}
           isOpen={isDialogOpen}
           onClose={handleDialogClose}

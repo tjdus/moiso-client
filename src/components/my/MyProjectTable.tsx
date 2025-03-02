@@ -28,12 +28,9 @@ import {
 } from "@/components/ui/pagination";
 import { Skeleton, SkeletonText } from "../ui/skeleton";
 import { LuSearch } from "react-icons/lu";
-import TaskCreationDialog from "../dialog/create/TaskCreationDialog";
-import TaskDetailDialog from "../dialog/TaskDetail/TaskDetailDialog";
 import { TagItem, StatusTag } from "@/components/custom-ui/Tag";
 import { AvatarList } from "@/components/custom-ui/Avatar";
 import { formatToKST } from "@/lib/util/dateFormat";
-import { format } from "path";
 import { fetchMyProjectMemberList, fetchProjectList } from "@/lib/api/fetchApi";
 import { InputGroup } from "../ui/input-group";
 
@@ -67,7 +64,6 @@ const TaskSearchBar = ({ onSearch }: { onSearch: (query: string) => void }) => {
           }}
         />
       </InputGroup>
-      <TaskCreationDialog />
     </HStack>
   );
 };
@@ -80,8 +76,6 @@ export default function MyProjectTable() {
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [projectId, setProjectId] = useState<string | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const pageSize = 10;
 
   const getProjects = async () => {
@@ -104,16 +98,6 @@ export default function MyProjectTable() {
   useEffect(() => {
     getProjects();
   }, [page, searchQuery]);
-
-  const handleProjectClick = (id: string) => {
-    setProjectId(id);
-    setIsDialogOpen(true);
-  };
-
-  const handleDialogClose = () => {
-    setIsDialogOpen(false);
-    setProjectId(null);
-  };
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -206,7 +190,6 @@ export default function MyProjectTable() {
               <TableRow
                 key={projectMember.project.id}
                 cursor="pointer"
-                onClick={() => handleProjectClick(projectMember.project.id)}
                 _hover={{ backgroundColor: "brand.200" }}
                 borderBottom="1px"
                 fontSize="sm"
@@ -264,14 +247,6 @@ export default function MyProjectTable() {
             <PaginationNextTrigger />
           </HStack>
         </PaginationRoot>
-      )}
-
-      {isDialogOpen && projectId && (
-        <TaskDetailDialog
-          taskId={projectId}
-          isOpen={isDialogOpen}
-          onClose={handleDialogClose}
-        />
       )}
     </Flex>
   );

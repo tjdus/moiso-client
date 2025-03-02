@@ -39,31 +39,14 @@ import MyTaskAssignments from "./MyTaskAssignments";
 import { fetchTaskDetail } from "@/lib/api/fetchApi";
 
 interface TaskDetailDialogProps {
+  projectId: string;
   taskId: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
-const editableControl = (
-  <Editable.Control>
-    <Editable.EditTrigger asChild>
-      <IconButton variant="ghost" size="xs">
-        <LuPencilLine />
-      </IconButton>
-    </Editable.EditTrigger>
-    <Editable.CancelTrigger asChild>
-      <IconButton variant="outline" size="xs">
-        <LuX />
-      </IconButton>
-    </Editable.CancelTrigger>
-    <Editable.SubmitTrigger asChild>
-      <IconButton variant="outline" size="xs">
-        <LuCheck />
-      </IconButton>
-    </Editable.SubmitTrigger>
-  </Editable.Control>
-);
 const TaskDetailDialog = ({
+  projectId,
   taskId,
   isOpen,
   onClose,
@@ -98,42 +81,6 @@ const TaskDetailDialog = ({
     }
   }, [taskId, isOpen]);
 
-  const handleEdit = async () => {
-    if (taskForm) {
-      const response = updateTask(taskForm);
-      toaster.promise(response, {
-        success: {
-          title: "업무 수정 성공",
-          description: "업무가 성공적으로 수정되었습니다",
-        },
-        error: {
-          title: "업무 수정 실패",
-          description: "업무 수정에 실패했습니다",
-        },
-        loading: {
-          title: "업무 수정 중",
-          description: "잠시만 기다려주세요...",
-        },
-      });
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      await deleteTask({ taskId });
-      toaster.success({
-        title: "업무 삭제 성공",
-        description: "업무가 삭제되었습니다",
-      });
-      onClose();
-    } catch (error) {
-      toaster.error({
-        title: "업무 삭제 실패",
-        description: "업무 삭제에 실패했습니다",
-      });
-    }
-  };
-
   return (
     <DialogRoot
       open={isOpen}
@@ -144,71 +91,41 @@ const TaskDetailDialog = ({
     >
       <DialogContent mt={10}>
         <DialogBody>
-          <Card.Root>
-            <Card.Body>
-              <Tabs.Root variant="outline" border="1px" defaultValue="details">
-                <Tabs.List gap={1}>
-                  <Tabs.Trigger padding={2} value="details">
-                    Details
-                  </Tabs.Trigger>
-                  <Tabs.Trigger padding={2} value="assignees">
-                    Assignees
-                  </Tabs.Trigger>
-                  <Tabs.Trigger padding={2} value="my">
-                    My
-                  </Tabs.Trigger>
-                  <Tabs.Indicator />
-                </Tabs.List>
-                <Tabs.Content
-                  value="details"
-                  children={
-                    <TaskDetails
-                      taskId={taskId}
-                      isOpen={isOpen}
-                      onClose={onClose}
-                    />
-                  }
-                ></Tabs.Content>
-                <Tabs.Content
-                  value="assignees"
-                  children={<TaskAssignTable taskId={taskId} />}
-                ></Tabs.Content>
-                <Tabs.Content value="my">
-                  <MyTaskAssignments taskId={taskId} />
-                </Tabs.Content>
-              </Tabs.Root>
-            </Card.Body>
-          </Card.Root>
+          <Tabs.Root variant="outline" border="1px" defaultValue="details">
+            <Tabs.List gap={1}>
+              <Tabs.Trigger padding={2} value="details">
+                Details
+              </Tabs.Trigger>
+              <Tabs.Trigger padding={2} value="assignees">
+                Assignees
+              </Tabs.Trigger>
+              <Tabs.Trigger padding={2} value="my">
+                My
+              </Tabs.Trigger>
+              <Tabs.Indicator />
+            </Tabs.List>
+            <Tabs.Content
+              value="details"
+              children={
+                <TaskDetails
+                  projectId={projectId}
+                  taskId={taskId}
+                  isOpen={isOpen}
+                  onClose={onClose}
+                />
+              }
+            ></Tabs.Content>
+            <Tabs.Content
+              value="assignees"
+              children={<TaskAssignTable taskId={taskId} />}
+            ></Tabs.Content>
+            <Tabs.Content value="my">
+              <MyTaskAssignments taskId={taskId} />
+            </Tabs.Content>
+          </Tabs.Root>
         </DialogBody>
-        <DialogFooter>
-          <IconButton colorPalette="yellow" onClick={handleEdit}>
-            <LuPencil />
-          </IconButton>
-          <IconButton colorPalette="red" onClick={() => setIsAlertOpen(true)}>
-            <LuTrash2 />
-          </IconButton>
-        </DialogFooter>
         <DialogCloseTrigger />
       </DialogContent>
-
-      <DialogRoot
-        open={isAlertOpen}
-        onOpenChange={(details) => setIsAlertOpen(details.open)}
-        role="alertdialog"
-      >
-        <DialogContent>
-          <DialogBody>삭제하시겠습니까?</DialogBody>
-          <DialogFooter>
-            <DialogActionTrigger asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogActionTrigger>
-            <Button colorPalette="red" onClick={handleDelete}>
-              삭제
-            </Button>
-          </DialogFooter>
-          <DialogCloseTrigger />
-        </DialogContent>
-      </DialogRoot>
     </DialogRoot>
   );
 };

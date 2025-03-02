@@ -54,7 +54,7 @@ export async function fetchProjectList({
   teamId?: string;
   status?: string;
 }) {
-  return apiClient.get<PaginationResponse<ProjectDTO>>(`/api/projects`, {
+  return apiClient.get<PaginationResponse<ProjectDTO>>("/api/projects", {
     params: {
       ...(searchQuery && { search: searchQuery }),
       ...(page && { page }),
@@ -395,6 +395,15 @@ export async function fetchMyProjectMemberList({
         ...(teamId && { team: teamId }),
         ...(role && { role }),
       },
+      withAuth: true,
+    }
+  );
+}
+
+export async function fetchMyProjectMemberDetail(projectId: string) {
+  return apiClient.get<ProjectMemberDTO>(
+    `/api/my/project_member/${projectId}`,
+    {
       withAuth: true,
     }
   );

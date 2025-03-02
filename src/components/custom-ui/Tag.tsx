@@ -17,8 +17,8 @@ function TagItem({ id, name, size }: TagProps) {
 }
 
 const STATUS_LABELS = {
-  not_started: "시작 전",
-  in_progress: "진행 중",
+  not_started: "시작전",
+  in_progress: "진행중",
   completed: "완료됨",
   all: "모두",
 } as const;

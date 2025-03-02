@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import {
   DialogActionTrigger,
   DialogCloseTrigger,
@@ -18,11 +18,16 @@ import {
   DialogBody,
   EditablePreview,
   EditableRoot,
+  Box,
+  Input,
+  Text,
+  Textarea,
+  Separator,
 } from "@chakra-ui/react";
 import { RadioGroup, Radio } from "../../ui/radio";
 import { fetchTaskDetail } from "@/lib/api/fetchApi";
-import { TaskDetailDTO } from "@/lib/api/interface/fetchDTOs";
-import { StatusTag } from "../../custom-ui/Tag";
+import { TagDTO, TaskDetailDTO } from "@/lib/api/interface/fetchDTOs";
+import { StatusTag, TagItem } from "../../custom-ui/Tag";
 import { TaskForm } from "@/lib/api/interface/form";
 import { Avatar } from "../../ui/avatar";
 import { formatToKST } from "@/lib/util/dateFormat";
@@ -33,79 +38,68 @@ import { updateTask } from "@/lib/api/patchApi";
 import { toaster } from "../../ui/toaster";
 import { deleteTask } from "@/lib/api/deleteApi";
 import TaskAssignTable from "./TaskAssignTable";
+import EditableData from "@/components/custom-ui/EditableData";
+import { SaveDeleteButton } from "@/components/custom-ui/SaveDeleteButton";
+import TagSelector from "@/components/custom-ui/TagSelector";
 
 interface TaskDetailDialogProps {
+  projectId: string;
   taskId: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
-const editableControl = (
-  <Editable.Control>
-    <Editable.EditTrigger asChild>
-      <IconButton variant="ghost" size="xs">
-        <LuPencilLine />
-      </IconButton>
-    </Editable.EditTrigger>
-    <Editable.CancelTrigger asChild>
-      <IconButton variant="outline" size="xs">
-        <LuX />
-      </IconButton>
-    </Editable.CancelTrigger>
-    <Editable.SubmitTrigger asChild>
-      <IconButton variant="outline" size="xs">
-        <LuCheck />
-      </IconButton>
-    </Editable.SubmitTrigger>
-  </Editable.Control>
-);
-const TaskDetails = ({ taskId, isOpen, onClose }: TaskDetailDialogProps) => {
+const TaskDetails = ({
+  projectId,
+  taskId,
+  isOpen,
+  onClose,
+}: TaskDetailDialogProps) => {
   const [taskDetail, setTaskDetail] = useState<TaskDetailDTO | null>(null);
-  const [taskForm, setTaskForm] = useState<TaskForm>({
-    id: "",
-    title: "",
-    description: "",
-    status: "",
-    members: taskDetail?.members.map((member) => member.id) || [],
-    start_at: "",
-    end_at: "",
-  });
-  const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false);
+
+  const [id, setId] = useState<string>("");
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [status, setStatus] = useState<string>("");
+  const [tags, setTags] = useState<TagDTO[]>([]);
+  const [startAt, setStartAt] = useState<string>("");
+  const [endAt, setEndAt] = useState<string>("");
+  const [updatedField, setUpdatedField] = useState<Partial<TaskForm>>({});
+
+  useEffect(() => {
+    if (taskDetail) {
+      setId(taskDetail.id);
+      setTitle(taskDetail.title);
+      setDescription(taskDetail.description);
+      setStatus(taskDetail.status);
+      setTags(taskDetail.tags.map((tag) => tag.tag) || []);
+      setStartAt(taskDetail.start_at);
+      setEndAt(taskDetail.end_at);
+    }
+  }, [taskDetail]);
 
   useEffect(() => {
     if (isOpen) {
       const fetchData = async () => {
         const response = await fetchTaskDetail(taskId);
         setTaskDetail(response.data);
-        setTaskForm({
-          id: response.data.id,
-          title: response.data.title,
-          description: response.data.description,
-          status: response.data.status,
-          start_at: response.data.start_at,
-          end_at: response.data.end_at,
-        });
       };
       fetchData();
     }
   }, [taskId, isOpen]);
 
   const handleEdit = async () => {
-    if (taskForm) {
-      const response = updateTask(taskForm);
-      toaster.promise(response, {
-        success: {
-          title: "업무 수정 성공",
-          description: "업무가 성공적으로 수정되었습니다",
-        },
-        error: {
-          title: "업무 수정 실패",
-          description: "업무 수정에 실패했습니다",
-        },
-        loading: {
-          title: "업무 수정 중",
-          description: "잠시만 기다려주세요...",
-        },
+    try {
+      await updateTask(taskId, updatedField);
+      toaster.success({
+        title: "업무 수정 성공",
+        description: "업무가 성공적으로 수정되었습니다",
+      });
+      onClose();
+    } catch (error) {
+      toaster.error({
+        title: "업무 수정 실패",
+        description: "업무 수정에 실패했습니다",
       });
     }
   };
@@ -128,137 +122,202 @@ const TaskDetails = ({ taskId, isOpen, onClose }: TaskDetailDialogProps) => {
 
   return (
     <Card.Root padding={10}>
-      <Card.Body>
+      <Card.Body padding={4}>
         {taskDetail && (
           <DataList.Root orientation="horizontal">
             <DataList.Item>
               <DataList.ItemLabel>제목</DataList.ItemLabel>
               <DataList.ItemValue>
-                <Editable.Root
-                  defaultValue={taskDetail.title || " "}
-                  onValueChange={(e) =>
-                    setTaskForm({
-                      ...taskForm,
-                      title: e.value,
-                    })
+                <EditableData
+                  onValueRevert={() => {
+                    setTitle(taskDetail.title || "");
+                    setUpdatedField({
+                      ...updatedField,
+                      title: "",
+                    });
+                  }}
+                  onValueCommit={() => {
+                    setUpdatedField({
+                      ...updatedField,
+                      title: title,
+                    });
+                  }}
+                  preview={<Text textStyle="sm">{title}</Text>}
+                  edit={
+                    <Input
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      width="3xs"
+                    />
                   }
-                >
-                  <Editable.Preview />
-                  <Editable.Input />
-                  {editableControl}
-                </Editable.Root>
+                />
               </DataList.ItemValue>
             </DataList.Item>
             <DataList.Item>
               <DataList.ItemLabel>설명</DataList.ItemLabel>
               <DataList.ItemValue>
-                <Editable.Root
-                  defaultValue={taskDetail.description || ""}
-                  onValueChange={(e) =>
-                    setTaskForm({
-                      ...taskForm,
-                      description: e.value,
-                    })
+                <EditableData
+                  onValueRevert={() => {
+                    setDescription(taskDetail.description || "");
+                    setUpdatedField({
+                      ...updatedField,
+                      description: undefined,
+                    });
+                  }}
+                  onValueCommit={() => {
+                    setUpdatedField({
+                      ...updatedField,
+                      description: description,
+                    });
+                  }}
+                  preview={<Text textStyle="sm">{description}</Text>}
+                  edit={
+                    <Textarea
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      width="3xs"
+                    />
                   }
-                >
-                  <Editable.Preview />
-                  <Editable.Textarea />
-                  {editableControl}
-                </Editable.Root>
+                />
               </DataList.ItemValue>
             </DataList.Item>
             <DataList.Item>
               <DataList.ItemLabel>진행 상태</DataList.ItemLabel>
               <DataList.ItemValue>
-                <Editable.Root
-                  defaultValue={taskForm.status}
-                  value={taskForm.status}
-                  onValueRevert={() =>
-                    setTaskForm({
-                      ...taskForm,
-                      status: taskDetail.status,
-                    })
+                <EditableData
+                  onValueRevert={() => {
+                    setStatus(taskDetail.status || "");
+                    setUpdatedField({
+                      ...updatedField,
+                      status: undefined,
+                    });
+                  }}
+                  onValueCommit={() => {
+                    setUpdatedField({
+                      ...updatedField,
+                      status: status,
+                    });
+                  }}
+                  preview={
+                    <StatusTag status={status || "not_started"} size="sm" />
                   }
-                >
-                  <Editable.Preview>
-                    <StatusTag
-                      status={taskForm.status || "not_started"}
+                  edit={
+                    <RadioGroup
+                      value={status}
+                      onValueChange={(e) => setStatus(e.value)}
                       size="sm"
+                    >
+                      <HStack gap={1} width="3xs">
+                        <Radio value="not_started">
+                          <StatusTag status="not_started" size="sm" />
+                        </Radio>
+                        <Radio value="in_progress">
+                          <StatusTag status="in_progress" size="sm" />
+                        </Radio>
+                        <Radio value="completed">
+                          <StatusTag status="completed" size="sm" />
+                        </Radio>
+                      </HStack>
+                    </RadioGroup>
+                  }
+                />
+              </DataList.ItemValue>
+            </DataList.Item>
+            <DataList.Item>
+              <DataList.ItemLabel>태그</DataList.ItemLabel>
+              <DataList.ItemValue>
+                <EditableData
+                  onValueRevert={() => {
+                    setTags(tags || []);
+                    setUpdatedField({
+                      ...updatedField,
+                      tags: [],
+                    });
+                  }}
+                  onValueCommit={() => {
+                    setUpdatedField({
+                      ...updatedField,
+                      tags: tags.map((tag) => tag.id),
+                    });
+                  }}
+                  preview={
+                    <HStack gap={2}>
+                      {tags.map((tag, index) => (
+                        <TagItem
+                          id={tag.id}
+                          key={index}
+                          name={tag.name}
+                          size="sm"
+                        />
+                      ))}
+                    </HStack>
+                  }
+                  edit={
+                    <TagSelector
+                      projectId={projectId}
+                      value={tags}
+                      onValueChange={setTags}
                     />
-                  </Editable.Preview>
-                  <Editable.Area>
-                    <Editable.Context>
-                      {(editable) => (
-                        <Editable.Control>
-                          {editable.editing ? (
-                            <RadioGroup
-                              value={taskForm.status}
-                              onValueChange={(e) => {
-                                setTaskForm({
-                                  ...taskForm,
-                                  status: e.value,
-                                });
-                              }}
-                            >
-                              <HStack gap={2}>
-                                <Radio value="not_started">
-                                  <StatusTag status="not_started" size="md" />
-                                </Radio>
-                                <Radio value="in_progress">
-                                  <StatusTag status="in_progress" size="md" />
-                                </Radio>
-                                <Radio value="completed">
-                                  <StatusTag status="completed" size="md" />
-                                </Radio>
-                              </HStack>
-                            </RadioGroup>
-                          ) : (
-                            <></>
-                          )}
-                        </Editable.Control>
-                      )}
-                    </Editable.Context>
-                  </Editable.Area>
-                  {editableControl}
-                </Editable.Root>
-              </DataList.ItemValue>
-            </DataList.Item>
-            <DataList.Item>
-              <DataList.ItemLabel>시작일</DataList.ItemLabel>
-              <DataList.ItemValue>
-                <SingleDateTimepicker
-                  date={
-                    taskForm?.start_at
-                      ? new Date(taskForm.start_at)
-                      : new Date()
-                  }
-                  onDateChange={(date) =>
-                    setTaskForm({
-                      ...taskForm,
-                      start_at: date.toISOString(),
-                    })
                   }
                 />
               </DataList.ItemValue>
             </DataList.Item>
             <DataList.Item>
-              <DataList.ItemLabel>마감일</DataList.ItemLabel>
+              <DataList.ItemLabel>시작 시간</DataList.ItemLabel>
               <DataList.ItemValue>
-                <SingleDateTimepicker
-                  date={
-                    taskForm?.end_at ? new Date(taskForm.end_at) : new Date()
-                  }
-                  onDateChange={(date) =>
-                    setTaskForm({
-                      ...taskForm,
-                      end_at: date.toISOString(),
-                    })
+                <EditableData
+                  onValueRevert={() => {
+                    setStartAt(taskDetail.start_at);
+                    setUpdatedField({
+                      ...updatedField,
+                      start_at: undefined,
+                    });
+                  }}
+                  onValueCommit={() => {
+                    setUpdatedField({
+                      ...updatedField,
+                      start_at: startAt,
+                    });
+                  }}
+                  preview={<Text>{formatToKST({ dateString: startAt })}</Text>}
+                  edit={
+                    <SingleDateTimepicker
+                      date={startAt ? new Date(startAt) : new Date()}
+                      onDateChange={(date) => setStartAt(date.toISOString())}
+                    />
                   }
                 />
               </DataList.ItemValue>
             </DataList.Item>
             <DataList.Item>
-              <DataList.ItemLabel>등록일시</DataList.ItemLabel>
+              <DataList.ItemLabel>마감 시간</DataList.ItemLabel>
+              <DataList.ItemValue>
+                <EditableData
+                  onValueRevert={() => {
+                    setEndAt(taskDetail.end_at);
+                    setUpdatedField({
+                      ...updatedField,
+                      end_at: undefined,
+                    });
+                  }}
+                  onValueCommit={() => {
+                    setUpdatedField({
+                      ...updatedField,
+                      end_at: endAt,
+                    });
+                  }}
+                  preview={<Text>{formatToKST({ dateString: endAt })}</Text>}
+                  edit={
+                    <SingleDateTimepicker
+                      date={endAt ? new Date(endAt) : new Date()}
+                      onDateChange={(date) => setEndAt(date.toISOString())}
+                    />
+                  }
+                />
+              </DataList.ItemValue>
+            </DataList.Item>
+            <DataList.Item>
+              <DataList.ItemLabel>등록</DataList.ItemLabel>
               <DataList.ItemValue>
                 {formatToKST({
                   dateString: taskDetail.created_at,
@@ -266,13 +325,13 @@ const TaskDetails = ({ taskId, isOpen, onClose }: TaskDetailDialogProps) => {
               </DataList.ItemValue>
             </DataList.Item>
             <DataList.Item>
-              <DataList.ItemLabel>작성자</DataList.ItemLabel>
+              <DataList.ItemLabel></DataList.ItemLabel>
               <DataList.ItemValue>
                 {taskDetail.created_by.name}
               </DataList.ItemValue>
             </DataList.Item>
             <DataList.Item>
-              <DataList.ItemLabel>최종수정일시</DataList.ItemLabel>
+              <DataList.ItemLabel>수정</DataList.ItemLabel>
               <DataList.ItemValue>
                 {taskDetail.updated_at
                   ? formatToKST({
@@ -282,15 +341,18 @@ const TaskDetails = ({ taskId, isOpen, onClose }: TaskDetailDialogProps) => {
               </DataList.ItemValue>
             </DataList.Item>
             <DataList.Item>
-              <DataList.ItemLabel>수정자</DataList.ItemLabel>
+              <DataList.ItemLabel></DataList.ItemLabel>
               <DataList.ItemValue>
                 {taskDetail.updated_by ? taskDetail.updated_by.name : "-"}
               </DataList.ItemValue>
             </DataList.Item>
-            {/* Add more fields as necessary */}
           </DataList.Root>
         )}
       </Card.Body>
+      <Separator />
+      <Card.Footer padding={4} justifyContent="flex-end">
+        <SaveDeleteButton onSave={handleEdit} onDelete={handleDelete} />
+      </Card.Footer>
     </Card.Root>
   );
 };

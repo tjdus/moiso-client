@@ -58,8 +58,7 @@ const ProjectCardList = () => {
   useEffect(() => {
     const getProjectList = async () => {
       try {
-        const response = await fetchProjectList({ teamId: teamId });
-        console.log(response);
+        const response = await fetchProjectList({ page: 1, teamId });
         setProjectList(response.data.results);
       } catch (error) {
         console.error("Failed to fetch project list", error);

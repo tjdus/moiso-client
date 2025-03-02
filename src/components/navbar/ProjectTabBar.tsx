@@ -63,11 +63,9 @@ function TabTrigger({ icon, value, label }: TabTriggerProps) {
   );
 }
 
-function TabBar() {
-  const params = useParams();
+function TabBar({ projectId }: { projectId: string }) {
   const [project, setProject] = useState<ProjectDetailDTO | null>(null);
   const [loading, setLoading] = useState(true);
-  const projectId = Array.isArray(params.id) ? params.id[0] : params.id;
   const [tab, setTab] = useState<string>("overview");
 
   if (!projectId) {

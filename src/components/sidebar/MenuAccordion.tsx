@@ -17,14 +17,14 @@ import ProjectCreationDialog from "../dialog/create/ProjectCreationDialog";
 export default function MenuAccordion() {
   return (
     <AccordionRoot collapsible defaultValue={["members"]}>
-      <AccordionItem value="members">
+      {/* <AccordionItem value="members">
         <AccordionItemTrigger fontSize="md" fontWeight="bold" p={3}>
           Team Members
         </AccordionItemTrigger>
         <AccordionItemContent p={4} fontSize="md">
           <MemberList />
         </AccordionItemContent>
-      </AccordionItem>
+      </AccordionItem> */}
       <AccordionItem value="projects">
         <AccordionItemTrigger fontSize="md" fontWeight="bold" p={3}>
           Project List

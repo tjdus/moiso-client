@@ -289,7 +289,7 @@ export const SingleDateTimepicker: React.FC<SingleDatepickerProps> = ({
         unmountOnExit
       >
         <PopoverTrigger>
-          <InputGroup endElement={<LuCalendar />}>
+          <InputGroup endElement={<LuCalendar style={{ marginRight: "8" }} />}>
             <InputComponent
               id={id}
               autoComplete="off"
@@ -300,6 +300,8 @@ export const SingleDateTimepicker: React.FC<SingleDatepickerProps> = ({
               name={name}
               value={format(date, `${configs.dateFormat} HH:mm`)}
               onChange={(e) => e.target.value}
+              width="3xs"
+              padding={2}
             />
           </InputGroup>
         </PopoverTrigger>

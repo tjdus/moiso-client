@@ -79,7 +79,6 @@ export class FetchClient {
       });
       queryString = `?${searchParams.toString()}`;
     }
-
     let response = await fetch(`${this.baseUrl}${url}${queryString}`, {
       ...restOptions,
       headers: allHeaders,
@@ -130,7 +129,7 @@ export class FetchClient {
       if (!refreshToken) {
         throw new Error("Refresh Token is missing");
       }
-      const response = await fetch(`${this.baseUrl}/api/auth/refresh/`, {
+      const response = await fetch(`${this.baseUrl}/api/auth/refresh`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

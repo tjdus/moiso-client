@@ -5,12 +5,20 @@ import { Avatar } from "../ui/avatar";
 import { ColorModeButton } from "@/components/ui/color-mode";
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const ProfileBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const searchParams = useSearchParams();
-  const activeTab = searchParams.get("tab");
-  const isBarOpen = isOpen || activeTab;
+  const [tab, setTab] = useState(searchParams.get("tab"));
+  const isBarOpen = isOpen || tab;
+
+  const router = useRouter();
+
+  const handleTabChange = (tab: string) => {
+    setTab(tab);
+    router.push(`/workspace/my?tab=${tab}`);
+  };
 
   return (
     <Box
@@ -37,28 +45,27 @@ const ProfileBar = () => {
       >
         <Avatar name="User" size="md" mb={2} alignSelf="flex-end" />
         {isBarOpen && <ColorModeButton />}
-        <Tabs.Root variant="subtle" gap={4} value={activeTab}>
+        <Tabs.Root
+          variant="subtle"
+          gap={4}
+          value={tab}
+          onValueChange={(e) => handleTabChange(e.value)}
+        >
           <Tabs.List>
             {isBarOpen && (
-              <Tabs.Trigger value="profile" asChild padding={4}>
-                <Link href="/workspace/my?tab=profile" unstyled>
-                  Profile
-                </Link>
+              <Tabs.Trigger value="profile" padding={4}>
+                Profile
               </Tabs.Trigger>
             )}
             {isBarOpen && (
-              <Tabs.Trigger value="list" asChild padding={4}>
-                <Link href="/workspace/my?tab=list" unstyled>
-                  List
-                </Link>
+              <Tabs.Trigger value="list" padding={4}>
+                List
               </Tabs.Trigger>
             )}
-
+            `
             {isBarOpen && (
-              <Tabs.Trigger value="todo" asChild padding={4}>
-                <Link href="/workspace/my?tab=todo" unstyled>
-                  Todo
-                </Link>
+              <Tabs.Trigger value="todo" padding={4}>
+                Todo
               </Tabs.Trigger>
             )}
           </Tabs.List>
