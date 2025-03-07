@@ -19,7 +19,7 @@ import {
   DialogActionTrigger,
 } from "@chakra-ui/react";
 import { useParams } from "next/navigation";
-import { createRoleGroup } from "@/lib/api/postApi";
+import { createTeamGroup } from "@/lib/api/postApi";
 import { toaster } from "../../ui/toaster";
 
 const RoleCreationDialog = () => {
@@ -29,7 +29,7 @@ const RoleCreationDialog = () => {
 
   const handleClick = async () => {
     try {
-      const response = createRoleGroup({ team: teamId, name: roleName });
+      const response = createTeamGroup({ team: teamId, name: roleName });
       toaster.promise(response, {
         success: {
           title: "역할 생성 성공",

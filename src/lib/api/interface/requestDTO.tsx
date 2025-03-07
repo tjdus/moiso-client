@@ -1,36 +1,36 @@
 import { Status } from "./common";
 
-export interface ProjectForm {
+export interface ProjectInput {
   id?: string;
   team?: string;
   name?: string;
   description?: string;
   members?: string[];
   category?: string;
-  status?: Status;
+  status?: string;
   start_date?: string;
   end_date?: string;
 }
 
-export interface TeamForm {
+export interface TeamInput {
   id?: string;
   name?: string;
   members?: string[];
 }
 
-export interface CategoryForm {
+export interface CategoryInput {
   id?: string;
   name?: string;
   team?: string;
 }
 
-export interface TagForm {
+export interface TagInput {
   id?: string;
   name?: string;
   project?: string;
 }
 
-export interface TaskForm {
+export interface TaskInput {
   id?: string;
   project?: string;
   tags?: string[];
@@ -42,7 +42,7 @@ export interface TaskForm {
   end_at?: string;
 }
 
-export interface TaskAssignmentForm {
+export interface TaskAssignmentInput {
   id?: string;
   task?: string;
   member?: string;
@@ -51,9 +51,22 @@ export interface TaskAssignmentForm {
   completed_at?: string;
 }
 
-export interface TeamMemberForm {
+export interface TeamMemberInput {
   id?: string;
   team?: string;
   member?: string;
   team_groups?: string[];
+}
+
+export interface ProjectMemberInput {
+  id?: string;
+  project?: string;
+  member?: string;
+  role?: string;
+}
+
+export interface TeamGroupInput {
+  id?: string;
+  team?: string;
+  name?: string;
 }

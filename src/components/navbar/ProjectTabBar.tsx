@@ -10,6 +10,8 @@ import { LuFolder, LuSquareCheck, LuUser, LuSettings } from "react-icons/lu";
 import TaskCreationDialog from "../dialog/create/TaskCreationDialog";
 import { useParams } from "next/navigation";
 import { fetchProjectDetail } from "@/lib/api/fetchApi";
+import MemberSelectorWithGroup from "../custom-ui/MemberSelectorWithGroup";
+import { useProject } from "@/lib/context/ProjectContext";
 
 interface TabContentProps {
   value: string;
@@ -63,7 +65,8 @@ function TabTrigger({ icon, value, label }: TabTriggerProps) {
   );
 }
 
-function TabBar({ projectId }: { projectId: string }) {
+function TabBar() {
+  const { project: projectId } = useProject();
   const [project, setProject] = useState<ProjectDetailDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<string>("overview");
@@ -119,7 +122,7 @@ function TabBar({ projectId }: { projectId: string }) {
         </Tabs.List>
         <TabContent
           value="overview"
-          children={<Text>Overview</Text>}
+          children={<MemberSelectorWithGroup teamId={"1"} />}
         ></TabContent>
         <TabContent
           value="tasks"

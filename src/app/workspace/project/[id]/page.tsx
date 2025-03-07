@@ -5,6 +5,7 @@ import { useRole } from "@/lib/context/RoleContext";
 import { fetchMyProjectMemberDetail } from "@/lib/api/fetchApi";
 import { useRouter } from "next/router";
 import { Role } from "@/lib/api/interface/common";
+import { useProject } from "@/lib/context/ProjectContext";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -12,6 +13,7 @@ interface Props {
 
 const ProjectDetailPage = ({ params }: Props) => {
   const { role, setRole } = useRole();
+  const { setProject } = useProject();
   const [id, setId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -30,10 +32,11 @@ const ProjectDetailPage = ({ params }: Props) => {
         setRole(data.role as Role);
       };
       getRole();
+      setProject(id);
     }
   }, [id, setRole, role]);
 
-  return id ? <TabBar projectId={id} /> : null;
+  return id ? <TabBar /> : null;
 };
 
 export default ProjectDetailPage;

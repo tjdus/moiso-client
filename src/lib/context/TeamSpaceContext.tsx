@@ -17,7 +17,7 @@ export const TeamSpaceContext =
 
 type Props = { children: ReactNode };
 
-export default function TeamProvider({ children }: Props) {
+export default function TeamSpaceProvider({ children }: Props) {
   const [teamSpace, setTeamSpace] = useState<TeamDetailDTO | null>(null);
 
   return (

@@ -75,11 +75,15 @@ export interface ProjectDetailDTO {
   id: string;
   name: string;
   members: ProjectMemberInfoDTO[];
-  category: string;
+  category: CategoryNameDTO;
   description: string;
   start_date: string;
   end_date: string;
   status: string;
+  created_at: string;
+  updated_at: string;
+  created_by: MemberDTO;
+  updated_by: MemberDTO;
 }
 
 export interface TagDTO {

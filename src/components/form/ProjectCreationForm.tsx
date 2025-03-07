@@ -29,7 +29,7 @@ import {
   DialogFooter,
   DialogHeader,
 } from "@/components/ui/dialog";
-import { CategoryForm, ProjectForm } from "@/lib/api/interface/form";
+import { CategoryInput, ProjectInput } from "@/lib/api/interface/requestDTO";
 
 import { CategoryNameDTO, TeamMemberDTO } from "@/lib/api/interface/fetchDTOs";
 import { createListCollection } from "@chakra-ui/react";
@@ -64,7 +64,7 @@ const SelectCategoryItem = () => (
 );
 
 const ProjectCreationForm = () => {
-  const [project, setProject] = useState<ProjectForm>({});
+  const [project, setProject] = useState<ProjectInput>({});
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [teamMembers, setTeamMembers] = useState<TeamMemberDTO[]>([]);
@@ -125,7 +125,7 @@ const ProjectCreationForm = () => {
 
   const createNewCategory = async ({ name }: { name: string }) => {
     try {
-      const requestData: CategoryForm = {
+      const requestData: CategoryInput = {
         team: teamId,
         name: name,
       };

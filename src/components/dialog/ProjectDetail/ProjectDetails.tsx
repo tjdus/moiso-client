@@ -25,72 +25,80 @@ import {
   Separator,
 } from "@chakra-ui/react";
 import { RadioGroup, Radio } from "../../ui/radio";
-import { fetchTaskDetail } from "@/lib/api/fetchApi";
-import { TagDTO, TaskDetailDTO } from "@/lib/api/interface/fetchDTOs";
+import { fetchProjectDetail, fetchTaskDetail } from "@/lib/api/fetchApi";
+import {
+  CategoryNameDTO,
+  ProjectDetailDTO,
+  TagDTO,
+  TaskDetailDTO,
+} from "@/lib/api/interface/fetchDTOs";
 import { StatusTag, TagItem } from "../../custom-ui/Tag";
-import { TaskInput } from "@/lib/api/interface/requestDTO";
+import { ProjectInput, TaskInput } from "@/lib/api/interface/requestDTO";
 import { Avatar } from "../../ui/avatar";
 import { formatDateTimeKST } from "@/lib/util/dateFormat";
 import { SingleDateTimepicker } from "../../date-picker/DayzedDateTimepicker";
 import { Button } from "@chakra-ui/react";
 import { LuPencil, LuTrash2, LuX, LuCheck, LuPencilLine } from "react-icons/lu";
-import { updateTask } from "@/lib/api/patchApi";
+import { updateProject, updateTask } from "@/lib/api/patchApi";
 import { toaster } from "../../ui/toaster";
-import { deleteTask } from "@/lib/api/deleteApi";
-import TaskAssignTable from "./TaskAssignTable";
+import { deleteProject, deleteTask } from "@/lib/api/deleteApi";
 import EditableData from "@/components/custom-ui/EditableData";
 import { SaveDeleteButton } from "@/components/custom-ui/SaveDeleteButton";
 import TagSelector from "@/components/custom-ui/TagSelector";
+import CategorySelector from "@/components/custom-ui/CategorySelector";
+import { SingleDatepicker } from "@/components/date-picker/DayzedDatepicker";
 
-interface TaskDetailDialogProps {
+interface ProjectDetailDialogProps {
+  teamId: string;
   projectId: string;
-  taskId: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
-const TaskDetails = ({
+const ProjectDetails = ({
+  teamId,
   projectId,
-  taskId,
   isOpen,
   onClose,
-}: TaskDetailDialogProps) => {
-  const [taskDetail, setTaskDetail] = useState<TaskDetailDTO | null>(null);
+}: ProjectDetailDialogProps) => {
+  const [projectDetail, setProjectDetail] = useState<ProjectDetailDTO | null>(
+    null
+  );
 
   const [id, setId] = useState<string>("");
-  const [title, setTitle] = useState<string>("");
+  const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [status, setStatus] = useState<string>("");
-  const [tags, setTags] = useState<TagDTO[]>([]);
-  const [startAt, setStartAt] = useState<string>("");
-  const [endAt, setEndAt] = useState<string>("");
-  const [updatedField, setUpdatedField] = useState<Partial<TaskInput>>({});
+  const [category, setCategory] = useState<CategoryNameDTO | null>(null);
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+  const [updatedField, setUpdatedField] = useState<Partial<ProjectInput>>({});
 
   useEffect(() => {
-    if (taskDetail) {
-      setId(taskDetail.id);
-      setTitle(taskDetail.title);
-      setDescription(taskDetail.description);
-      setStatus(taskDetail.status);
-      setTags(taskDetail.tags.map((tag) => tag.tag) || []);
-      setStartAt(taskDetail.start_at);
-      setEndAt(taskDetail.end_at);
+    if (projectDetail) {
+      setId(projectDetail.id);
+      setName(projectDetail.name);
+      setDescription(projectDetail.description);
+      setStatus(projectDetail.status);
+      setCategory(projectDetail.category || null);
+      setStartDate(projectDetail.start_date);
+      setEndDate(projectDetail.end_date);
     }
-  }, [taskDetail]);
+  }, [projectDetail]);
 
   useEffect(() => {
     if (isOpen) {
       const fetchData = async () => {
-        const response = await fetchTaskDetail(taskId);
-        setTaskDetail(response.data);
+        const response = await fetchProjectDetail(projectId);
+        setProjectDetail(response.data);
       };
       fetchData();
     }
-  }, [taskId, isOpen]);
+  }, [id, isOpen]);
 
   const handleEdit = async () => {
     try {
-      await updateTask(taskId, updatedField);
+      await updateProject(projectId, updatedField);
       toaster.success({
         title: "업무 수정 성공",
         description: "업무가 성공적으로 수정되었습니다",
@@ -106,16 +114,16 @@ const TaskDetails = ({
 
   const handleDelete = async () => {
     try {
-      await deleteTask(taskId);
+      await deleteProject(projectId); // corrected to use projectId
       toaster.success({
-        title: "업무 삭제 성공",
-        description: "업무가 삭제되었습니다",
+        title: "프로젝트 삭제 성공",
+        description: "프로젝트가 삭제되었습니다",
       });
       onClose();
     } catch (error) {
       toaster.error({
-        title: "업무 삭제 실패",
-        description: "업무 삭제에 실패했습니다",
+        title: "프로젝트 삭제 실패",
+        description: "프로젝트 삭제에 실패했습니다",
       });
     }
   };
@@ -123,30 +131,30 @@ const TaskDetails = ({
   return (
     <Card.Root padding={10}>
       <Card.Body padding={4}>
-        {taskDetail && (
+        {projectDetail && (
           <DataList.Root orientation="horizontal">
             <DataList.Item>
               <DataList.ItemLabel>제목</DataList.ItemLabel>
               <DataList.ItemValue>
                 <EditableData
                   onValueRevert={() => {
-                    setTitle(taskDetail.title || "");
+                    setName(projectDetail.name || "");
                     setUpdatedField({
                       ...updatedField,
-                      title: "",
+                      name: "",
                     });
                   }}
                   onValueCommit={() => {
                     setUpdatedField({
                       ...updatedField,
-                      title: title,
+                      name: name,
                     });
                   }}
-                  preview={<Text textStyle="sm">{title}</Text>}
+                  preview={<Text textStyle="sm">{name}</Text>}
                   edit={
                     <Input
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
                       width="3xs"
                     />
                   }
@@ -158,7 +166,7 @@ const TaskDetails = ({
               <DataList.ItemValue>
                 <EditableData
                   onValueRevert={() => {
-                    setDescription(taskDetail.description || "");
+                    setDescription(projectDetail.description || "");
                     setUpdatedField({
                       ...updatedField,
                       description: undefined,
@@ -186,7 +194,7 @@ const TaskDetails = ({
               <DataList.ItemValue>
                 <EditableData
                   onValueRevert={() => {
-                    setStatus(taskDetail.status || "");
+                    setStatus(projectDetail.status || "");
                     setUpdatedField({
                       ...updatedField,
                       status: undefined,
@@ -224,97 +232,107 @@ const TaskDetails = ({
               </DataList.ItemValue>
             </DataList.Item>
             <DataList.Item>
-              <DataList.ItemLabel>태그</DataList.ItemLabel>
+              <DataList.ItemLabel>카테고리</DataList.ItemLabel>
               <DataList.ItemValue>
                 <EditableData
                   onValueRevert={() => {
-                    setTags(tags || []);
+                    setCategory(category || null);
                     setUpdatedField({
                       ...updatedField,
-                      tags: [],
+                      category: undefined,
                     });
                   }}
                   onValueCommit={() => {
                     setUpdatedField({
                       ...updatedField,
-                      tags: tags.map((tag) => tag.id),
+                      category: category?.id || undefined,
                     });
                   }}
                   preview={
-                    <HStack gap={2}>
-                      {tags.map((tag, index) => (
-                        <TagItem
-                          id={tag.id}
-                          key={index}
-                          name={tag.name}
-                          size="sm"
-                        />
-                      ))}
-                    </HStack>
+                    category && (
+                      <TagItem
+                        id={category.id}
+                        key={category.id}
+                        name={category.name}
+                        size="sm"
+                      />
+                    )
                   }
                   edit={
-                    <TagSelector
-                      projectId={projectId}
-                      value={tags}
-                      onValueChange={setTags}
+                    <CategorySelector
+                      teamId={teamId}
+                      value={category ? [category] : []}
+                      onValueChange={setCategory}
                     />
                   }
                 />
               </DataList.ItemValue>
             </DataList.Item>
             <DataList.Item>
-              <DataList.ItemLabel>시작 시간</DataList.ItemLabel>
+              <DataList.ItemLabel>시작일</DataList.ItemLabel>
               <DataList.ItemValue>
                 <EditableData
                   onValueRevert={() => {
-                    setStartAt(taskDetail.start_at);
+                    setStartDate(projectDetail.start_date);
                     setUpdatedField({
                       ...updatedField,
-                      start_at: undefined,
+                      start_date: undefined,
                     });
                   }}
                   onValueCommit={() => {
                     setUpdatedField({
                       ...updatedField,
-                      start_at: startAt,
+                      start_date: startDate,
                     });
                   }}
                   preview={
-                    <Text>{formatDateTimeKST({ dateString: startAt })}</Text>
+                    <Text>
+                      {
+                        formatDateTimeKST({ dateString: startDate }).split(
+                          " "
+                        )[0]
+                      }
+                    </Text>
                   }
                   edit={
-                    <SingleDateTimepicker
-                      date={startAt ? new Date(startAt) : new Date()}
-                      onDateChange={(date) => setStartAt(date.toISOString())}
+                    <SingleDatepicker
+                      date={startDate ? new Date(startDate) : new Date()}
+                      onDateChange={(date) =>
+                        setStartDate(date.toISOString().split("T")[0])
+                      }
                     />
                   }
                 />
               </DataList.ItemValue>
             </DataList.Item>
             <DataList.Item>
-              <DataList.ItemLabel>마감 시간</DataList.ItemLabel>
+              <DataList.ItemLabel>종료일</DataList.ItemLabel>
               <DataList.ItemValue>
                 <EditableData
                   onValueRevert={() => {
-                    setEndAt(taskDetail.end_at);
+                    setEndDate(projectDetail.end_date);
                     setUpdatedField({
                       ...updatedField,
-                      end_at: undefined,
+                      end_date: undefined,
                     });
                   }}
                   onValueCommit={() => {
                     setUpdatedField({
                       ...updatedField,
-                      end_at: endAt,
+                      end_date: endDate,
                     });
                   }}
                   preview={
-                    <Text>{formatDateTimeKST({ dateString: endAt })}</Text>
+                    <Text>
+                      {formatDateTimeKST({ dateString: endDate }).split(" ")[0]}
+                    </Text>
                   }
                   edit={
-                    <SingleDateTimepicker
-                      date={endAt ? new Date(endAt) : new Date()}
-                      onDateChange={(date) => setEndAt(date.toISOString())}
+                    <SingleDatepicker
+                      date={endDate ? new Date(endDate) : new Date()}
+                      onDateChange={(date) =>
+                        setEndDate(date.toISOString().split("T")[0])
+                      }
                     />
                   }
                 />
@@ -324,22 +342,22 @@ const TaskDetails = ({
               <DataList.ItemLabel>등록</DataList.ItemLabel>
               <DataList.ItemValue>
                 {formatDateTimeKST({
-                  dateString: taskDetail.created_at,
+                  dateString: projectDetail.created_at,
                 })}
               </DataList.ItemValue>
             </DataList.Item>
             <DataList.Item>
               <DataList.ItemLabel></DataList.ItemLabel>
               <DataList.ItemValue>
-                {taskDetail.created_by.name}
+                {projectDetail.created_by.name}
               </DataList.ItemValue>
             </DataList.Item>
             <DataList.Item>
               <DataList.ItemLabel>수정</DataList.ItemLabel>
               <DataList.ItemValue>
-                {taskDetail.updated_at
+                {projectDetail.updated_at
                   ? formatDateTimeKST({
-                      dateString: taskDetail.updated_at,
+                      dateString: projectDetail.updated_at,
                     })
                   : "-"}
               </DataList.ItemValue>
@@ -347,7 +365,7 @@ const TaskDetails = ({
             <DataList.Item>
               <DataList.ItemLabel></DataList.ItemLabel>
               <DataList.ItemValue>
-                {taskDetail.updated_by ? taskDetail.updated_by.name : "-"}
+                {projectDetail.updated_by ? projectDetail.updated_by.name : "-"}
               </DataList.ItemValue>
             </DataList.Item>
           </DataList.Root>
@@ -361,4 +379,4 @@ const TaskDetails = ({
   );
 };
 
-export default TaskDetails;
+export default ProjectDetails;

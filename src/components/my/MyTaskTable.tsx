@@ -34,7 +34,7 @@ import TaskDetailDialog from "../dialog/TaskDetail/TaskDetailDialog";
 import { TagItem, StatusTag } from "@/components/custom-ui/Tag";
 import { AvatarList } from "@/components/custom-ui/Avatar";
 import { get } from "lodash";
-import { formatToKST } from "@/lib/util/dateFormat";
+import { formatDateTimeKST } from "@/lib/util/dateFormat";
 import { ProjectButton, ProjectLink } from "../custom-ui/ProjectLink";
 import { Radio, RadioGroup } from "../ui/radio";
 
@@ -340,17 +340,25 @@ export default function MyTaskTable() {
                   <StatusTag status={taskAssignment.status} size="md" />
                 </TableCell>
                 <TableCell padding={4} textAlign="center" fontSize="xs">
-                  {formatToKST({ dateString: taskAssignment.assigned_at })}
+                  {formatDateTimeKST({
+                    dateString: taskAssignment.assigned_at,
+                  })}
                 </TableCell>
                 <TableCell padding={4} textAlign="center" fontSize="xs">
-                  {formatToKST({ dateString: taskAssignment.completed_at })}
+                  {formatDateTimeKST({
+                    dateString: taskAssignment.completed_at,
+                  })}
                 </TableCell>
 
                 <TableCell padding={4} textAlign="center" fontSize="xs">
-                  {formatToKST({ dateString: taskAssignment.task.start_at })}
+                  {formatDateTimeKST({
+                    dateString: taskAssignment.task.start_at,
+                  })}
                 </TableCell>
                 <TableCell padding={4} textAlign="center" fontSize="xs">
-                  {formatToKST({ dateString: taskAssignment.task.end_at })}
+                  {formatDateTimeKST({
+                    dateString: taskAssignment.task.end_at,
+                  })}
                 </TableCell>
               </TableRow>
             ))

@@ -59,7 +59,7 @@ const ProjectMemberRow = ({
       </TableCell>
 
       <TableCell textAlign="center" height="48px">
-        <RoleBadge role={role as Role} />
+        <RoleBadge role={role} />
       </TableCell>
 
       <TableCell fontSize="xs" textAlign="center" height="48px">

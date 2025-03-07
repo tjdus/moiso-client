@@ -1,7 +1,7 @@
 "use client";
 
 import { useContext, useEffect, useState } from "react";
-import { TeamSpaceContext } from "@/lib/context/TeamContext";
+import { TeamSpaceContext } from "@/lib/context/TeamSpaceContext";
 import {
   TableRoot,
   TableHeader,

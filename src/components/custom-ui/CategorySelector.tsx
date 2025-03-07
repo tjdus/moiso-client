@@ -24,20 +24,20 @@ import {
 import { LuPlus } from "react-icons/lu";
 import { TagItem } from "./Tag";
 import { useEffect, useMemo, useState } from "react";
-import { TagDTO } from "@/lib/api/interface/fetchDTOs";
-import { fetchTagList } from "@/lib/api/fetchApi";
+import { CategoryNameDTO } from "@/lib/api/interface/fetchDTOs";
+import { fetchCategoryList } from "@/lib/api/fetchApi";
 import { toaster } from "../ui/toaster";
-import { createTag } from "@/lib/api/postApi";
-import { TagInput } from "@/lib/api/interface/requestDTO";
+import { createCategory } from "@/lib/api/postApi";
+import { CategoryInput } from "@/lib/api/interface/requestDTO";
 
-interface TagSelectorProps {
-  projectId: string;
-  value: TagDTO[];
-  onValueChange: (items: TagDTO[]) => void;
+interface CategorySelectorProps {
+  teamId: string;
+  value: CategoryNameDTO[];
+  onValueChange: (items: CategoryNameDTO) => void;
 }
 
 const SelectTagItem = () => (
-  <SelectValueText placeholder="태그를 선택하세요" width="3xs">
+  <SelectValueText width="3xs">
     {(items: Array<{ id: string; name: string }>) => (
       <HStack>
         {items.map(({ id, name }) => (
@@ -50,83 +50,82 @@ const SelectTagItem = () => (
   </SelectValueText>
 );
 
-const TagSelector = ({ projectId, value, onValueChange }: TagSelectorProps) => {
-  const [tags, setTags] = useState<TagDTO[]>([]);
-  const [newTagName, setNewTagName] = useState<string>("");
+const CategorySelector = ({
+  teamId,
+  value,
+  onValueChange,
+}: CategorySelectorProps) => {
+  const [categories, setCategories] = useState<CategoryNameDTO[]>([]);
+  const [newCategoryName, setNewCategoryName] = useState<string>("");
 
-  const getTags = async ({ projectId }: { projectId: string }) => {
+  const getCategories = async ({ teamId }: { teamId: string }) => {
     try {
-      const response = await fetchTagList({ projectId });
-      setTags(response.data.results);
+      const response = await fetchCategoryList({ teamId });
+      setCategories(response.data.results);
     } catch (error) {
       toaster.error({
-        title: "태그 불러오기 실패",
-        description: "태그를 불러오는 데 실패했습니다",
+        title: "카테고리 불러오기 실패",
       });
     }
   };
 
-  const createNewTag = async ({ name }: { name: string }) => {
+  const createNewCategory = async ({ name }: { name: string }) => {
     try {
-      const requestData: TagInput = {
-        project: projectId,
+      const requestData: CategoryInput = {
+        team: teamId,
         name: name,
       };
-      const response = await createTag(requestData);
+      const response = await createCategory(requestData);
 
       if (response.status === 201) {
-        setNewTagName("");
-        const newTag: TagDTO = {
+        setNewCategoryName("");
+        const newCategory: CategoryNameDTO = {
           id: response.data.id || "",
           name: response.data.name || "",
         };
-        setTags((prevTags) => [...prevTags, newTag]);
+        setCategories((prevTags) => [...prevTags, newCategory]);
       }
     } catch (error) {
       toaster.error({
-        title: "태그 생성 실패",
-        description: "태그를 생성하는 데 실패했습니다",
+        title: "카테고리 생성 실패",
       });
     }
   };
 
   useEffect(() => {
-    getTags({ projectId });
+    getCategories({ teamId });
   }, []);
 
-  const tagList = useMemo(() => {
+  const cateogoryList = useMemo(() => {
     return createListCollection({
-      items: tags || [],
-      itemToString: (item: TagDTO) => item.name,
-      itemToValue: (item: TagDTO) => item.id,
+      items: categories || [],
+      itemToString: (item: CategoryNameDTO) => item.name,
+      itemToValue: (item: CategoryNameDTO) => item.id,
     });
-  }, [tags]);
+  }, [categories]);
   return (
     <SelectRoot
-      multiple
       size="sm"
       name="category"
       width="100%"
-      value={value.map((tag) => tag.id)}
-      collection={tagList}
-      onValueChange={(selectedItem) => {
-        onValueChange(
-          selectedItem.items.map((item) => ({ id: item.id, name: item.name }))
-        );
+      value={value.map((category) => category.id)}
+      collection={cateogoryList}
+      onValueChange={(selectedItems) => {
+        onValueChange(selectedItems.items[0]);
       }}
     >
       <SelectTrigger>
         <SelectTagItem />
       </SelectTrigger>
       <SelectContent portalled={false}>
-        {tagList.items.map((tagItem) => (
+        {cateogoryList.items.map((categoryItem) => (
           <SelectItem
-            item={tagItem}
-            key={tagItem.id}
+            item={categoryItem}
+            key={categoryItem.id}
             justifyContent="flex-start"
             padding={1}
           >
-            <TagItem id={tagItem.id} name={tagItem.name} size="sm" />
+            <TagItem id={categoryItem.id} name={categoryItem.name} size="sm" />
           </SelectItem>
         ))}
 
@@ -140,13 +139,13 @@ const TagSelector = ({ projectId, value, onValueChange }: TagSelectorProps) => {
             <HStack padding="12px">
               <Input
                 padding="12px"
-                placeholder="새 태그 이름"
-                value={newTagName || ""}
-                onChange={(e) => setNewTagName(e.target.value)}
+                placeholder="새 카테고리 이름"
+                value={newCategoryName || ""}
+                onChange={(e) => setNewCategoryName(e.target.value)}
               />
               <IconButton
                 size="xs"
-                onClick={() => createNewTag({ name: newTagName })}
+                onClick={() => createNewCategory({ name: newCategoryName })}
               >
                 <LuPlus />
               </IconButton>
@@ -158,4 +157,4 @@ const TagSelector = ({ projectId, value, onValueChange }: TagSelectorProps) => {
   );
 };
 
-export default TagSelector;
+export default CategorySelector;

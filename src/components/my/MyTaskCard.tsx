@@ -3,7 +3,7 @@ import { Avatar, AvatarGroup } from "../ui/avatar";
 import { Checkbox } from "../ui/checkbox";
 import { TaskAssignmentDTO, TaskDTO } from "@/lib/api/interface/fetchDTOs";
 import { StatusTag, TagItem } from "../custom-ui/Tag";
-import { formatToKST } from "@/lib/util/dateFormat";
+import { formatDateTimeKST } from "@/lib/util/dateFormat";
 
 export default function MyTaskCard({
   taskAssignment,
@@ -38,8 +38,8 @@ export default function MyTaskCard({
           <Text fontSize="sm">{taskAssignment.task.description}</Text>
 
           <Text fontSize="xs">
-            {formatToKST({ dateString: taskAssignment.task.start_at })} -
-            {formatToKST({ dateString: taskAssignment.task.end_at })}
+            {formatDateTimeKST({ dateString: taskAssignment.task.start_at })} -
+            {formatDateTimeKST({ dateString: taskAssignment.task.end_at })}
           </Text>
         </VStack>
       </HStack>

@@ -1,50 +1,97 @@
 import apiClient from "./apiClient";
-import { TaskAssignmentForm, TaskForm, TeamMemberForm } from "./interface/form";
+import {
+  CategoryInput,
+  ProjectInput,
+  TagInput,
+  TaskAssignmentInput,
+  TaskInput,
+  TeamGroupInput,
+  TeamInput,
+  TeamMemberInput,
+} from "./interface/requestDTO";
 
-export async function updateTask(id: string, updatedField: Partial<TaskForm>) {
-  console.log(updatedField);
-  return apiClient.patch<Partial<TaskForm>, TaskForm>(`/api/tasks/${id}`, {
+export async function updateTeam(id: string, updatedData: Partial<TeamInput>) {
+  return apiClient.patch<Partial<TeamInput>, TeamInput>(`/api/teams/${id}`, {
     withAuth: true,
-    body: updatedField,
+    body: updatedData,
   });
 }
 
-export async function updateTeamMember({
-  teamMemberId,
-  teamGroups,
-  teamId,
-  memberId,
-}: {
-  teamMemberId: string;
-  teamGroups?: string[];
-  teamId?: string;
-  memberId?: string;
-}) {
-  return apiClient.patch<TeamMemberForm, TeamMemberForm>(
-    `/api/team_members/${teamMemberId}`,
+export async function updateProject(
+  id: string,
+  updatedData: Partial<ProjectInput>
+) {
+  return apiClient.patch<Partial<ProjectInput>, ProjectInput>(
+    `/api/projects/${id}`,
     {
       withAuth: true,
-      body: {
-        ...(teamGroups && { team_groups: teamGroups }),
-        ...(teamId && { team_id: teamId }),
-        ...(memberId && { member_id: memberId }),
-      },
+      body: updatedData,
+    }
+  );
+}
+
+export async function updateTask(id: string, updatedData: Partial<TaskInput>) {
+  return apiClient.patch<Partial<TaskInput>, TaskInput>(`/api/tasks/${id}`, {
+    withAuth: true,
+    body: updatedData,
+  });
+}
+
+export async function updateTag(id: string, updatedData: Partial<TagInput>) {
+  return apiClient.patch<Partial<TagInput>, TagInput>(`/api/tags/${id}`, {
+    withAuth: true,
+    body: updatedData,
+  });
+}
+
+export async function updateCategory(
+  id: string,
+  updatedData: Partial<CategoryInput>
+) {
+  return apiClient.patch<Partial<CategoryInput>, CategoryInput>(
+    `/api/categories/${id}`,
+    {
+      withAuth: true,
+      body: updatedData,
+    }
+  );
+}
+
+export async function updateTeamMember(
+  id: string,
+  updatedData: Partial<TeamMemberInput>
+) {
+  return apiClient.patch<TeamMemberInput, TeamMemberInput>(
+    `/api/team_members/${id}`,
+    {
+      withAuth: true,
+      body: updatedData,
+    }
+  );
+}
+
+export async function updateTeamGroup(
+  id: string,
+  updatedData: Partial<TeamGroupInput>
+) {
+  return apiClient.patch<Partial<TeamGroupInput>, TeamGroupInput>(
+    `/api/team_groups/${id}`,
+    {
+      withAuth: true,
+      body: updatedData,
     }
   );
 }
 
 export async function updateTaskAssignment(
-  taskAssigmentId: string,
-  { status, completed_at }: TaskAssignmentForm
+  id: string,
+  data: Partial<TaskAssignmentInput>
 ) {
-  return apiClient.patch<TaskAssignmentForm, TaskAssignmentForm>(
-    `/api/task_assignments/${taskAssigmentId}`,
+  return apiClient.patch<TaskAssignmentInput, TaskAssignmentInput>(
+    `/api/task_assignments/${id}`,
     {
       withAuth: true,
-      body: {
-        ...(status !== undefined && { status }),
-        ...(completed_at !== undefined && { completed_at }),
-      },
+      body: data,
     }
   );
 }

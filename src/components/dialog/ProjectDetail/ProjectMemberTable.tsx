@@ -44,49 +44,60 @@ import {
   ProjectMemberDTO,
   TaskAssignmentDTO,
   TaskAssignmentInfoDTO,
+  TeamMemberDTO,
 } from "@/lib/api/interface/fetchDTOs";
 
 import { toaster } from "../../ui/toaster";
 import { useParams } from "next/navigation";
-import { TaskAssignmentInput } from "@/lib/api/interface/requestDTO";
+import {
+  ProjectMemberInput,
+  TaskAssignmentInput,
+} from "@/lib/api/interface/requestDTO";
 import { StatusTag } from "../../custom-ui/Tag";
 import { formatDateTimeKST } from "@/lib/util/dateFormat";
 import { LuUserRoundMinus } from "react-icons/lu";
-import { deleteTaskAssignment } from "@/lib/api/deleteApi";
-import { createTaskAssignment } from "@/lib/api/postApi";
+import { deleteProjectMember, deleteTaskAssignment } from "@/lib/api/deleteApi";
+import { createProjectMember, createTaskAssignment } from "@/lib/api/postApi";
 import CreationDialog from "../CreationDialog";
 import {
   fetchProjectMemberList,
   fetchTaskAssignmentList,
+  fetchTeamMemberDetail,
+  fetchTeamMemberList,
 } from "@/lib/api/fetchApi";
 import { useRole } from "@/lib/context/RoleContext";
 import { WarnDialog } from "@/components/custom-ui/SaveDeleteButton";
+import { RoleBadge } from "@/components/custom-ui/RoleBadge";
+import { TeamGroupTag } from "@/components/custom-ui/TeamGroup";
+import { RoleRadioCard } from "@/components/custom-ui/RoleSelector";
+import { useTeam } from "@/lib/context/TeamProvider";
 
-const headers = ["담당자", "진행 상태", "담당일", "완료일", "-"];
+const headers = ["이름", "이메일", "역할", "권한", "-"];
 
-const TaskAssignmetCreateDialog = ({
-  addTaskAssignment,
+const AddProjectMemberDialog = ({
+  projectId,
+  addProjectMember: addProjectMember,
 }: {
-  addTaskAssignment: (taskAssignment: TaskAssignmentInput) => void;
+  projectId: string;
+  addProjectMember: (data: ProjectMemberInput) => void;
 }) => {
-  const params = useParams();
-  const projectId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const { team: teamId } = useTeam();
   const [member, setMember] = useState<string>("");
-  const [status, setStatus] = useState<string>("not_started");
-  const [projectMembers, setProjectMembers] = useState<ProjectMemberDTO[]>([]);
+  const [role, setRole] = useState<string>("viewer");
+  const [teamMembers, setTeamMembers] = useState<TeamMemberDTO[]>([]);
 
-  if (!projectId) {
-    return;
+  if (!teamId) {
+    return null;
   }
 
   useEffect(() => {
-    getProjectMembers({ projectId: projectId });
-  }, [projectId]);
+    getTeamMembers();
+  }, []);
 
-  const getProjectMembers = async ({ projectId }: { projectId: string }) => {
+  const getTeamMembers = async () => {
     try {
-      const response = await fetchProjectMemberList({ projectId });
-      setProjectMembers(response.data.results);
+      const response = await fetchTeamMemberList({ teamId });
+      setTeamMembers(response.data.results);
     } catch (error) {
       toaster.error({
         title: "멤버 불러오기 실패",
@@ -97,15 +108,15 @@ const TaskAssignmetCreateDialog = ({
 
   const memberList = useMemo(() => {
     return createListCollection({
-      items: projectMembers || [],
-      itemToString: (item: ProjectMemberDTO) => item.member.name,
-      itemToValue: (item: ProjectMemberDTO) => item.member.id,
+      items: teamMembers || [],
+      itemToString: (item: TeamMemberDTO) => item.member.name,
+      itemToValue: (item: TeamMemberDTO) => item.member.id,
     });
-  }, [projectMembers]);
+  }, [teamMembers]);
 
   const resetForm = () => {
     setMember("");
-    setStatus("not_started");
+    setRole("not_started");
   };
 
   return (
@@ -122,7 +133,7 @@ const TaskAssignmetCreateDialog = ({
               <Field.Root orientation="horizontal">
                 <Field.Label>
                   <LuUserRound />
-                  담당자
+                  멤버
                 </Field.Label>
                 <SelectRoot
                   size="sm"
@@ -157,26 +168,9 @@ const TaskAssignmetCreateDialog = ({
                 </SelectRoot>
               </Field.Root>
               <Field.Root>
-                <Field.Label>진행 상태</Field.Label>
+                <Field.Label>권한</Field.Label>
 
-                <RadioGroup
-                  value={status}
-                  onValueChange={(e) => {
-                    setStatus(e.value);
-                  }}
-                >
-                  <HStack gap={2}>
-                    <Radio value="not_started">
-                      <StatusTag status="not_started" size="md" />
-                    </Radio>
-                    <Radio value="in_progress">
-                      <StatusTag status="in_progress" size="md" />
-                    </Radio>
-                    <Radio value="completed">
-                      <StatusTag status="completed" size="md" />
-                    </Radio>
-                  </HStack>
-                </RadioGroup>
+                <RoleRadioCard value={role} onValueChange={setRole} />
               </Field.Root>
             </Card.Body>
           </Card.Root>
@@ -189,9 +183,9 @@ const TaskAssignmetCreateDialog = ({
             <Button
               colorPalette="blue"
               onClick={() => {
-                addTaskAssignment({
+                addProjectMember({
                   member: member,
-                  status: status,
+                  role: role,
                 });
                 resetForm();
               }}
@@ -206,21 +200,22 @@ const TaskAssignmetCreateDialog = ({
   );
 };
 
-const TaskAssignTable = ({ taskId }: { taskId: string }) => {
+const ProjectMember = ({ projectId }: { projectId: string }) => {
   const { role } = useRole();
-  const [assignedMembers, setAssignedMembers] = useState<TaskAssignmentDTO[]>(
-    []
-  );
+  const { team: teamId } = useTeam();
+  const [projectMemberList, setProjectMemberList] = useState<
+    ProjectMemberDTO[]
+  >([]);
   const [members, setMembers] = useState<TaskAssignmentInput[]>([]);
 
   useEffect(() => {
-    getTaskAssignments({ taskId });
-  }, [taskId]);
+    getProjectMembers({ projectId });
+  }, [projectId]);
 
-  const getTaskAssignments = async ({ taskId }: { taskId: string }) => {
+  const getProjectMembers = async ({ projectId }: { projectId: string }) => {
     try {
-      const response = await fetchTaskAssignmentList({ taskId });
-      setAssignedMembers(response.data.results);
+      const response = await fetchProjectMemberList({ projectId });
+      setProjectMemberList(response.data.results);
     } catch (error) {
       toaster.error({
         title: "멤버 불러오기 실패",
@@ -229,37 +224,39 @@ const TaskAssignTable = ({ taskId }: { taskId: string }) => {
     }
   };
 
-  const removeTaskAssignment = async (id: string, taskId: string) => {
+  const removeProjectMember = async (id: string, projectId: string) => {
     try {
-      await deleteTaskAssignment({ assignmentId: id });
-      getTaskAssignments({ taskId });
+      await deleteProjectMember(id);
+      getProjectMembers({ projectId });
     } catch (error) {
       toaster.error({
         title: "삭제 실패",
-        description: "작업 할당을 삭제하는 데 실패했습니다",
       });
     }
   };
-  const addTaskAssignment = async ({ member, status }: TaskAssignmentInput) => {
+  const addProjectMember = async (data: ProjectMemberInput) => {
     try {
-      const taskAssignment = { task: taskId, member, status };
-      await createTaskAssignment(taskAssignment);
+      const projectMember = {
+        project: projectId,
+        member: data.member,
+        role: data.role,
+      };
+      await createProjectMember(projectMember);
       toaster.success({
-        title: "업무 할당 성공",
-        description: "작업 할당이 성공적으로 이루어졌습니다",
+        title: "성공",
       });
-      getTaskAssignments({ taskId });
+      getProjectMembers({ projectId });
     } catch (error: any) {
       if (error.non_field_errors) {
         toaster.create({
           title: "경고",
-          description: "이미 업무가 배정된 멤버입니다",
+          description: "이미 존재하는 멤버입니다",
           type: "warning",
         });
       } else {
         toaster.error({
           title: "실패",
-          description: "작업 할당 생성 중 오류가 발생했습니다",
+          description: "오류가 발생했습니다",
         });
       }
     }
@@ -284,10 +281,10 @@ const TaskAssignTable = ({ taskId }: { taskId: string }) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {assignedMembers.length > 0 &&
-              assignedMembers.map((assignment, index) => (
+            {projectMemberList.length > 0 &&
+              projectMemberList.map((projectMember, index) => (
                 <TableRow
-                  key={assignment.id}
+                  key={projectMember.id}
                   cursor="pointer"
                   _hover={{ backgroundColor: "brand.200" }}
                   borderBottom="1px"
@@ -296,24 +293,18 @@ const TaskAssignTable = ({ taskId }: { taskId: string }) => {
                   <TableCell padding={4} align="center">
                     <Avatar
                       shape="rounded"
-                      name={assignment.member.name}
+                      name={projectMember.member.name}
                       size="2xs"
                     />
-                    {assignment.member.name}
+                    {projectMember.member.name}
                   </TableCell>
 
-                  <TableCell padding={4} align="center">
-                    <StatusTag status={assignment.status} size="md" />
-                  </TableCell>
                   <TableCell padding={4} textAlign="center" fontSize="xs">
-                    {formatDateTimeKST({ dateString: assignment.assigned_at })}
+                    {projectMember.member.email}
                   </TableCell>
+
                   <TableCell padding={4} textAlign="center" fontSize="xs">
-                    {assignment.completed_at
-                      ? formatDateTimeKST({
-                          dateString: assignment.completed_at,
-                        })
-                      : "-"}
+                    <RoleBadge role={projectMember.role} />
                   </TableCell>
 
                   <TableCell padding={4} align="center">
@@ -330,7 +321,7 @@ const TaskAssignTable = ({ taskId }: { taskId: string }) => {
                         </IconButton>
                       }
                       confirmDelete={() =>
-                        removeTaskAssignment(assignment.id, taskId)
+                        removeProjectMember(projectMember.id, projectId)
                       }
                     />
                   </TableCell>
@@ -340,10 +331,13 @@ const TaskAssignTable = ({ taskId }: { taskId: string }) => {
         </TableRoot>
       </Card.Body>
       <Card.Footer padding={4} justifyContent="flex-end">
-        <TaskAssignmetCreateDialog addTaskAssignment={addTaskAssignment} />
+        <AddProjectMemberDialog
+          projectId={projectId}
+          addProjectMember={addProjectMember}
+        />
       </Card.Footer>
     </Card.Root>
   );
 };
 
-export default TaskAssignTable;
+export default ProjectMember;

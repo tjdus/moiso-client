@@ -5,7 +5,7 @@ import { Box, HStack, VStack } from "@chakra-ui/react";
 
 import { Card, Tag, Text } from "@chakra-ui/react";
 import { ProjectDTO } from "@/lib/api/interface/fetchDTOs";
-import { formatToKST } from "@/lib/util/dateFormat";
+import { formatDateTimeKST } from "@/lib/util/dateFormat";
 import { useParams } from "next/navigation";
 import { fetchProjectList } from "@/lib/api/fetchApi";
 
@@ -36,8 +36,8 @@ const ProjectCard = ({ project }: TeamCardProps) => {
             </Tag.Root>
           )}
           <Text textStyle="xs">
-            {formatToKST({ dateString: project.start_date })} -{" "}
-            {formatToKST({ dateString: project.end_date })}
+            {formatDateTimeKST({ dateString: project.start_date })} -{" "}
+            {formatDateTimeKST({ dateString: project.end_date })}
           </Text>
         </VStack>
       </Card.Footer>

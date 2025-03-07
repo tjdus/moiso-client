@@ -1,98 +1,81 @@
 import apiClient from "./apiClient";
 import {
-  TeamForm,
-  ProjectForm,
-  CategoryForm,
-  TagForm,
-  TaskForm,
-  TaskAssignmentForm,
-} from "./interface/form";
+  TeamInput,
+  ProjectInput,
+  CategoryInput,
+  TagInput,
+  TaskInput,
+  TaskAssignmentInput,
+  TeamMemberInput,
+  TeamGroupInput,
+  ProjectMemberInput,
+} from "./interface/requestDTO";
 
-export async function createTeam({ name }: TeamForm) {
-  return apiClient.post<TeamForm, TeamForm>("/api/teams", {
+export async function createTeam(data: Partial<TeamInput>) {
+  return apiClient.post<TeamInput, TeamInput>("/api/teams", {
     withAuth: true,
-    body: { name },
+    body: data,
   });
 }
 
-export async function createProject({
-  team,
-  name,
-  description,
-  members,
-  category,
-  status,
-  start_date: start_at,
-  end_date: end_at,
-}: ProjectForm) {
-  return apiClient.post<ProjectForm, ProjectForm>("/api/projects", {
+export async function createProject(data: Partial<ProjectInput>) {
+  return apiClient.post<ProjectInput, ProjectInput>("/api/projects", {
     withAuth: true,
-    body: {
-      team,
-      name,
-      description,
-      members,
-      category,
-      status,
-      start_date: start_at,
-      end_date: end_at,
-    },
+    body: data,
   });
 }
 
-export async function createCategory({ team, name }: CategoryForm) {
-  return apiClient.post<CategoryForm, CategoryForm>("/api/categories/", {
+export async function createCategory(data: Partial<CategoryInput>) {
+  return apiClient.post<CategoryInput, CategoryInput>("/api/categories", {
     withAuth: true,
-    body: { team, name },
+    body: data,
   });
 }
 
-export async function createTag({ project, name }: TagForm) {
-  return apiClient.post<TagForm, TagForm>("/api/tags", {
+export async function createTag(data: Partial<TagInput>) {
+  return apiClient.post<TagInput, TagInput>("/api/tags", {
     withAuth: true,
-    body: { project, name },
+    body: data,
   });
 }
 
-export async function createTask({
-  project,
-  tags,
-  members,
-  title,
-  description,
-  status,
-  start_at,
-  end_at,
-}: TaskForm) {
-  return apiClient.post<TaskForm, TaskForm>("/api/tasks", {
+export async function createTask(data: Partial<TaskInput>) {
+  return apiClient.post<TaskInput, TaskInput>("/api/tasks", {
     withAuth: true,
-    body: {
-      project,
-      tags,
-      members,
-      title,
-      description,
-      status,
-      start_at: start_at,
-      end_at: end_at,
-    },
+    body: data,
   });
 }
 
-export async function createTaskAssignment({
-  task,
-  member,
-  status,
-}: TaskAssignmentForm) {
-  return apiClient.post<TaskAssignmentForm, TaskAssignmentForm>(
-    "/api/task_assignments/",
+export async function createTaskAssignment(data: Partial<TaskAssignmentInput>) {
+  return apiClient.post<TaskAssignmentInput, TaskAssignmentInput>(
+    "/api/task_assignments",
     {
       withAuth: true,
-      body: {
-        task,
-        member,
-        status,
-      },
+      body: data,
+    }
+  );
+}
+
+export async function createTeamMember(data: Partial<TeamMemberInput>) {
+  return apiClient.post<TeamMemberInput, TeamMemberInput>("/api/team_members", {
+    withAuth: true,
+    body: data,
+  });
+}
+
+export async function createTeamGroup(data: Partial<TeamGroupInput>) {
+  return apiClient.post<TeamGroupInput, TeamGroupInput>("/api/team_groups", {
+    withAuth: true,
+    body: data,
+  });
+}
+
+export async function createProjectMember(data: Partial<ProjectMemberInput>) {
+  return apiClient.post<ProjectMemberInput, ProjectMemberInput>(
+    "/api/project_members",
+    {
+      withAuth: true,
+      body: data,
     }
   );
 }

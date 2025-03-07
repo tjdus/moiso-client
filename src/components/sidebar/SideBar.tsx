@@ -18,7 +18,7 @@ import {
 } from "@chakra-ui/react";
 
 import TeamSelectOption from "./TeamSelectOption";
-import { useTeamSpace } from "@/lib/context/TeamContext";
+import { useTeamSpace } from "@/lib/context/TeamSpaceContext";
 import { ProjectDTO } from "@/lib/api/interface/fetchDTOs";
 import { useRouter } from "next/navigation";
 import { LuCircleAlert, LuFolder, LuSettings } from "react-icons/lu";

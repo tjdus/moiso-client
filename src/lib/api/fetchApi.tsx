@@ -409,6 +409,12 @@ export async function fetchMyProjectMemberDetail(projectId: string) {
   );
 }
 
+export async function fetchMyTeamMemberDetail(teamId: string) {
+  return apiClient.get<TeamMemberDTO>(`/api/my/team_members/${teamId}`, {
+    withAuth: true,
+  });
+}
+
 export async function fetchTeamDetail(teamId: string) {
   return apiClient.get<TeamDetailDTO>(`/api/teams/${teamId}`, {
     withAuth: true,

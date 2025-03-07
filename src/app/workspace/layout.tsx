@@ -1,7 +1,7 @@
 import MainCard from "@/components/card/MainCard";
 import NavBar from "@/components/navbar/NavBar";
 import SideBar from "@/components/sidebar/SideBar";
-import TeamProvider from "@/lib/context/TeamContext";
+import TeamSpaceProvider from "@/lib/context/TeamSpaceContext";
 import { Toaster } from "@/components/ui/toaster";
 import { Card, Container } from "@chakra-ui/react";
 import ProfileBar from "@/components/navbar/ProfileBar";
@@ -14,7 +14,7 @@ export default function WorkspaceLayout({
 }>) {
   return (
     <div style={{ display: "flex" }}>
-      <TeamProvider>
+      <TeamSpaceProvider>
         <RoleProvider>
           <SideBar />
           <Card.Root variant={"elevated"} width={"100%"}>
@@ -23,7 +23,7 @@ export default function WorkspaceLayout({
           </Card.Root>
           <Toaster />
         </RoleProvider>
-      </TeamProvider>
+      </TeamSpaceProvider>
     </div>
   );
 }

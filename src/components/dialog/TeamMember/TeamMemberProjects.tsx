@@ -7,10 +7,10 @@ import {
   ProjectMemberDTO,
   TeamMemberDTO,
 } from "@/lib/api/interface/fetchDTOs";
-import { formatToKST } from "@/lib/util/dateFormat";
+import { formatDateKST, formatDateTimeKST } from "@/lib/util/dateFormat";
 import { IconButton, Stack, Table, Tag } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
-import { LuChevronRight } from "react-icons/lu";
+import { LuChevronRight, LuExternalLink } from "react-icons/lu";
 
 const headers = ["제목", "설명", "분류", "시작일", "종료일"];
 
@@ -70,9 +70,6 @@ const TeamMemberProjectTable = ({ teamMember }: TeamMemberProjectProps) => {
                 <Table.Cell padding={4} align="center">
                   {projectMember.project.name}
                 </Table.Cell>
-                <Table.Cell padding={4} align="center">
-                  {projectMember.project.description}
-                </Table.Cell>
 
                 <Table.Cell padding={4} align="center">
                   {projectMember.project.description}
@@ -87,22 +84,23 @@ const TeamMemberProjectTable = ({ teamMember }: TeamMemberProjectProps) => {
                   </Tag.Root>
                 </Table.Cell>
                 <Table.Cell padding={4} textAlign="center" fontSize="xs">
-                  {formatToKST({
+                  {formatDateKST({
                     dateString: projectMember.project.start_date,
                   })}
                 </Table.Cell>
                 <Table.Cell padding={4} textAlign="center" fontSize="xs">
                   {projectMember.project.end_date
-                    ? formatToKST({
+                    ? formatDateKST({
                         dateString: projectMember.project.end_date,
                       })
                     : "-"}
                 </Table.Cell>
                 <Table.Cell padding={4} textAlign="center" fontSize="xs">
                   <IconButton
+                    variant="ghost"
                     onClick={() => handleButtonClick(projectMember.project.id)}
                   >
-                    <LuChevronRight />
+                    <LuExternalLink />
                   </IconButton>
                 </Table.Cell>
               </Table.Row>

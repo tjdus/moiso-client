@@ -3,7 +3,7 @@ import { Stack } from "@chakra-ui/react";
 import { useContext, useEffect, useState } from "react";
 import { EmptyState, Box, HStack, Text } from "@chakra-ui/react";
 import { Avatar } from "../ui/avatar";
-import { TeamSpaceContext, useTeamSpace } from "@/lib/context/TeamContext";
+import { TeamSpaceContext, useTeamSpace } from "@/lib/context/TeamSpaceContext";
 import { LuCircle, LuCircleAlert, LuUserRound } from "react-icons/lu";
 import { MemberDTO } from "@/lib/api/interface/fetchDTOs";
 

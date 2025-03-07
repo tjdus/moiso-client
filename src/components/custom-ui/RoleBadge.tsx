@@ -13,10 +13,15 @@ const roleLabel = {
   editor: "수정",
 } as const;
 
-const RoleBadge = ({ role }: { role: Role }) => {
+const RoleBadge = ({ role }: { role: string }) => {
   return (
-    <Badge px={2} variant="solid" size="sm" colorPalette={roleColor[role]}>
-      {roleLabel[role]}
+    <Badge
+      px={2}
+      variant="solid"
+      size="sm"
+      colorPalette={roleColor[role as Role]}
+    >
+      {roleLabel[role as Role]}
     </Badge>
   );
 };

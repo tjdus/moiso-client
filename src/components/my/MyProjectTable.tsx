@@ -30,7 +30,7 @@ import { Skeleton, SkeletonText } from "../ui/skeleton";
 import { LuSearch } from "react-icons/lu";
 import { TagItem, StatusTag } from "@/components/custom-ui/Tag";
 import { AvatarList } from "@/components/custom-ui/Avatar";
-import { formatToKST } from "@/lib/util/dateFormat";
+import { formatDateTimeKST } from "@/lib/util/dateFormat";
 import { fetchMyProjectMemberList, fetchProjectList } from "@/lib/api/fetchApi";
 import { InputGroup } from "../ui/input-group";
 
@@ -214,12 +214,14 @@ export default function MyProjectTable() {
                   </Flex>
                 </TableCell>
                 <TableCell padding={4} textAlign="center" fontSize="xs">
-                  {formatToKST({
+                  {formatDateTimeKST({
                     dateString: projectMember.project.start_date,
                   })}
                 </TableCell>
                 <TableCell padding={4} textAlign="center" fontSize="xs">
-                  {formatToKST({ dateString: projectMember.project.end_date })}
+                  {formatDateTimeKST({
+                    dateString: projectMember.project.end_date,
+                  })}
                 </TableCell>
               </TableRow>
             ))

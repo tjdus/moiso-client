@@ -19,6 +19,7 @@ import { set } from "lodash";
 import ProjectTable from "../Table/ProjectTable";
 import TeamMemberTable from "../Table/TeamMemberTable";
 import RoleCreationDialog from "../dialog/create/RoleCreationDialog";
+import { useTeam } from "@/lib/context/TeamProvider";
 
 interface TabContentProps {
   value: string;
@@ -73,15 +74,11 @@ function TabTrigger({ icon, value, label }: TabTriggerProps) {
 }
 
 function TeamTabBar() {
-  const params = useParams();
+  const { team: teamId } = useTeam();
   const [loading, setLoading] = useState(true);
-  const teamId = Array.isArray(params.id) ? params.id[0] : params.id;
+
   const [team, setTeam] = useState<TeamDetailDTO | null>(null);
   const [tab, setTab] = useState<string>("overview");
-
-  if (!teamId) {
-    return;
-  }
 
   useEffect(() => {
     const loadTeamDetail = async () => {

@@ -57,7 +57,7 @@ const ProjectMemberRow = ({
       </TableCell>
 
       <TableCell textAlign="center" height="48px">
-        <RoleBadge role={role as Role} />
+        <RoleBadge role={role} />
       </TableCell>
 
       <TableCell fontSize="xs" textAlign="center" height="48px">
@@ -169,7 +169,7 @@ export default function ProjectMemberTable({
                 </TableCell>
 
                 <TableCell textAlign="center" height="48px">
-                  <RoleBadge role={projectMember.role as Role} />
+                  <RoleBadge role={projectMember.role} />
                 </TableCell>
 
                 <TableCell fontSize="xs" textAlign="center" height="48px">

@@ -8,25 +8,24 @@ import {
   DialogFooter,
   DialogRoot,
 } from "@/components/ui/dialog";
-import { DialogBody, Tabs } from "@chakra-ui/react";
+import { Card, DialogBody, Tabs } from "@chakra-ui/react";
+import ProjectDetails from "./ProjectDetails";
+import MemberSelectorWithGroup from "@/components/custom-ui/MemberSelectorWithGroup";
+import ProjectMember from "./ProjectMemberTable";
 
-import TaskAssignTable from "./TaskAssignTable";
-import TaskDetails from "./TaskDetails";
-import MyTaskAssignments from "./MyTaskAssignments";
-
-interface TaskDetailDialogProps {
+interface ProjectDetailDialogProps {
+  teamId: string;
   projectId: string;
-  taskId: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
-const TaskDetailDialog = ({
+const ProjectDetailDialog = ({
+  teamId,
   projectId,
-  taskId,
   isOpen,
   onClose,
-}: TaskDetailDialogProps) => {
+}: ProjectDetailDialogProps) => {
   return (
     <DialogRoot
       open={isOpen}
@@ -37,36 +36,34 @@ const TaskDetailDialog = ({
     >
       <DialogContent mt={10}>
         <DialogBody>
-          <Tabs.Root variant="outline" border="1px" defaultValue="details">
+          <Tabs.Root
+            variant="outline"
+            border="1px"
+            defaultValue="details"
+            height="xl"
+          >
             <Tabs.List gap={1}>
               <Tabs.Trigger padding={2} value="details">
-                Details
+                상세 정보
               </Tabs.Trigger>
-              <Tabs.Trigger padding={2} value="assignees">
-                Assignees
-              </Tabs.Trigger>
-              <Tabs.Trigger padding={2} value="my">
-                My
+              <Tabs.Trigger padding={2} value="members">
+                멤버
               </Tabs.Trigger>
               <Tabs.Indicator />
             </Tabs.List>
             <Tabs.Content
               value="details"
               children={
-                <TaskDetails
+                <ProjectDetails
+                  teamId={teamId}
                   projectId={projectId}
-                  taskId={taskId}
                   isOpen={isOpen}
                   onClose={onClose}
                 />
               }
             ></Tabs.Content>
-            <Tabs.Content
-              value="assignees"
-              children={<TaskAssignTable taskId={taskId} />}
-            ></Tabs.Content>
-            <Tabs.Content value="my">
-              <MyTaskAssignments taskId={taskId} />
+            <Tabs.Content value="members">
+              <ProjectMember projectId={projectId} />
             </Tabs.Content>
           </Tabs.Root>
         </DialogBody>
@@ -76,4 +73,4 @@ const TaskDetailDialog = ({
   );
 };
 
-export default TaskDetailDialog;
+export default ProjectDetailDialog;

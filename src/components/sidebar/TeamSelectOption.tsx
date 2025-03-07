@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { useMemo, useContext, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { TeamSpaceContext, useTeamSpace } from "@/lib/context/TeamContext";
+import { TeamSpaceContext, useTeamSpace } from "@/lib/context/TeamSpaceContext";
 import {
   TeamDTO,
   TeamDetailDTO,

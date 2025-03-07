@@ -15,7 +15,7 @@ import {
   Card,
 } from "@chakra-ui/react";
 import { Radio, RadioGroup } from "@/components/ui/radio";
-import { TaskAssignmentForm } from "@/lib/api/interface/form";
+import { TaskAssignmentInput } from "@/lib/api/interface/requestDTO";
 import { StatusTag } from "@/components/custom-ui/Tag";
 import { LuClipboardX, LuPencilLine, LuX, LuCheck } from "react-icons/lu";
 import { fetchMyTaskAssignmentList } from "@/lib/api/fetchApi";
@@ -43,7 +43,7 @@ const editableControl = (
 const MyTaskAssignments = ({ taskId }: { taskId: string }) => {
   const [taskAssignment, setTaskAssignment] =
     useState<TaskAssignmentDTO | null>(null);
-  const [taskForm, setTaskForm] = useState<TaskAssignmentForm>({});
+  const [taskForm, setTaskForm] = useState<TaskAssignmentInput>({});
 
   useEffect(() => {
     fetchTaskAssignments();

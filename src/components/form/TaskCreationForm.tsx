@@ -36,7 +36,7 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { TagForm, TaskForm } from "@/lib/api/interface/form";
+import { TagInput, TaskInput } from "@/lib/api/interface/requestDTO";
 
 import { ProjectMemberDTO, TagDTO } from "@/lib/api/interface/fetchDTOs";
 import { createListCollection } from "@chakra-ui/react";
@@ -45,7 +45,7 @@ import { Status } from "@/lib/api/interface/common";
 import { Radio, RadioGroup } from "../ui/radio";
 import { SingleDatepicker } from "../date-picker/DayzedDatepicker";
 import { LuPlus } from "react-icons/lu";
-import { useTeamSpace } from "@/lib/context/TeamContext";
+import { useTeamSpace } from "@/lib/context/TeamSpaceContext";
 import { useParams } from "next/navigation";
 import { SingleDateTimepicker } from "../date-picker/DayzedDateTimepicker";
 import { fetchProjectMemberList, fetchTagList } from "@/lib/api/fetchApi";
@@ -81,7 +81,7 @@ const SelectTagItem = () => (
 const TaskCreationForm = () => {
   const params = useParams();
   const projectId = Array.isArray(params.id) ? params.id[0] : params.id;
-  const [task, setTask] = useState<TaskForm>({});
+  const [task, setTask] = useState<TaskInput>({});
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [projectMembers, setProjectMembers] = useState<ProjectMemberDTO[]>([]);
@@ -97,7 +97,7 @@ const TaskCreationForm = () => {
   }, [projectId]);
 
   const handleCreateTask = async () => {
-    const requestData: TaskForm = {
+    const requestData: TaskInput = {
       ...task,
       project: projectId,
       title,
@@ -149,7 +149,7 @@ const TaskCreationForm = () => {
 
   const createNewTag = async ({ name }: { name: string }) => {
     try {
-      const requestData: TagForm = {
+      const requestData: TagInput = {
         project: projectId,
         name: name,
       };

@@ -15,7 +15,7 @@
     "@emotion/styled": "^11.14.0",
     "@reduxjs/toolkit": "^2.5.1",
     "axios": "^1.7.9",
-    "chakra-dayzed-datepicker": "^0.3.0",
+    "chakra-react-select": "^6.0.1",
     "date-fns": "^4.1.0",
     "dayzed": "^3.2.3",
     "framer-motion": "^12.4.2",

@@ -39,6 +39,7 @@ import {
   fetchTeamMemberList,
 } from "@/lib/api/fetchApi";
 import { revalidatePath } from "next/cache";
+import { TeamMemberInput } from "@/lib/api/interface/requestDTO";
 
 const SelectTagItem = () => (
   <SelectValueText padding={2}>
@@ -68,7 +69,7 @@ const TeamMemberDetails = ({
   const [teamMember, setTeamMember] = useState<TeamMemberDTO | null>(null);
   const [teamGroupList, setTeamGroupList] = useState<TeamGroupDTO[]>([]);
   const [selectedTeamGroup, setSelectedTeamGroup] = useState<string[]>([]);
-  const [projects, setProjects] = useState<ProjectDTO[]>();
+  const [updatedData, setUpdatedDate] = useState<TeamMemberInput>({});
 
   if (!teamId) {
     return;
@@ -105,10 +106,8 @@ const TeamMemberDetails = ({
 
   const handleCommit = async () => {
     try {
-      const response = await updateTeamMember({
-        teamMemberId: teamMemberId,
-        teamGroups: selectedTeamGroup,
-      });
+      const updatedData = { team_groups: selectedTeamGroup };
+      const response = await updateTeamMember(teamMemberId, updatedData);
       getTeamMemberInfo();
       const updated_data = await fetchTeamMemberDetail(teamMemberId);
       onUpdate(teamMemberId, updated_data.data);
@@ -224,7 +223,7 @@ const TeamMemberDetails = ({
           <DataList.Item>
             <DataList.ItemLabel>권한</DataList.ItemLabel>
             <DataList.ItemValue>
-              <RoleBadge role={teamMember?.role as Role} />
+              {teamMember?.role ? <RoleBadge role={teamMember.role} /> : "-"}
             </DataList.ItemValue>
           </DataList.Item>
           <DataList.Item>
