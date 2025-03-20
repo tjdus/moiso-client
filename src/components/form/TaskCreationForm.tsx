@@ -48,7 +48,7 @@ import { LuPlus } from "react-icons/lu";
 import { useTeamSpace } from "@/lib/context/TeamSpaceContext";
 import { useParams } from "next/navigation";
 import { SingleDateTimepicker } from "../date-picker/DayzedDateTimepicker";
-import { fetchProjectMemberList, fetchTagList } from "@/lib/api/fetchApi";
+import { getProjectMemberList, getTagList } from "@/lib/api/getApi";
 
 const SelectMemberItem = () => (
   <SelectValueText placeholder="멤버를 선택하세요">
@@ -125,7 +125,7 @@ const TaskCreationForm = () => {
 
   const getProjectMembers = async ({ projectId }: { projectId: string }) => {
     try {
-      const response = await fetchProjectMemberList({ projectId });
+      const response = await getProjectMemberList({ projectId });
       setProjectMembers(response.data.results);
     } catch (error) {
       toaster.error({
@@ -137,7 +137,7 @@ const TaskCreationForm = () => {
 
   const getTags = async ({ projectId }: { projectId: string }) => {
     try {
-      const response = await fetchTagList({ projectId });
+      const response = await getTagList({ projectId });
       setTags(response.data.results);
     } catch (error) {
       toaster.error({

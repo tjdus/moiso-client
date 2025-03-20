@@ -22,28 +22,18 @@ import { useTeamSpace } from "@/lib/context/TeamSpaceContext";
 import { ProjectDTO } from "@/lib/api/interface/fetchDTOs";
 import { useRouter } from "next/navigation";
 import { LuCircleAlert, LuFolder, LuSettings } from "react-icons/lu";
+import { Link as ChakraLink } from "@chakra-ui/react";
+import NextLink from "next/link";
 
 function ProjectItem({ project }: { project: ProjectDTO }) {
-  const router = useRouter();
-
-  const handleClick = async () => {
-    try {
-      router.push(`/workspace/project/${project.id}`);
-    } catch (error) {
-      console.error("라우팅 실패:", error);
-    }
-  };
   return (
-    <Box
-      p={3}
-      borderRadius="md"
-      _hover={{ bg: "gray.100" }}
-      gap={3}
-      onClick={handleClick}
-    >
-      <Text fontSize="xs" fontWeight="medium">
-        {project.name}
-      </Text>
+    <Box p={3} borderRadius="md" _hover={{ bg: "gray.100" }} gap={3}>
+      <NextLink href={`/workspace/project/${project.id}`}>
+        <HStack>
+          <LuFolder />
+          <Text fontSize="sm">{project.name}</Text>
+        </HStack>
+      </NextLink>
     </Box>
   );
 }

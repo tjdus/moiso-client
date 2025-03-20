@@ -25,7 +25,7 @@ import {
   Separator,
 } from "@chakra-ui/react";
 import { RadioGroup, Radio } from "../../ui/radio";
-import { fetchProjectDetail, fetchTaskDetail } from "@/lib/api/fetchApi";
+import { getProjectDetail, getTaskDetail } from "@/lib/api/getApi";
 import {
   CategoryNameDTO,
   ProjectDetailDTO,
@@ -43,10 +43,15 @@ import { updateProject, updateTask } from "@/lib/api/patchApi";
 import { toaster } from "../../ui/toaster";
 import { deleteProject, deleteTask } from "@/lib/api/deleteApi";
 import EditableData from "@/components/custom-ui/EditableData";
-import { SaveDeleteButton } from "@/components/custom-ui/SaveDeleteButton";
+import {
+  DeleteButton,
+  SaveDeleteButton,
+} from "@/components/custom-ui/SaveDeleteButton";
 import TagSelector from "@/components/custom-ui/TagSelector";
 import CategorySelector from "@/components/custom-ui/CategorySelector";
 import { SingleDatepicker } from "@/components/date-picker/DayzedDatepicker";
+import { useForm } from "react-hook-form";
+import { CategoryItem } from "@/components/custom-ui/Category";
 
 interface ProjectDetailDialogProps {
   teamId: string;
@@ -65,52 +70,36 @@ const ProjectDetails = ({
     null
   );
 
-  const [id, setId] = useState<string>("");
-  const [name, setName] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [status, setStatus] = useState<string>("");
-  const [category, setCategory] = useState<CategoryNameDTO | null>(null);
-  const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string>("");
-  const [updatedField, setUpdatedField] = useState<Partial<ProjectInput>>({});
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+    setError,
+    control,
+  } = useForm<ProjectInput>();
 
-  useEffect(() => {
-    if (projectDetail) {
-      setId(projectDetail.id);
-      setName(projectDetail.name);
-      setDescription(projectDetail.description);
-      setStatus(projectDetail.status);
-      setCategory(projectDetail.category || null);
-      setStartDate(projectDetail.start_date);
-      setEndDate(projectDetail.end_date);
-    }
-  }, [projectDetail]);
+  const fetchProject = async () => {
+    const response = await getProjectDetail(projectId);
+    setProjectDetail(response.data);
+
+    setValue("name", response.data.name);
+    setValue("description", response.data.description);
+    setValue(
+      "members",
+      response.data.members.map((member) => member.member.id)
+    );
+    setValue("category", response.data.category.id);
+    setValue("status", response.data.status);
+    setValue("start_date", response.data.start_date);
+    setValue("end_date", response.data.end_date);
+  };
 
   useEffect(() => {
     if (isOpen) {
-      const fetchData = async () => {
-        const response = await fetchProjectDetail(projectId);
-        setProjectDetail(response.data);
-      };
-      fetchData();
+      fetchProject();
     }
-  }, [id, isOpen]);
-
-  const handleEdit = async () => {
-    try {
-      await updateProject(projectId, updatedField);
-      toaster.success({
-        title: "업무 수정 성공",
-        description: "업무가 성공적으로 수정되었습니다",
-      });
-      onClose();
-    } catch (error) {
-      toaster.error({
-        title: "업무 수정 실패",
-        description: "업무 수정에 실패했습니다",
-      });
-    }
-  };
+  }, [projectId, isOpen]);
 
   const handleDelete = async () => {
     try {
@@ -128,6 +117,31 @@ const ProjectDetails = ({
     }
   };
 
+  const onSubmit = async (name: keyof ProjectInput, data: ProjectInput) => {
+    try {
+      const response = updateProject(projectId, { [name]: data[name] });
+      toaster.promise(response, {
+        success: {
+          title: "수정되었습니다",
+        },
+        error: {
+          title: "수정 중 문제가 발생했습니다",
+        },
+        loading: {
+          title: "수정 중...",
+        },
+      });
+      await response;
+      fetchProject();
+    } catch (error) {
+      console.error("Failed to update project", error);
+    }
+  };
+
+  const handleChange = (key: keyof ProjectInput, value: any) => {
+    setValue(key, value);
+  };
+
   return (
     <Card.Root padding={10}>
       <Card.Body padding={4}>
@@ -137,27 +151,20 @@ const ProjectDetails = ({
               <DataList.ItemLabel>제목</DataList.ItemLabel>
               <DataList.ItemValue>
                 <EditableData
+                  name="name"
+                  control={control}
+                  onValueCommit={handleSubmit((data) => onSubmit("name", data))}
                   onValueRevert={() => {
-                    setName(projectDetail.name || "");
-                    setUpdatedField({
-                      ...updatedField,
-                      name: "",
-                    });
+                    handleChange("name", projectDetail.name);
                   }}
-                  onValueCommit={() => {
-                    setUpdatedField({
-                      ...updatedField,
-                      name: name,
-                    });
-                  }}
-                  preview={<Text textStyle="sm">{name}</Text>}
-                  edit={
+                  preview={(value) => <Text textStyle="sm">{value}</Text>}
+                  edit={(value, onChange) => (
                     <Input
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
+                      value={value}
+                      onChange={(e) => onChange(e.target.value)}
                       width="3xs"
                     />
-                  }
+                  )}
                 />
               </DataList.ItemValue>
             </DataList.Item>
@@ -165,27 +172,22 @@ const ProjectDetails = ({
               <DataList.ItemLabel>설명</DataList.ItemLabel>
               <DataList.ItemValue>
                 <EditableData
+                  name="description"
+                  control={control}
+                  onValueCommit={handleSubmit((data) =>
+                    onSubmit("description", data)
+                  )}
                   onValueRevert={() => {
-                    setDescription(projectDetail.description || "");
-                    setUpdatedField({
-                      ...updatedField,
-                      description: undefined,
-                    });
+                    handleChange("description", projectDetail.description);
                   }}
-                  onValueCommit={() => {
-                    setUpdatedField({
-                      ...updatedField,
-                      description: description,
-                    });
-                  }}
-                  preview={<Text textStyle="sm">{description}</Text>}
-                  edit={
+                  preview={(value) => <Text textStyle="sm">{value}</Text>}
+                  edit={(value, onChange) => (
                     <Textarea
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
+                      value={value}
+                      onChange={(e) => onChange(e.target.value)}
                       width="3xs"
                     />
-                  }
+                  )}
                 />
               </DataList.ItemValue>
             </DataList.Item>
@@ -193,26 +195,24 @@ const ProjectDetails = ({
               <DataList.ItemLabel>진행 상태</DataList.ItemLabel>
               <DataList.ItemValue>
                 <EditableData
+                  name="status"
+                  control={control}
+                  onValueCommit={handleSubmit((data) =>
+                    onSubmit("status", data)
+                  )}
                   onValueRevert={() => {
-                    setStatus(projectDetail.status || "");
-                    setUpdatedField({
-                      ...updatedField,
-                      status: undefined,
-                    });
+                    handleChange(
+                      "status",
+                      projectDetail.status || "not_started"
+                    );
                   }}
-                  onValueCommit={() => {
-                    setUpdatedField({
-                      ...updatedField,
-                      status: status,
-                    });
-                  }}
-                  preview={
-                    <StatusTag status={status || "not_started"} size="sm" />
-                  }
-                  edit={
+                  preview={(value) => (
+                    <StatusTag status={value || "not_started"} size="sm" />
+                  )}
+                  edit={(value, onchange) => (
                     <RadioGroup
-                      value={status}
-                      onValueChange={(e) => setStatus(e.value)}
+                      value={value || "not_started"}
+                      onValueChange={(e) => onchange(e.value)}
                       size="sm"
                     >
                       <HStack gap={1} width="3xs">
@@ -227,7 +227,7 @@ const ProjectDetails = ({
                         </Radio>
                       </HStack>
                     </RadioGroup>
-                  }
+                  )}
                 />
               </DataList.ItemValue>
             </DataList.Item>
@@ -235,36 +235,24 @@ const ProjectDetails = ({
               <DataList.ItemLabel>카테고리</DataList.ItemLabel>
               <DataList.ItemValue>
                 <EditableData
+                  name="category"
+                  control={control}
+                  onValueCommit={handleSubmit((data) =>
+                    onSubmit("category", data)
+                  )}
                   onValueRevert={() => {
-                    setCategory(category || null);
-                    setUpdatedField({
-                      ...updatedField,
-                      category: undefined,
-                    });
+                    handleChange("category", projectDetail.category || null);
                   }}
-                  onValueCommit={() => {
-                    setUpdatedField({
-                      ...updatedField,
-                      category: category?.id || undefined,
-                    });
-                  }}
-                  preview={
-                    category && (
-                      <TagItem
-                        id={category.id}
-                        key={category.id}
-                        name={category.name}
-                        size="sm"
-                      />
-                    )
+                  preview={(value) =>
+                    value && value ? <CategoryItem id={value} /> : null
                   }
-                  edit={
+                  edit={(value, onChange) => (
                     <CategorySelector
                       teamId={teamId}
-                      value={category ? [category] : []}
-                      onValueChange={setCategory}
+                      value={value || ""}
+                      onValueChange={(item) => onChange(item)}
                     />
-                  }
+                  )}
                 />
               </DataList.ItemValue>
             </DataList.Item>
@@ -272,36 +260,28 @@ const ProjectDetails = ({
               <DataList.ItemLabel>시작일</DataList.ItemLabel>
               <DataList.ItemValue>
                 <EditableData
+                  name="start_date"
+                  control={control}
+                  onValueCommit={handleSubmit((data) =>
+                    onSubmit("start_date", data)
+                  )}
                   onValueRevert={() => {
-                    setStartDate(projectDetail.start_date);
-                    setUpdatedField({
-                      ...updatedField,
-                      start_date: undefined,
-                    });
+                    handleChange(
+                      "start_date",
+                      projectDetail.start_date || null
+                    );
                   }}
-                  onValueCommit={() => {
-                    setUpdatedField({
-                      ...updatedField,
-                      start_date: startDate,
-                    });
-                  }}
-                  preview={
-                    <Text>
-                      {
-                        formatDateTimeKST({ dateString: startDate }).split(
-                          " "
-                        )[0]
-                      }
-                    </Text>
-                  }
-                  edit={
+                  preview={(value) => (
+                    <Text>{formatDateTimeKST({ dateString: value })}</Text>
+                  )}
+                  edit={(value, onChange) => (
                     <SingleDatepicker
-                      date={startDate ? new Date(startDate) : new Date()}
+                      date={value ? new Date(value) : new Date()}
                       onDateChange={(date) =>
-                        setStartDate(date.toISOString().split("T")[0])
+                        onChange(date.toISOString().split("T")[0])
                       }
                     />
-                  }
+                  )}
                 />
               </DataList.ItemValue>
             </DataList.Item>
@@ -309,32 +289,25 @@ const ProjectDetails = ({
               <DataList.ItemLabel>종료일</DataList.ItemLabel>
               <DataList.ItemValue>
                 <EditableData
+                  name="end_date"
+                  control={control}
+                  onValueCommit={handleSubmit((data) =>
+                    onSubmit("end_date", data)
+                  )}
                   onValueRevert={() => {
-                    setEndDate(projectDetail.end_date);
-                    setUpdatedField({
-                      ...updatedField,
-                      end_date: undefined,
-                    });
+                    handleChange("end_date", projectDetail.end_date || null);
                   }}
-                  onValueCommit={() => {
-                    setUpdatedField({
-                      ...updatedField,
-                      end_date: endDate,
-                    });
-                  }}
-                  preview={
-                    <Text>
-                      {formatDateTimeKST({ dateString: endDate }).split(" ")[0]}
-                    </Text>
-                  }
-                  edit={
+                  preview={(value) => (
+                    <Text>{formatDateTimeKST({ dateString: value })}</Text>
+                  )}
+                  edit={(value, onChange) => (
                     <SingleDatepicker
-                      date={endDate ? new Date(endDate) : new Date()}
+                      date={value ? new Date(value) : new Date()}
                       onDateChange={(date) =>
-                        setEndDate(date.toISOString().split("T")[0])
+                        onChange(date.toISOString().split("T")[0])
                       }
                     />
-                  }
+                  )}
                 />
               </DataList.ItemValue>
             </DataList.Item>
@@ -373,7 +346,7 @@ const ProjectDetails = ({
       </Card.Body>
       <Separator />
       <Card.Footer padding={4} justifyContent="flex-end">
-        <SaveDeleteButton onSave={handleEdit} onDelete={handleDelete} />
+        <DeleteButton onDelete={handleDelete} />
       </Card.Footer>
     </Card.Root>
   );

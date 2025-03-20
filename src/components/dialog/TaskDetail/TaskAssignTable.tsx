@@ -55,10 +55,7 @@ import { LuUserRoundMinus } from "react-icons/lu";
 import { deleteTaskAssignment } from "@/lib/api/deleteApi";
 import { createTaskAssignment } from "@/lib/api/postApi";
 import CreationDialog from "../CreationDialog";
-import {
-  fetchProjectMemberList,
-  fetchTaskAssignmentList,
-} from "@/lib/api/fetchApi";
+import { getProjectMemberList, getTaskAssignmentList } from "@/lib/api/getApi";
 import { useRole } from "@/lib/context/RoleContext";
 import { WarnDialog } from "@/components/custom-ui/SaveDeleteButton";
 
@@ -85,7 +82,7 @@ const TaskAssignmetCreateDialog = ({
 
   const getProjectMembers = async ({ projectId }: { projectId: string }) => {
     try {
-      const response = await fetchProjectMemberList({ projectId });
+      const response = await getProjectMemberList({ projectId });
       setProjectMembers(response.data.results);
     } catch (error) {
       toaster.error({
@@ -219,7 +216,7 @@ const TaskAssignTable = ({ taskId }: { taskId: string }) => {
 
   const getTaskAssignments = async ({ taskId }: { taskId: string }) => {
     try {
-      const response = await fetchTaskAssignmentList({ taskId });
+      const response = await getTaskAssignmentList({ taskId });
       setAssignedMembers(response.data.results);
     } catch (error) {
       toaster.error({

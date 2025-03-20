@@ -31,7 +31,7 @@ import { LuSearch } from "react-icons/lu";
 import { TagItem, StatusTag } from "@/components/custom-ui/Tag";
 import { AvatarList } from "@/components/custom-ui/Avatar";
 import { formatDateTimeKST } from "@/lib/util/dateFormat";
-import { fetchMyProjectMemberList, fetchProjectList } from "@/lib/api/fetchApi";
+import { getMyProjectMemberList, getProjectList } from "@/lib/api/getApi";
 import { InputGroup } from "../ui/input-group";
 
 const headers = ["이름", "설명", "분류", "시작일", "종료일"];
@@ -81,7 +81,7 @@ export default function MyProjectTable() {
   const getProjects = async () => {
     setIsLoading(true);
     try {
-      const response = await fetchMyProjectMemberList({
+      const response = await getMyProjectMemberList({
         searchQuery,
         page,
         pageSize,

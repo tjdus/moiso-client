@@ -38,7 +38,7 @@ import { StatusTag, TagItem } from "../custom-ui/Tag";
 import { Status } from "@/lib/api/interface/common";
 import { Radio, RadioGroup } from "../ui/radio";
 import { SingleDatepicker } from "../date-picker/DayzedDatepicker";
-import { fetchCategoryList, fetchTeamMemberList } from "@/lib/api/fetchApi";
+import { getCategoryList, getTeamMemberList } from "@/lib/api/getApi";
 
 const SelectMemberItem = () => (
   <SelectValueText placeholder="멤버를 선택하세요">
@@ -101,7 +101,7 @@ const ProjectCreationForm = () => {
 
   const getTeamMembers = async ({ teamId }: { teamId: string }) => {
     try {
-      const response = await fetchTeamMemberList({ teamId });
+      const response = await getTeamMemberList({ teamId });
       setTeamMembers(response.data.results);
     } catch (error) {
       toaster.error({
@@ -113,7 +113,7 @@ const ProjectCreationForm = () => {
 
   const getCategories = async ({ teamId }: { teamId: string }) => {
     try {
-      const response = await fetchCategoryList({ teamId });
+      const response = await getCategoryList({ teamId });
       setCategories(response.data.results);
     } catch (error) {
       toaster.error({

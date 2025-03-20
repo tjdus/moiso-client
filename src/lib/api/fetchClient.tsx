@@ -95,7 +95,7 @@ export class FetchClient {
           body: body ? JSON.stringify(body) : undefined,
         });
       } else {
-        await signIn();
+        //await signIn();
       }
     }
 
@@ -107,14 +107,6 @@ export class FetchClient {
 
     if (!response.ok) {
       throw responseData as ApiResponseError;
-    }
-
-    // Revalidate path or tag if provided
-    if (pathToRevalidate) {
-      revalidatePath(pathToRevalidate);
-    }
-    if (tagToRevalidate) {
-      revalidateTag(tagToRevalidate);
     }
 
     return {

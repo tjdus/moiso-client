@@ -13,7 +13,7 @@ import {
   EmptyState,
 } from "@chakra-ui/react";
 import { Select, chakraComponents } from "chakra-react-select";
-import { fetchTeamGroupList, fetchTeamMemberList } from "@/lib/api/fetchApi";
+import { getTeamGroupList, getTeamMemberList } from "@/lib/api/getApi";
 import { useMemo, useState, useEffect } from "react";
 import {
   MemberDTO,
@@ -108,7 +108,7 @@ const MemberSelectorWithGroup = ({ teamId }: { teamId: string }) => {
 
   const getTeamMembers = async (teamId: string) => {
     try {
-      const response = await fetchTeamMemberList({ teamId });
+      const response = await getTeamMemberList({ teamId });
       setTeamMembers(response.data.results);
     } catch (error) {
       toaster.error({
@@ -120,7 +120,7 @@ const MemberSelectorWithGroup = ({ teamId }: { teamId: string }) => {
 
   const getTeamGroups = async (teamId: string) => {
     try {
-      const response = await fetchTeamGroupList({ teamId });
+      const response = await getTeamGroupList({ teamId });
       setTeamGroups(response.data.results);
     } catch (error) {
       toaster.error({

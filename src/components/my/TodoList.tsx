@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchMyTaskAssignmentList } from "@/lib/api/fetchApi";
+import { getMyTaskAssignmentList } from "@/lib/api/getApi";
 import { TaskAssignmentDTO, TaskDTO } from "@/lib/api/interface/fetchDTOs";
 import {
   Collapsible,
@@ -13,7 +13,7 @@ import {
   Heading,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import TaskList from "../Table/TaskList";
+import TaskList from "../project/TaskList";
 import MyTaskCard from "./MyTaskCard";
 import { updateTaskAssignment } from "@/lib/api/patchApi";
 import { LuListTodo } from "react-icons/lu";
@@ -32,7 +32,7 @@ const TodoList = () => {
       const endDate = new Date(today);
       endDate.setDate(today.getDate() + 3);
 
-      const response = await fetchMyTaskAssignmentList({
+      const response = await getMyTaskAssignmentList({
         page,
         taskEndAtAfter: startDate.toISOString().split("T")[0],
         taskEndAtBefore: endDate.toISOString().split("T")[0],

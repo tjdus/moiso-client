@@ -3,22 +3,8 @@
 import { useState } from "react";
 import { Box, HStack, Tabs, Text, Skeleton } from "@chakra-ui/react";
 import { ReactNode, useEffect } from "react";
-import {
-  ProjectDetailDTO,
-  ProjectDTO,
-  TeamDetailDTO,
-} from "@/lib/api/interface/fetchDTOs";
-import ProjectMemberTable from "../Table/ProjectMemberTable";
-import TaskList from "../Table/TaskList";
 import { LuFolder, LuSquareCheck, LuUser, LuSettings } from "react-icons/lu";
-import TaskCreationDialog from "../dialog/create/TaskCreationDialog";
-import { useParams } from "next/navigation";
-import { fetchProjectDetail, fetchTeamDetail } from "@/lib/api/fetchApi";
 import ProjectCardList from "../card/ProjectCardList";
-import { set } from "lodash";
-import ProjectTable from "../Table/ProjectTable";
-import TeamMemberTable from "../Table/TeamMemberTable";
-import RoleCreationDialog from "../dialog/create/RoleCreationDialog";
 import MyProjectTable from "./MyProjectTable";
 import MyTaskTable from "./MyTaskTable";
 

@@ -3,23 +3,14 @@
 import { useState } from "react";
 import { Box, HStack, Tabs, Text, Skeleton } from "@chakra-ui/react";
 import { ReactNode, useEffect } from "react";
-import {
-  ProjectDetailDTO,
-  ProjectDTO,
-  TeamDetailDTO,
-} from "@/lib/api/interface/fetchDTOs";
-import ProjectMemberTable from "../Table/ProjectMemberTable";
-import TaskList from "../Table/TaskList";
+import { TeamDetailDTO } from "@/lib/api/interface/fetchDTOs";
 import { LuFolder, LuSquareCheck, LuUser, LuSettings } from "react-icons/lu";
-import TaskCreationDialog from "../dialog/create/TaskCreationDialog";
 import { useParams } from "next/navigation";
-import { fetchProjectDetail, fetchTeamDetail } from "@/lib/api/fetchApi";
+import { getTeamDetail } from "@/lib/api/getApi";
 import ProjectCardList from "../card/ProjectCardList";
-import { set } from "lodash";
-import ProjectTable from "../Table/ProjectTable";
-import TeamMemberTable from "../Table/TeamMemberTable";
+import ProjectTable from "./ProjectTable";
+import TeamMemberTable from "./TeamMemberTable";
 import RoleCreationDialog from "../dialog/create/RoleCreationDialog";
-import { useTeam } from "@/lib/context/TeamProvider";
 
 interface TabContentProps {
   value: string;
@@ -74,7 +65,7 @@ function TabTrigger({ icon, value, label }: TabTriggerProps) {
 }
 
 function TeamTabBar() {
-  const { team: teamId } = useTeam();
+  const { id: teamId } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(true);
 
   const [team, setTeam] = useState<TeamDetailDTO | null>(null);
@@ -83,7 +74,7 @@ function TeamTabBar() {
   useEffect(() => {
     const loadTeamDetail = async () => {
       try {
-        const response = await fetchTeamDetail(teamId);
+        const response = await getTeamDetail(teamId);
         setTeam(response.data);
       } catch (error) {
         setTeam(null);

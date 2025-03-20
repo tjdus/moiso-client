@@ -11,17 +11,12 @@ import {
   SelectTrigger,
   SelectValueText,
 } from "@/components/ui/select";
-import { useMemo, useContext, useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { TeamSpaceContext, useTeamSpace } from "@/lib/context/TeamSpaceContext";
-import {
-  TeamDTO,
-  TeamDetailDTO,
-  TeamMemberDTO,
-} from "@/lib/api/interface/fetchDTOs";
+import { useMemo, useEffect, useState } from "react";
+import { useTeamSpace } from "@/lib/context/TeamSpaceContext";
+import { TeamMemberDTO } from "@/lib/api/interface/fetchDTOs";
 
 import TeamCreationDialog from "../dialog/create/TeamCeationDialog";
-import { fetchMyTeamMemberList, fetchTeamDetail } from "@/lib/api/fetchApi";
+import { getMyTeamMemberList, getTeamDetail } from "@/lib/api/getApi";
 
 export default function TeamSelectOption() {
   const { teamSpace, setTeamSpace } = useTeamSpace();
@@ -30,7 +25,7 @@ export default function TeamSelectOption() {
   useEffect(() => {
     const getTeams = async () => {
       try {
-        const response = await fetchMyTeamMemberList({});
+        const response = await getMyTeamMemberList({});
         setTeamMemberList(response.data.results);
       } catch (error) {
         console.error("팀 목록 가져오기 실패:", error);
@@ -42,7 +37,7 @@ export default function TeamSelectOption() {
 
   const handleTeamChange = async (teamId: string) => {
     try {
-      const response = await fetchTeamDetail(teamId);
+      const response = await getTeamDetail(teamId);
       setTeamSpace(response.data);
     } catch (error) {
       console.error("팀 정보 조회 실패:", error);

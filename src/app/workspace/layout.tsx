@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Card, Container } from "@chakra-ui/react";
 import ProfileBar from "@/components/navbar/ProfileBar";
 import RoleProvider from "@/lib/context/RoleContext";
+import { TaskDetailDialogProvider } from "@/components/dialog/TaskDetail/TaskDetailDialog";
 
 export default function WorkspaceLayout({
   children,
@@ -16,12 +17,13 @@ export default function WorkspaceLayout({
     <div style={{ display: "flex" }}>
       <TeamSpaceProvider>
         <RoleProvider>
-          <SideBar />
-          <Card.Root variant={"elevated"} width={"100%"}>
-            <ProfileBar />
-            <Card.Body>{children}</Card.Body>
-          </Card.Root>
-          <Toaster />
+          <TaskDetailDialogProvider>
+            <SideBar />
+            <Card.Root variant={"elevated"} width={"100%"}>
+              <ProfileBar />
+              <Card.Body>{children}</Card.Body>
+            </Card.Root>
+          </TaskDetailDialogProvider>
         </RoleProvider>
       </TeamSpaceProvider>
     </div>

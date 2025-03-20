@@ -1,42 +1,29 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import TabBar from "@/components/navbar/ProjectTabBar";
+import React, { use, useEffect, useState } from "react";
+import TabBar from "@/components/project/ProjectTabBar";
 import { useRole } from "@/lib/context/RoleContext";
-import { fetchMyProjectMemberDetail } from "@/lib/api/fetchApi";
+import { getMyProjectMemberDetail } from "@/lib/api/getApi";
 import { useRouter } from "next/router";
 import { Role } from "@/lib/api/interface/common";
-import { useProject } from "@/lib/context/ProjectContext";
 
 interface Props {
   params: Promise<{ id: string }>;
 }
 
 const ProjectDetailPage = ({ params }: Props) => {
-  const { role, setRole } = useRole();
-  const { setProject } = useProject();
-  const [id, setId] = useState<string | null>(null);
+  const { setRole } = useRole();
+  const { id } = use(params);
 
   useEffect(() => {
-    const unwrapParams = async () => {
-      const unwrappedParams = await params;
-      setId(unwrappedParams.id);
+    const getRole = async () => {
+      const response = await getMyProjectMemberDetail(id);
+      const data = response.data;
+      setRole(data.role as Role);
     };
-    unwrapParams();
-  }, [params]);
+    getRole();
+  }, [id, setRole]);
 
-  useEffect(() => {
-    if (id) {
-      const getRole = async () => {
-        const response = await fetchMyProjectMemberDetail(id);
-        const data = response.data;
-        setRole(data.role as Role);
-      };
-      getRole();
-      setProject(id);
-    }
-  }, [id, setRole, role]);
-
-  return id ? <TabBar /> : null;
+  return <TabBar />;
 };
 
 export default ProjectDetailPage;

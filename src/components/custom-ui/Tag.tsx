@@ -1,4 +1,7 @@
+import { getTagDetail } from "@/lib/api/getApi";
+import { TagDTO } from "@/lib/api/interface/fetchDTOs";
 import { Tag } from "@chakra-ui/react";
+import { useCallback, useEffect, useState } from "react";
 
 interface TagProps {
   id: string;
@@ -14,6 +17,26 @@ function TagItem({ id, name, size }: TagProps) {
       <Tag.Label px={2}>{name}</Tag.Label>
     </Tag.Root>
   );
+}
+
+function TagBadge({ id }: { id: string }) {
+  const colorScheme = getTagColor(id);
+  const [tag, setTag] = useState<TagDTO>();
+
+  const fetchTag = useCallback(async () => {
+    const response = await getTagDetail(id);
+    setTag(response.data);
+  }, [id]);
+
+  useEffect(() => {
+    fetchTag();
+  }, [id]);
+
+  return tag ? (
+    <Tag.Root gap={2} size="md" colorPalette={colorScheme} variant="solid">
+      <Tag.Label px={2}>{tag.name}</Tag.Label>
+    </Tag.Root>
+  ) : null;
 }
 
 const STATUS_LABELS = {
@@ -79,4 +102,4 @@ export function getStatusTagColor(status: TaskStatus): TagColor {
   }
 }
 
-export { TagItem, StatusTag };
+export { TagItem, StatusTag, TagBadge };

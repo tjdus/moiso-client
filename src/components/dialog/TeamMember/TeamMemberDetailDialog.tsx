@@ -30,34 +30,30 @@ const TeamMemberDetailDialog = ({
     >
       <DialogContent mt={10}>
         <DialogBody>
-          <Card.Root padding={4}>
-            <Card.Body>
-              <Tabs.Root variant="outline" border="1px" defaultValue="details">
-                <Tabs.List gap={1}>
-                  <Tabs.Trigger padding={2} value="details">
-                    정보
-                  </Tabs.Trigger>
-                  <Tabs.Trigger padding={2} value="projects">
-                    참여중인 프로젝트
-                  </Tabs.Trigger>
-                  <Tabs.Trigger padding={2} value="tasks">
-                    업무
-                  </Tabs.Trigger>
-                  <Tabs.Indicator />
-                </Tabs.List>
-                <Tabs.Content value="details">
-                  <TeamMemberDetails
-                    teamMemberId={teamMember.id}
-                    onUpdate={onUpdate}
-                  />
-                </Tabs.Content>
-                <Tabs.Content value="projects">
-                  <TeamMemberProjectTable teamMember={teamMember} />
-                </Tabs.Content>
-                <Tabs.Content value="my"></Tabs.Content>
-              </Tabs.Root>
-            </Card.Body>
-          </Card.Root>
+          <Tabs.Root variant="outline" border="1px" defaultValue="details">
+            <Tabs.List gap={1}>
+              <Tabs.Trigger padding={2} value="details">
+                정보
+              </Tabs.Trigger>
+              <Tabs.Trigger padding={2} value="projects">
+                참여중인 프로젝트
+              </Tabs.Trigger>
+              <Tabs.Trigger padding={2} value="tasks">
+                업무
+              </Tabs.Trigger>
+              <Tabs.Indicator />
+            </Tabs.List>
+            <Tabs.Content value="details">
+              <TeamMemberDetails
+                teamMemberId={teamMember.id}
+                onUpdate={onUpdate}
+              />
+            </Tabs.Content>
+            <Tabs.Content value="projects">
+              <TeamMemberProjectTable teamMember={teamMember} />
+            </Tabs.Content>
+            <Tabs.Content value="my"></Tabs.Content>
+          </Tabs.Root>
         </DialogBody>
       </DialogContent>
     </DialogRoot>

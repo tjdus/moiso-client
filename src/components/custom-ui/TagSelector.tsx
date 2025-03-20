@@ -25,15 +25,15 @@ import { LuPlus } from "react-icons/lu";
 import { TagItem } from "./Tag";
 import { useEffect, useMemo, useState } from "react";
 import { TagDTO } from "@/lib/api/interface/fetchDTOs";
-import { fetchTagList } from "@/lib/api/fetchApi";
+import { getTagList } from "@/lib/api/getApi";
 import { toaster } from "../ui/toaster";
 import { createTag } from "@/lib/api/postApi";
 import { TagInput } from "@/lib/api/interface/requestDTO";
 
 interface TagSelectorProps {
   projectId: string;
-  value: TagDTO[];
-  onValueChange: (items: TagDTO[]) => void;
+  value: string[];
+  onValueChange: (items: string[]) => void;
 }
 
 const SelectTagItem = () => (
@@ -56,7 +56,7 @@ const TagSelector = ({ projectId, value, onValueChange }: TagSelectorProps) => {
 
   const getTags = async ({ projectId }: { projectId: string }) => {
     try {
-      const response = await fetchTagList({ projectId });
+      const response = await getTagList({ projectId });
       setTags(response.data.results);
     } catch (error) {
       toaster.error({
@@ -107,12 +107,10 @@ const TagSelector = ({ projectId, value, onValueChange }: TagSelectorProps) => {
       size="sm"
       name="category"
       width="100%"
-      value={value.map((tag) => tag.id)}
+      value={value}
       collection={tagList}
       onValueChange={(selectedItem) => {
-        onValueChange(
-          selectedItem.items.map((item) => ({ id: item.id, name: item.name }))
-        );
+        onValueChange(selectedItem.items.map((item) => item.id));
       }}
     >
       <SelectTrigger>

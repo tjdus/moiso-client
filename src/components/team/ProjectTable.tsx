@@ -25,12 +25,9 @@ import {
 import { Skeleton, SkeletonText } from "../ui/skeleton";
 import { LuSearch } from "react-icons/lu";
 import TaskCreationDialog from "../dialog/create/TaskCreationDialog";
-import TaskDetailDialog from "../dialog/TaskDetail/TaskDetailDialog";
 import { TagItem, StatusTag } from "@/components/custom-ui/Tag";
-import { AvatarList } from "@/components/custom-ui/Avatar";
 import { formatDateTimeKST } from "@/lib/util/dateFormat";
-import { format } from "path";
-import { fetchProjectList } from "@/lib/api/fetchApi";
+import { getProjectList } from "@/lib/api/getApi";
 import ProjectDetailDialog from "../dialog/ProjectDetail/ProjectDetailDialog";
 
 const headers = ["이름", "설명", "분류", "시작일", "종료일"];
@@ -83,7 +80,7 @@ export default function ProjectTable({ teamId }: { teamId: string }) {
 
   const getProjects = async () => {
     try {
-      const response = await fetchProjectList({
+      const response = await getProjectList({
         searchQuery,
         page,
         pageSize,

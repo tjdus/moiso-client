@@ -7,7 +7,7 @@ import { Card, Tag, Text } from "@chakra-ui/react";
 import { ProjectDTO } from "@/lib/api/interface/fetchDTOs";
 import { formatDateTimeKST } from "@/lib/util/dateFormat";
 import { useParams } from "next/navigation";
-import { fetchProjectList } from "@/lib/api/fetchApi";
+import { getProjectList } from "@/lib/api/getApi";
 
 interface TeamCardProps {
   project: ProjectDTO;
@@ -56,16 +56,16 @@ const ProjectCardList = () => {
   }
 
   useEffect(() => {
-    const getProjectList = async () => {
+    const fetchProjectList = async () => {
       try {
-        const response = await fetchProjectList({ page: 1, teamId });
+        const response = await getProjectList({ page: 1, teamId });
         setProjectList(response.data.results);
       } catch (error) {
         console.error("Failed to fetch project list", error);
       }
     };
 
-    getProjectList();
+    fetchProjectList();
   }, [teamId]);
 
   return (

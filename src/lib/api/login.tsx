@@ -1,6 +1,8 @@
 "use server";
 import { LoginDTO, SignupDTO } from "./interface/login";
 import { setCookie } from "../util/cookies";
+import { ErrorResponse } from "./interface/errors";
+import { error } from "console";
 
 const baseUrl = "http://localhost:8000";
 
@@ -35,26 +37,86 @@ export async function login({ username, password }: LoginDTO) {
   }
 }
 
-// export async function signup({ email, password, username }: SignupDTO) {
-//   try {
-//     const response = await axiosInstance.post("/signup", {
-//       email,
-//       password,
-//       username,
-//       name,
-//     });
-//     return { success: true };
-//   } catch (error) {
-//     console.error("회원가입 실패:", error);
-//     return { success: false, message: "회원가입 실패" };
-//   }
-// }
+export async function signup({ email, name, password, username }: SignupDTO) {
+  const response = await fetch(`${baseUrl}/api/signup`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email,
+      name,
+      username,
+      password,
+    }),
+  });
 
-// export async function logout() {
-//   try {
-//     return { success: true };
-//   } catch (error) {
-//     console.error("로그아웃 실패:", error);
-//     return { success: false, messgage: "로그아웃 실패" };
-//   }
-// }
+  if (!response.ok) {
+    const errorData: ErrorResponse = await response.json();
+    return {
+      error: errorData,
+      status: response.status,
+    };
+  }
+
+  const data = await response.json();
+  return {
+    data,
+    status: response.status,
+  };
+}
+
+export async function logout() {
+  try {
+    return { success: true };
+  } catch (error) {
+    console.error("로그아웃 실패:", error);
+    return { success: false, messgage: "로그아웃 실패" };
+  }
+}
+
+export async function getInvitation(token: string) {
+  const response = await fetch(`${baseUrl}/api/invitations/${token}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return {
+    data: await response.json(),
+    status: response.status,
+  };
+}
+
+export async function signupWithInvitation({
+  email,
+  name,
+  password,
+  username,
+  id,
+}: SignupDTO & { id: string }) {
+  const response = await fetch(`${baseUrl}/api/signup/invitations/${id}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email,
+      name,
+      username,
+      password,
+    }),
+  });
+  if (!response.ok) {
+    const errorData: ErrorResponse = await response.json();
+    return {
+      error: errorData,
+      status: response.status,
+    };
+  }
+  const data = await response.json();
+  return {
+    data,
+    status: response.status,
+  };
+}

@@ -12,6 +12,7 @@ import {
   HStack,
   Text,
   Flex,
+  Input,
 } from "@chakra-ui/react";
 import { Skeleton, SkeletonText } from "@/components/ui/skeleton";
 
@@ -22,7 +23,6 @@ import {
   PaginationPrevTrigger,
   PaginationRoot,
 } from "@/components/ui/pagination";
-import { useProject } from "@/lib/hooks";
 import {
   ProjectDetailDTO,
   ProjectMemberDTO,
@@ -33,41 +33,51 @@ import { ProjectMemberInfoDTO } from "@/lib/api/interface/fetchDTOs";
 import { RoleBadge } from "../custom-ui/RoleBadge";
 import type { Role } from "@/lib/api/interface/common";
 import { useEffect, useState } from "react";
-import { fetchProjectMemberList } from "@/lib/api/fetchApi";
-
-const ProjectMemberRow = ({
-  id,
-  member,
-  role,
-  joined_at,
-}: ProjectMemberInfoDTO) => {
-  return (
-    <TableRow _hover={{ bg: "gray.300" }}>
-      <TableCell align="center" height="48px">
-        <HStack>
-          <Avatar size="xs" />
-          <Text fontWeight="light" fontSize="sm">
-            {member.name}
-          </Text>
-        </HStack>
-      </TableCell>
-
-      <TableCell fontSize="xs" textAlign="center" height="48px">
-        {member.email}
-      </TableCell>
-
-      <TableCell textAlign="center" height="48px">
-        <RoleBadge role={role} />
-      </TableCell>
-
-      <TableCell fontSize="xs" textAlign="center" height="48px">
-        {joined_at}
-      </TableCell>
-    </TableRow>
-  );
-};
+import { getProjectMemberList } from "@/lib/api/getApi";
+import { InputGroup } from "../ui/input-group";
+import { LuSearch } from "react-icons/lu";
+import InviteDialog from "../project/InviteDialog";
+import { useParams } from "next/navigation";
 
 const headers = ["이름", "이메일", "역할", "가입일"];
+
+const MemberSearchBar = ({
+  onSearch,
+}: {
+  onSearch: (query: string) => void;
+}) => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const { id: projectId } = useParams<{ id: string }>();
+
+  const handleSearch = () => {
+    onSearch(searchQuery);
+  };
+
+  return (
+    <HStack width="40%">
+      <InputGroup
+        flex="1"
+        startElement={<LuSearch style={{ marginLeft: "8px" }} />}
+      >
+        <Input
+          padding={2}
+          colorPalette="gray"
+          variant="outline"
+          placeholder="검색하기"
+          size="sm"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSearch();
+            }
+          }}
+        />
+      </InputGroup>
+      <InviteDialog projectId={projectId} />
+    </HStack>
+  );
+};
 
 export default function ProjectMemberTable({
   projectId,
@@ -79,6 +89,7 @@ export default function ProjectMemberTable({
   >([]);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const pageSize = 10;
 
@@ -86,8 +97,9 @@ export default function ProjectMemberTable({
     const loadMembers = async () => {
       setIsLoading(true);
       try {
-        const response = await fetchProjectMemberList({
+        const response = await getProjectMemberList({
           projectId,
+          searchQuery,
           page,
           pageSize,
         });
@@ -102,7 +114,12 @@ export default function ProjectMemberTable({
     };
 
     loadMembers();
-  }, [projectId, page]);
+  }, [projectId, page, searchQuery]);
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    setPage(1); // Reset to first page on new search
+  };
 
   return (
     <Flex
@@ -114,6 +131,9 @@ export default function ProjectMemberTable({
       height="100vh"
       overflow="auto"
     >
+      <Flex justify="end" align="center">
+        <MemberSearchBar onSearch={handleSearch} />
+      </Flex>
       <TableRoot size="lg" borderRadius="md" border="1px">
         <TableHeader fontSize="sm" textAlign="center">
           <TableRow>

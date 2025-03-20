@@ -82,6 +82,57 @@ const SaveDeleteButton: React.FC<SaveDeleteButtonProps> = ({
   );
 };
 
+interface DeleteButtonProps {
+  onDelete: () => void;
+}
+
+const DeleteButton: React.FC<DeleteButtonProps> = ({ onDelete }) => {
+  const { role, setRole } = useRole();
+  const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false);
+
+  const handleDelete = () => {
+    setIsAlertOpen(true);
+  };
+
+  return (
+    <ButtonGroup gap={2}>
+      <IconButton
+        colorPalette="red"
+        onClick={handleDelete}
+        variant="surface"
+        disabled={role === "viewer"}
+      >
+        <LuTrash2 />
+      </IconButton>
+      <DialogRoot
+        size="sm"
+        open={isAlertOpen}
+        onOpenChange={(details) => setIsAlertOpen(details.open)}
+        role="alertdialog"
+      >
+        <DialogContent mt={40}>
+          <Card.Root>
+            <Card.Body>
+              <DialogBody padding={10}>
+                <Text textStyle="sm">삭제하시겠습니까?</Text>
+              </DialogBody>
+              <DialogFooter>
+                <DialogActionTrigger asChild>
+                  <Button variant="outline">Cancel</Button>
+                </DialogActionTrigger>
+                <Button colorPalette="red" onClick={onDelete}>
+                  삭제
+                </Button>
+              </DialogFooter>
+              <DialogCloseTrigger />
+            </Card.Body>
+          </Card.Root>
+        </DialogContent>
+      </DialogRoot>
+    </ButtonGroup>
+  );
+};
+
 interface WarnDialogProps {
   trigger: React.ReactNode;
   confirmDelete: () => void;
@@ -113,4 +164,4 @@ const WarnDialog = ({ trigger, confirmDelete }: WarnDialogProps) => {
   );
 };
 
-export { SaveDeleteButton, WarnDialog };
+export { SaveDeleteButton, DeleteButton, WarnDialog };

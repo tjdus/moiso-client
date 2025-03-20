@@ -60,17 +60,16 @@ import { deleteProjectMember, deleteTaskAssignment } from "@/lib/api/deleteApi";
 import { createProjectMember, createTaskAssignment } from "@/lib/api/postApi";
 import CreationDialog from "../CreationDialog";
 import {
-  fetchProjectMemberList,
-  fetchTaskAssignmentList,
-  fetchTeamMemberDetail,
-  fetchTeamMemberList,
-} from "@/lib/api/fetchApi";
+  getProjectMemberList,
+  getTaskAssignmentList,
+  getTeamMemberDetail,
+  getTeamMemberList,
+} from "@/lib/api/getApi";
 import { useRole } from "@/lib/context/RoleContext";
 import { WarnDialog } from "@/components/custom-ui/SaveDeleteButton";
 import { RoleBadge } from "@/components/custom-ui/RoleBadge";
 import { TeamGroupTag } from "@/components/custom-ui/TeamGroup";
 import { RoleRadioCard } from "@/components/custom-ui/RoleSelector";
-import { useTeam } from "@/lib/context/TeamProvider";
 
 const headers = ["이름", "이메일", "역할", "권한", "-"];
 
@@ -81,7 +80,7 @@ const AddProjectMemberDialog = ({
   projectId: string;
   addProjectMember: (data: ProjectMemberInput) => void;
 }) => {
-  const { team: teamId } = useTeam();
+  const { id: teamId } = useParams<{ id: string }>();
   const [member, setMember] = useState<string>("");
   const [role, setRole] = useState<string>("viewer");
   const [teamMembers, setTeamMembers] = useState<TeamMemberDTO[]>([]);
@@ -96,7 +95,7 @@ const AddProjectMemberDialog = ({
 
   const getTeamMembers = async () => {
     try {
-      const response = await fetchTeamMemberList({ teamId });
+      const response = await getTeamMemberList({ teamId });
       setTeamMembers(response.data.results);
     } catch (error) {
       toaster.error({
@@ -202,7 +201,7 @@ const AddProjectMemberDialog = ({
 
 const ProjectMember = ({ projectId }: { projectId: string }) => {
   const { role } = useRole();
-  const { team: teamId } = useTeam();
+  const { id: teamId } = useParams<{ id: string }>();
   const [projectMemberList, setProjectMemberList] = useState<
     ProjectMemberDTO[]
   >([]);
@@ -214,7 +213,7 @@ const ProjectMember = ({ projectId }: { projectId: string }) => {
 
   const getProjectMembers = async ({ projectId }: { projectId: string }) => {
     try {
-      const response = await fetchProjectMemberList({ projectId });
+      const response = await getProjectMemberList({ projectId });
       setProjectMemberList(response.data.results);
     } catch (error) {
       toaster.error({

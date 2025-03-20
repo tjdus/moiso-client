@@ -14,7 +14,7 @@ import {
   PaginationRoot,
 } from "@/components/ui/pagination";
 import { useRouter } from "next/navigation";
-import { fetchTaskList } from "@/lib/api/fetchApi";
+import { getTaskList } from "@/lib/api/getApi";
 
 export default function TaskCardList() {
   const router = useRouter();
@@ -28,7 +28,7 @@ export default function TaskCardList() {
   useEffect(() => {
     const loadTasks = async () => {
       try {
-        const response = await fetchTaskList({
+        const response = await getTaskList({
           projectId,
           page,
           pageSize,

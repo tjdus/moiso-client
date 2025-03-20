@@ -1,14 +1,7 @@
 "use client";
 import { Box, Flex, Text, Stack, EmptyState } from "@chakra-ui/react";
-import { useContext, useEffect, useState } from "react";
-import { ProjectDTO, TeamDetailDTO } from "@/lib/api/interface/fetchDTOs";
-import { TeamSpaceContext, useTeamSpace } from "@/lib/context/TeamSpaceContext";
-import { FaFolderOpen } from "react-icons/fa";
-import { useTeam } from "@/lib/hooks";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/lib/store";
-import { setProject } from "@/lib/slice/projectSlice";
-import { fetchProjectDetail } from "@/lib/api/fetchApi";
+import { ProjectDTO } from "@/lib/api/interface/fetchDTOs";
+import { useTeamSpace } from "@/lib/context/TeamSpaceContext";
 import { useRouter } from "next/navigation";
 import { LuCircleAlert, LuFolder } from "react-icons/lu";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchMyTaskAssignmentList } from "@/lib/api/fetchApi";
+import { getMyTaskAssignmentList } from "@/lib/api/getApi";
 import { TaskAssignmentDTO, TaskDTO } from "@/lib/api/interface/fetchDTOs";
 import {
   TableRoot,
@@ -15,6 +15,7 @@ import {
   IconButton,
   Input,
   Separator,
+  useDialog,
 } from "@chakra-ui/react";
 import {
   PaginationItems,
@@ -30,7 +31,9 @@ import {
 import { Skeleton, SkeletonText } from "../ui/skeleton";
 import { LuSearch } from "react-icons/lu";
 import TaskCreationDialog from "../dialog/create/TaskCreationDialog";
-import TaskDetailDialog from "../dialog/TaskDetail/TaskDetailDialog";
+import TaskDetailDialog, {
+  useTaskDetailDialog,
+} from "../dialog/TaskDetail/TaskDetailDialog";
 import { TagItem, StatusTag } from "@/components/custom-ui/Tag";
 import { AvatarList } from "@/components/custom-ui/Avatar";
 import { get } from "lodash";
@@ -166,8 +169,7 @@ export default function MyTaskTable() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [status, setStatus] = useState<string>("all");
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { setOpen, setTaskId } = useTaskDetailDialog();
   const pageSize = 10;
 
   const getTaskList = async () => {
@@ -178,7 +180,7 @@ export default function MyTaskTable() {
       const endDate = new Date(today);
       endDate.setDate(today.getDate() + 3);
 
-      const response = await fetchMyTaskAssignmentList({
+      const response = await getMyTaskAssignmentList({
         status: status !== "all" ? status : undefined,
         page,
         searchQuery,
@@ -196,13 +198,8 @@ export default function MyTaskTable() {
   }, [page, searchQuery, status]);
 
   const handleTaskClick = (selectedId: string) => {
-    setSelectedTaskId(selectedId);
-    setIsDialogOpen(true);
-  };
-
-  const handleDialogClose = () => {
-    setIsDialogOpen(false);
-    setSelectedTaskId(null);
+    setTaskId(selectedId);
+    setOpen(true);
   };
 
   const handleSearch = (query: string) => {
@@ -246,63 +243,12 @@ export default function MyTaskTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {isLoading ? (
-            Array(5)
-              .fill(0)
-              .map((_, index) => (
-                <TableRow key={`loading-${index}`} borderBottom="1px">
-                  <TableCell padding={4}>
-                    <Skeleton height="20px" width="180px" />
-                  </TableCell>
-                  <TableCell padding={4}>
-                    <SkeletonText noOfLines={2} gap="2" width="200px" />
-                  </TableCell>
-                  <TableCell padding={4}>
-                    <Flex gap={2}>
-                      <Skeleton
-                        height="20px"
-                        width="60px"
-                        borderRadius="full"
-                      />
-                      <Skeleton
-                        height="20px"
-                        width="70px"
-                        borderRadius="full"
-                      />
-                    </Flex>
-                  </TableCell>
-                  <TableCell padding={4}>
-                    <Skeleton height="24px" width="80px" borderRadius="md" />
-                  </TableCell>
-                  <TableCell padding={4}>
-                    <Flex>
-                      <Skeleton
-                        height="32px"
-                        width="32px"
-                        borderRadius="full"
-                      />
-                      <Skeleton
-                        height="32px"
-                        width="32px"
-                        borderRadius="full"
-                        ml="-2"
-                      />
-                    </Flex>
-                  </TableCell>
-                  <TableCell padding={4}>
-                    <Skeleton height="20px" width="80px" />
-                  </TableCell>
-                  <TableCell padding={4}>
-                    <Skeleton height="20px" width="80px" />
-                  </TableCell>
-                </TableRow>
-              ))
-          ) : taskAssignmentList.length > 0 ? (
+          {taskAssignmentList.length > 0 ? (
             taskAssignmentList.map((taskAssignment) => (
               <TableRow
                 key={taskAssignment.id}
                 cursor="pointer"
-                onClick={() => handleTaskClick(taskAssignment.id)}
+                onClick={() => handleTaskClick(taskAssignment.task.id)}
                 _hover={{ backgroundColor: "brand.200" }}
                 borderBottom="1px"
                 fontSize="sm"
@@ -387,14 +333,7 @@ export default function MyTaskTable() {
           </HStack>
         </PaginationRoot>
       )}
-
-      {isDialogOpen && selectedTaskId && (
-        <TaskDetailDialog
-          taskId={selectedTaskId}
-          isOpen={isDialogOpen}
-          onClose={handleDialogClose}
-        />
-      )}
+      <TaskDetailDialog />
     </Flex>
   );
 }

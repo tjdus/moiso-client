@@ -17,7 +17,7 @@ import {
 } from "./interface/fetchDTOs";
 import { PaginationResponse } from "./interface/common";
 
-export async function fetchTeamList({
+export async function getTeamList({
   searchQuery,
   page,
   pageSize,
@@ -39,7 +39,7 @@ export async function fetchTeamList({
   });
 }
 
-export async function fetchProjectList({
+export async function getProjectList({
   searchQuery,
   page,
   pageSize,
@@ -67,7 +67,7 @@ export async function fetchProjectList({
   });
 }
 
-export async function fetchTaskList({
+export async function getTaskList({
   searchQuery,
   page,
   pageSize,
@@ -92,7 +92,7 @@ export async function fetchTaskList({
   });
 }
 
-export async function fetchTagList({
+export async function getTagList({
   searchQuery,
   page,
   pageSize,
@@ -117,7 +117,7 @@ export async function fetchTagList({
   });
 }
 
-export async function fetchCategoryList({
+export async function getCategoryList({
   searchQuery,
   page,
   pageSize,
@@ -142,7 +142,7 @@ export async function fetchCategoryList({
   });
 }
 
-export async function fetchTeamMemberList({
+export async function getTeamMemberList({
   searchQuery,
   page,
   pageSize,
@@ -167,7 +167,7 @@ export async function fetchTeamMemberList({
   });
 }
 
-export async function fetchTeamGroupList({
+export async function getTeamGroupList({
   searchQuery,
   page,
   pageSize,
@@ -192,7 +192,7 @@ export async function fetchTeamGroupList({
   });
 }
 
-export async function fetchTeamGroupMemberList({
+export async function getTeamGroupMemberList({
   searchQuery,
   page,
   pageSize,
@@ -223,7 +223,7 @@ export async function fetchTeamGroupMemberList({
   );
 }
 
-export async function fetchProjectMemberList({
+export async function getProjectMemberList({
   searchQuery,
   page,
   pageSize,
@@ -254,7 +254,7 @@ export async function fetchProjectMemberList({
   );
 }
 
-export async function fetchTaskAssignmentList({
+export async function getTaskAssignmentList({
   searchQuery,
   page,
   pageSize,
@@ -282,7 +282,7 @@ export async function fetchTaskAssignmentList({
   );
 }
 
-export async function fetchTaskTagList({
+export async function getTaskTagList({
   searchQuery,
   page,
   pageSize,
@@ -307,7 +307,7 @@ export async function fetchTaskTagList({
   });
 }
 
-export async function fetchMyTeamMemberList({
+export async function getMyTeamMemberList({
   searchQuery,
   page,
   pageSize,
@@ -332,20 +332,26 @@ export async function fetchMyTeamMemberList({
   );
 }
 
-export async function fetchMyTaskAssignmentList({
+export async function getMyTaskAssignmentList({
   searchQuery,
   page,
   pageSize,
   taskId,
+  projectId,
   status,
   taskEndAtBefore,
   taskEndAtAfter,
+  taskStartAtBefore,
+  taskStartAtAfter,
 }: {
   searchQuery?: string;
   page?: number;
   pageSize?: number;
   taskId?: string;
+  projectId?: string;
   status?: string;
+  taskStartAtBefore?: string;
+  taskStartAtAfter?: string;
   taskEndAtBefore?: string;
   taskEndAtAfter?: string;
 }) {
@@ -357,7 +363,10 @@ export async function fetchMyTaskAssignmentList({
         ...(page && { page }),
         ...(pageSize && { page_size: pageSize }),
         ...(taskId && { task: taskId }),
+        ...(projectId && { project: projectId }),
         ...(status && { status }),
+        ...(taskStartAtBefore && { task_start_at_before: taskStartAtBefore }),
+        ...(taskStartAtAfter && { task_start_at_after: taskStartAtAfter }),
         ...(taskEndAtBefore && { task_end_at_before: taskEndAtBefore }),
         ...(taskEndAtAfter && { task_end_at_after: taskEndAtAfter }),
       },
@@ -366,7 +375,7 @@ export async function fetchMyTaskAssignmentList({
   );
 }
 
-export async function fetchMyProjectMemberList({
+export async function getMyProjectMemberList({
   searchQuery,
   page,
   pageSize,
@@ -400,7 +409,7 @@ export async function fetchMyProjectMemberList({
   );
 }
 
-export async function fetchMyProjectMemberDetail(projectId: string) {
+export async function getMyProjectMemberDetail(projectId: string) {
   return apiClient.get<ProjectMemberDTO>(
     `/api/my/project_member/${projectId}`,
     {
@@ -409,43 +418,55 @@ export async function fetchMyProjectMemberDetail(projectId: string) {
   );
 }
 
-export async function fetchMyTeamMemberDetail(teamId: string) {
-  return apiClient.get<TeamMemberDTO>(`/api/my/team_members/${teamId}`, {
+export async function getMyTeamMemberDetail(teamId: string) {
+  return apiClient.get<TeamMemberDTO>(`/api/my/team_member/${teamId}`, {
     withAuth: true,
   });
 }
 
-export async function fetchTeamDetail(teamId: string) {
+export async function getTeamDetail(teamId: string) {
   return apiClient.get<TeamDetailDTO>(`/api/teams/${teamId}`, {
     withAuth: true,
   });
 }
 
-export async function fetchProjectDetail(projectId: string) {
+export async function getCategoryDetail(categoryId: string) {
+  return apiClient.get<CategoryNameDTO>(`/api/categories/${categoryId}`, {
+    withAuth: true,
+  });
+}
+
+export async function getTagDetail(tagId: string) {
+  return apiClient.get<TagDTO>(`/api/tags/${tagId}`, {
+    withAuth: true,
+  });
+}
+
+export async function getProjectDetail(projectId: string) {
   return apiClient.get<ProjectDetailDTO>(`/api/projects/${projectId}`, {
     withAuth: true,
   });
 }
 
-export async function fetchTaskDetail(taskId: string) {
+export async function getTaskDetail(taskId: string) {
   return apiClient.get<TaskDetailDTO>(`/api/tasks/${taskId}`, {
     withAuth: true,
   });
 }
 
-export async function fetchTeamMemberDetail(teamMemberId: string) {
+export async function getTeamMemberDetail(teamMemberId: string) {
   return apiClient.get<TeamMemberDTO>(`/api/team_members/${teamMemberId}`, {
     withAuth: true,
   });
 }
 
-export async function fetchTeamGroupDetail(teamGroupId: string) {
+export async function getTeamGroupDetail(teamGroupId: string) {
   return apiClient.get<TeamGroupDTO>(`/api/team_groups/${teamGroupId}`, {
     withAuth: true,
   });
 }
 
-export async function fetchTeamGroupMemberDetail(teamGroupMemberId: string) {
+export async function getTeamGroupMemberDetail(teamGroupMemberId: string) {
   return apiClient.get<TeamGroupMemberDTO>(
     `/api/team_group_members/${teamGroupMemberId}`,
     {
@@ -454,7 +475,7 @@ export async function fetchTeamGroupMemberDetail(teamGroupMemberId: string) {
   );
 }
 
-export async function fetchProjectMemberDetail(projectMemberId: string) {
+export async function getProjectMemberDetail(projectMemberId: string) {
   return apiClient.get<ProjectMemberDTO>(
     `/api/project_members/${projectMemberId}`,
     {

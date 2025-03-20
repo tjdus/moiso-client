@@ -4,14 +4,12 @@ import { useState } from "react";
 import { Box, HStack, Tabs, Text, Skeleton } from "@chakra-ui/react";
 import { ReactNode, useEffect } from "react";
 import { ProjectDetailDTO, ProjectDTO } from "@/lib/api/interface/fetchDTOs";
-import ProjectMemberTable from "../Table/ProjectMemberTable";
-import TaskList from "../Table/TaskList";
+import ProjectMemberTable from "./ProjectMemberTable";
+import TaskList from "./TaskList";
 import { LuFolder, LuSquareCheck, LuUser, LuSettings } from "react-icons/lu";
-import TaskCreationDialog from "../dialog/create/TaskCreationDialog";
 import { useParams } from "next/navigation";
-import { fetchProjectDetail } from "@/lib/api/fetchApi";
+import { getProjectDetail } from "@/lib/api/getApi";
 import MemberSelectorWithGroup from "../custom-ui/MemberSelectorWithGroup";
-import { useProject } from "@/lib/context/ProjectContext";
 
 interface TabContentProps {
   value: string;
@@ -66,19 +64,15 @@ function TabTrigger({ icon, value, label }: TabTriggerProps) {
 }
 
 function TabBar() {
-  const { project: projectId } = useProject();
+  const { id: projectId } = useParams<{ id: string }>();
   const [project, setProject] = useState<ProjectDetailDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<string>("overview");
 
-  if (!projectId) {
-    return <Text>Select Project</Text>;
-  }
-
   useEffect(() => {
     const loadProjectDetail = async () => {
       try {
-        const response = await fetchProjectDetail(projectId);
+        const response = await getProjectDetail(projectId);
         setProject(response.data);
       } catch (error) {
         setProject(null);

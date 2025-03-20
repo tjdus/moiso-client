@@ -5,6 +5,7 @@ import AuthContext from "@/lib/context/AuthContext";
 import AuthroizationHeader from "@/lib/header/AuthrorizationHeader";
 import StoreProvider from "@/lib/provider/StoreProvider";
 import "./globals.css";
+import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +33,10 @@ export default function RootLayout({
         <StoreProvider>
           <AuthContext>
             <AuthroizationHeader>
-              <Provider>{children}</Provider>
+              <Provider>
+                {children}
+                <Toaster />
+              </Provider>
             </AuthroizationHeader>
           </AuthContext>
         </StoreProvider>

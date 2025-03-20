@@ -15,6 +15,7 @@ import {
   IconButton,
   Input,
   Separator,
+  useDialog,
 } from "@chakra-ui/react";
 import {
   PaginationItems,
@@ -25,10 +26,12 @@ import {
 import { Skeleton, SkeletonText } from "../ui/skeleton";
 import { LuSearch } from "react-icons/lu";
 import TaskCreationDialog from "../dialog/create/TaskCreationDialog";
-import TaskDetailDialog from "../dialog/TaskDetail/TaskDetailDialog";
+import TaskDetailDialog, {
+  useTaskDetailDialog,
+} from "../dialog/TaskDetail/TaskDetailDialog";
 import { TagItem, StatusTag } from "@/components/custom-ui/Tag";
 import { AvatarList } from "@/components/custom-ui/Avatar";
-import { fetchTaskList } from "@/lib/api/fetchApi";
+import { getTaskList } from "@/lib/api/getApi";
 import { InputGroup } from "../ui/input-group";
 
 const headers = ["제목", "설명", "태그", "상태", "담당자", "시작일", "마감일"];
@@ -70,15 +73,13 @@ export default function TaskList({ projectId }: { projectId: string }) {
   const [taskList, setTaskList] = useState<TaskDTO[]>([]);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { setTaskId, setOpen } = useTaskDetailDialog();
   const pageSize = 10;
 
   const getTasks = async () => {
     try {
-      const response = await fetchTaskList({
+      const response = await getTaskList({
         projectId,
         searchQuery,
         page,
@@ -96,14 +97,8 @@ export default function TaskList({ projectId }: { projectId: string }) {
   }, [projectId, page, searchQuery]);
 
   const handleTaskClick = (selectedId: string) => {
-    setSelectedTaskId(selectedId);
-    setIsDialogOpen(true);
-  };
-
-  const handleDialogClose = () => {
-    setIsDialogOpen(false);
-    setSelectedTaskId(null);
-    getTasks();
+    setTaskId(selectedId);
+    setOpen(true);
   };
 
   const handleSearch = (query: string) => {
@@ -220,7 +215,6 @@ export default function TaskList({ projectId }: { projectId: string }) {
           )}
         </TableBody>
       </TableRoot>
-
       {taskList.length > 0 && (
         <PaginationRoot
           count={totalCount}
@@ -236,15 +230,7 @@ export default function TaskList({ projectId }: { projectId: string }) {
           </HStack>
         </PaginationRoot>
       )}
-
-      {isDialogOpen && selectedTaskId && (
-        <TaskDetailDialog
-          projectId={projectId}
-          taskId={selectedTaskId}
-          isOpen={isDialogOpen}
-          onClose={handleDialogClose}
-        />
-      )}
+      <TaskDetailDialog />
     </Flex>
   );
 }

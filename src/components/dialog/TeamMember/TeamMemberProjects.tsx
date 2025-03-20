@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { fetchProjectList, fetchProjectMemberList } from "@/lib/api/fetchApi";
+import { getProjectList, getProjectMemberList } from "@/lib/api/getApi";
 import {
   ProjectDTO,
   ProjectMemberDTO,
@@ -29,7 +29,7 @@ const TeamMemberProjectTable = ({ teamMember }: TeamMemberProjectProps) => {
   };
 
   const loadProjects = async () => {
-    const response = await fetchProjectMemberList({
+    const response = await getProjectMemberList({
       memberId: teamMember.member.id,
       teamId: teamMember.team.id,
     });

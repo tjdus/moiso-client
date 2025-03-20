@@ -31,29 +31,22 @@ import { set } from "lodash";
 import {
   ProjectDTO,
   TeamGroupDTO,
+  TeamGroupMemberDTO,
   TeamMemberDTO,
 } from "@/lib/api/interface/fetchDTOs";
 import {
-  fetchTeamGroupList,
-  fetchTeamMemberDetail,
-  fetchTeamMemberList,
-} from "@/lib/api/fetchApi";
+  getTeamGroupList,
+  getTeamGroupMemberList,
+  getTeamMemberDetail,
+  getTeamMemberList,
+} from "@/lib/api/getApi";
 import { revalidatePath } from "next/cache";
 import { TeamMemberInput } from "@/lib/api/interface/requestDTO";
-
-const SelectTagItem = () => (
-  <SelectValueText padding={2}>
-    {(items: Array<{ id: string; name: string }>) => (
-      <HStack>
-        {items.map(({ id, name }) => (
-          <HStack key={id}>
-            <TagItem id={id} name={name} size="md" />
-          </HStack>
-        ))}
-      </HStack>
-    )}
-  </SelectValueText>
-);
+import EditableData from "@/components/custom-ui/EditableData";
+import TeamGroupSelector from "@/components/custom-ui/TeamGroupSelector";
+import { useForm } from "react-hook-form";
+import { toaster } from "@/components/ui/toaster";
+import { on } from "events";
 
 interface TeamMemberDetailsProps {
   teamMemberId: string;
@@ -68,169 +61,151 @@ const TeamMemberDetails = ({
   const teamId = Array.isArray(params.id) ? params.id[0] : params.id;
   const [teamMember, setTeamMember] = useState<TeamMemberDTO | null>(null);
   const [teamGroupList, setTeamGroupList] = useState<TeamGroupDTO[]>([]);
-  const [selectedTeamGroup, setSelectedTeamGroup] = useState<string[]>([]);
-  const [updatedData, setUpdatedDate] = useState<TeamMemberInput>({});
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+    setError,
+    control,
+  } = useForm<TeamMemberInput>();
 
   if (!teamId) {
     return;
   }
   const getTeamMemberInfo = async () => {
     try {
-      const response = await fetchTeamMemberDetail(teamMemberId);
+      const response = await getTeamMemberDetail(teamMemberId);
       setTeamMember(response.data);
+      setValue(
+        "team_groups",
+        response.data?.team_groups.map((group) => group.team_group.id) || []
+      );
     } catch (error) {
       console.error("Failed to fetch team member details", error);
     }
   };
 
-  const getRoleGroups = async () => {
+  const getMemberGroups = async () => {
     try {
-      const response = await fetchTeamGroupList({ teamId: teamId });
-      console.log(response);
+      const response = await getTeamGroupList({
+        teamId: teamId,
+      });
       setTeamGroupList(response.data.results);
     } catch (error) {
       console.error("Failed to fetch role groups", error);
     }
   };
 
-  useEffect(() => {
-    if (teamGroupList.length > 0) {
-      setSelectedTeamGroup(teamGroupList.map((teamGroup) => teamGroup.id));
-    }
-  }, [teamGroupList]);
-
-  useEffect(() => {
-    getTeamMemberInfo();
-    getRoleGroups();
-  }, [teamId, teamMemberId]);
-
-  const handleCommit = async () => {
+  const onSubmit = async (
+    name: keyof TeamMemberInput,
+    data: TeamMemberInput
+  ) => {
     try {
-      const updatedData = { team_groups: selectedTeamGroup };
-      const response = await updateTeamMember(teamMemberId, updatedData);
+      const response = updateTeamMember(teamMemberId, { [name]: data[name] });
+      toaster.promise(response, {
+        success: {
+          title: "수정되었습니다",
+        },
+        error: {
+          title: "수정 중 문제가 발생했습니다",
+        },
+        loading: {
+          title: "수정 중...",
+        },
+      });
+      await response;
       getTeamMemberInfo();
-      const updated_data = await fetchTeamMemberDetail(teamMemberId);
-      onUpdate(teamMemberId, updated_data.data);
     } catch (error) {
-      console.error("Failed to commit changes", error);
+      console.error("Failed to update team member", error);
     }
   };
 
-  const teamGroupCollections = useMemo(() => {
-    return createListCollection({
-      items: teamGroupList || [],
-      itemToString: (item: TeamGroupDTO) => item.name,
-      itemToValue: (item: TeamGroupDTO) => item.id,
-    });
-  }, [teamGroupList]);
+  const handleChange = (key: keyof TeamMemberInput, value: any) => {
+    setValue(key, value);
+  };
+
+  useEffect(() => {
+    getTeamMemberInfo();
+    getMemberGroups();
+  }, [teamId, teamMemberId]);
 
   return (
     <Card.Root padding={10}>
       <Card.Body>
-        <DataList.Root orientation="horizontal">
-          <DataList.Item>
-            <DataList.ItemLabel>이름</DataList.ItemLabel>
-            <DataList.ItemValue>{teamMember?.member.name}</DataList.ItemValue>
-          </DataList.Item>
-          <DataList.Item>
-            <DataList.ItemLabel>이메일</DataList.ItemLabel>
-            <DataList.ItemValue>{teamMember?.member.email}</DataList.ItemValue>
-          </DataList.Item>
-          <DataList.Item>
-            <DataList.ItemLabel>역할</DataList.ItemLabel>
-            <DataList.ItemValue>
-              <Editable.Root
-                onValueRevert={() => setSelectedTeamGroup([])}
-                onValueCommit={handleCommit}
-                display="flex"
-              >
-                <SelectRoot
-                  multiple
-                  collection={teamGroupCollections}
-                  value={selectedTeamGroup}
-                  onValueChange={(selectedItem) => {
-                    setSelectedTeamGroup(
-                      selectedItem.items.map((item) => item.id)
+        <form>
+          <DataList.Root orientation="horizontal">
+            <DataList.Item>
+              <DataList.ItemLabel>이름</DataList.ItemLabel>
+              <DataList.ItemValue>{teamMember?.member.name}</DataList.ItemValue>
+            </DataList.Item>
+            <DataList.Item>
+              <DataList.ItemLabel>이메일</DataList.ItemLabel>
+              <DataList.ItemValue>
+                {teamMember?.member.email}
+              </DataList.ItemValue>
+            </DataList.Item>
+            <DataList.Item>
+              <DataList.ItemLabel>역할</DataList.ItemLabel>
+              <DataList.ItemValue>
+                <EditableData
+                  name={"team_groups"}
+                  control={control}
+                  onValueCommit={handleSubmit((data) =>
+                    onSubmit("team_groups", data)
+                  )}
+                  onValueRevert={() => {
+                    handleChange(
+                      "team_groups",
+                      teamMember?.team_groups.map(
+                        (group) => group.team_group.id
+                      ) || []
                     );
                   }}
-                >
-                  <Editable.Area>
-                    <Editable.Context>
-                      {(editable) =>
-                        editable.editing ? (
-                          <>
-                            <SelectTrigger>
-                              <SelectTagItem />
-                            </SelectTrigger>
-                            <Editable.Control>
-                              <SelectContent
-                                portalled={false}
-                                padding={2}
-                                gap={2}
-                              >
-                                {teamGroupCollections.items.map((roleGroup) => (
-                                  <SelectItem
-                                    item={roleGroup}
-                                    key={roleGroup.id}
-                                  >
-                                    <TagItem
-                                      key={roleGroup.id}
-                                      id={roleGroup.id}
-                                      name={roleGroup.name}
-                                      size="md"
-                                    />
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Editable.Control>
-                          </>
-                        ) : (
-                          <>
-                            {teamGroupList.map((teamGroup) => (
+                  edit={(value, onChange) => (
+                    <TeamGroupSelector
+                      teamId={teamId}
+                      value={value}
+                      onValueChange={(items) => {
+                        onChange(items);
+                      }}
+                    />
+                  )}
+                  preview={(value) => (
+                    <>
+                      {Array.isArray(value) &&
+                      value.length > 0 &&
+                      teamGroupList.length > 0
+                        ? teamGroupList
+                            .filter((item) =>
+                              value.some((id) => id === item.id)
+                            )
+                            .map((teamGroupMember) => (
                               <TagItem
-                                key={teamGroup.id}
-                                id={teamGroup.id}
-                                name={teamGroup.name}
+                                key={teamGroupMember.id}
+                                id={teamGroupMember.id}
+                                name={teamGroupMember.name}
                                 size="md"
                               />
-                            ))}
-                          </>
-                        )
-                      }
-                    </Editable.Context>
-                  </Editable.Area>
-                </SelectRoot>
-                <Editable.Control>
-                  <Editable.EditTrigger asChild>
-                    <IconButton variant="ghost" size="xs">
-                      <LuPencilLine />
-                    </IconButton>
-                  </Editable.EditTrigger>
-                  <Editable.CancelTrigger asChild>
-                    <IconButton variant="ghost" size="xs">
-                      <LuX />
-                    </IconButton>
-                  </Editable.CancelTrigger>
-                  <Editable.SubmitTrigger asChild>
-                    <IconButton variant="ghost" size="xs">
-                      <LuCheck />
-                    </IconButton>
-                  </Editable.SubmitTrigger>
-                </Editable.Control>
-              </Editable.Root>
-            </DataList.ItemValue>
-          </DataList.Item>
-          <DataList.Item>
-            <DataList.ItemLabel>권한</DataList.ItemLabel>
-            <DataList.ItemValue>
-              {teamMember?.role ? <RoleBadge role={teamMember.role} /> : "-"}
-            </DataList.ItemValue>
-          </DataList.Item>
-          <DataList.Item>
-            <DataList.ItemLabel>가입일</DataList.ItemLabel>
-            <DataList.ItemValue>{teamMember?.joined_at}</DataList.ItemValue>
-          </DataList.Item>
-        </DataList.Root>
+                            ))
+                        : null}
+                    </>
+                  )}
+                />
+              </DataList.ItemValue>
+            </DataList.Item>
+            <DataList.Item>
+              <DataList.ItemLabel>권한</DataList.ItemLabel>
+              <DataList.ItemValue>
+                {teamMember?.role ? <RoleBadge role={teamMember.role} /> : "-"}
+              </DataList.ItemValue>
+            </DataList.Item>
+            <DataList.Item>
+              <DataList.ItemLabel>가입일</DataList.ItemLabel>
+              <DataList.ItemValue>{teamMember?.joined_at}</DataList.ItemValue>
+            </DataList.Item>
+          </DataList.Root>
+        </form>
       </Card.Body>
     </Card.Root>
   );

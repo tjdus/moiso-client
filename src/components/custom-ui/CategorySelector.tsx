@@ -25,15 +25,15 @@ import { LuPlus } from "react-icons/lu";
 import { TagItem } from "./Tag";
 import { useEffect, useMemo, useState } from "react";
 import { CategoryNameDTO } from "@/lib/api/interface/fetchDTOs";
-import { fetchCategoryList } from "@/lib/api/fetchApi";
+import { getCategoryList } from "@/lib/api/getApi";
 import { toaster } from "../ui/toaster";
 import { createCategory } from "@/lib/api/postApi";
 import { CategoryInput } from "@/lib/api/interface/requestDTO";
 
 interface CategorySelectorProps {
   teamId: string;
-  value: CategoryNameDTO[];
-  onValueChange: (items: CategoryNameDTO) => void;
+  value: string;
+  onValueChange: (items: string) => void;
 }
 
 const SelectTagItem = () => (
@@ -60,7 +60,7 @@ const CategorySelector = ({
 
   const getCategories = async ({ teamId }: { teamId: string }) => {
     try {
-      const response = await fetchCategoryList({ teamId });
+      const response = await getCategoryList({ teamId });
       setCategories(response.data.results);
     } catch (error) {
       toaster.error({
@@ -108,10 +108,10 @@ const CategorySelector = ({
       size="sm"
       name="category"
       width="100%"
-      value={value.map((category) => category.id)}
+      value={[value]}
       collection={cateogoryList}
       onValueChange={(selectedItems) => {
-        onValueChange(selectedItems.items[0]);
+        onValueChange(selectedItems.items[0].id);
       }}
     >
       <SelectTrigger>

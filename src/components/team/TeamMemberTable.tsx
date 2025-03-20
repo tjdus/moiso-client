@@ -25,49 +25,12 @@ import {
 } from "@/components/ui/pagination";
 
 import { Avatar } from "../ui/avatar";
-import {
-  ProjectMemberInfoDTO,
-  TeamMemberDTO,
-} from "@/lib/api/interface/fetchDTOs";
-import { RoleBadge } from "../custom-ui/RoleBadge";
-import type { Role } from "@/lib/api/interface/common";
+import { TeamMemberDTO } from "@/lib/api/interface/fetchDTOs";
 import { useEffect, useState } from "react";
 
 import TeamMemberDetailDialog from "../dialog/TeamMember/TeamMemberDetailDialog";
 import { TagItem } from "../custom-ui/Tag";
-import { fetchTeamMemberList } from "@/lib/api/fetchApi";
-
-const ProjectMemberRow = ({
-  id,
-  member,
-  role,
-  joined_at,
-}: ProjectMemberInfoDTO) => {
-  return (
-    <TableRow _hover={{ bg: "gray.300" }}>
-      <TableCell align="center" height="48px">
-        <HStack>
-          <Avatar size="xs" />
-          <Text fontWeight="light" fontSize="sm">
-            {member.name}
-          </Text>
-        </HStack>
-      </TableCell>
-
-      <TableCell fontSize="xs" textAlign="center" height="48px">
-        {member.email}
-      </TableCell>
-
-      <TableCell textAlign="center" height="48px">
-        <RoleBadge role={role} />
-      </TableCell>
-
-      <TableCell fontSize="xs" textAlign="center" height="48px">
-        {joined_at}
-      </TableCell>
-    </TableRow>
-  );
-};
+import { getTeamMemberList } from "@/lib/api/getApi";
 
 const headers = ["이름", "이메일", "역할", "프로젝트", "가입일"];
 
@@ -83,7 +46,7 @@ export default function TeamMemberTable({ teamId }: { teamId: string }) {
   const loadMembers = async () => {
     setIsLoading(true);
     try {
-      const response = await fetchTeamMemberList({
+      const response = await getTeamMemberList({
         teamId,
         page: currentPage,
         pageSize: pageSize,
@@ -199,7 +162,7 @@ export default function TeamMemberTable({ teamId }: { teamId: string }) {
                 <TableCell textAlign="center" height="48px">
                   {teamMember.team_groups &&
                   teamMember.team_groups.length > 0 ? (
-                    <VStack gap={2} justify="center">
+                    <HStack gap={2} justify="center">
                       {teamMember.team_groups.map((teamGroup) => (
                         <TagItem
                           key={teamGroup.id}
@@ -208,7 +171,7 @@ export default function TeamMemberTable({ teamId }: { teamId: string }) {
                           size="md"
                         />
                       ))}
-                    </VStack>
+                    </HStack>
                   ) : (
                     <Text fontSize="xs" textAlign="center">
                       없음
