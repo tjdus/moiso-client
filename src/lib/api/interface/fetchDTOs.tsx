@@ -86,6 +86,16 @@ export interface ProjectDetailDTO {
   updated_by: MemberDTO;
 }
 
+export interface ScheduleDTO {
+  id: string;
+  name: string;
+  description: string;
+  members: TeamMemberDTO[];
+  place: string;
+  start_date: string;
+  end_date: string;
+}
+
 export interface TagDTO {
   id: string;
   name: string;

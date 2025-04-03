@@ -14,6 +14,7 @@ import {
   TeamDetailDTO,
   ProjectDetailDTO,
   TaskDetailDTO,
+  ScheduleDTO,
 } from "./interface/fetchDTOs";
 import { PaginationResponse } from "./interface/common";
 
@@ -55,6 +56,34 @@ export async function getProjectList({
   status?: string;
 }) {
   return apiClient.get<PaginationResponse<ProjectDTO>>("/api/projects", {
+    params: {
+      ...(searchQuery && { search: searchQuery }),
+      ...(page && { page }),
+      ...(pageSize && { page_size: pageSize }),
+      ...(name && { name }),
+      ...(teamId && { team: teamId }),
+      ...(status && { status }),
+    },
+    withAuth: true,
+  });
+}
+
+export async function getSchduleList({
+  searchQuery,
+  page,
+  pageSize,
+  name,
+  teamId,
+  status,
+}: {
+  searchQuery?: string;
+  page?: number;
+  pageSize?: number;
+  name?: string;
+  teamId?: string;
+  status?: string;
+}) {
+  return apiClient.get<PaginationResponse<ScheduleDTO>>("/api/schedule", {
     params: {
       ...(searchQuery && { search: searchQuery }),
       ...(page && { page }),

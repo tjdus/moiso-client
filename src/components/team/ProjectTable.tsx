@@ -22,8 +22,7 @@ import {
   PaginationPrevTrigger,
   PaginationRoot,
 } from "@/components/ui/pagination";
-import { Skeleton, SkeletonText } from "../ui/skeleton";
-import { LuSearch } from "react-icons/lu";
+import SearchBox from "../custom-ui/SearchBox";
 import TaskCreationDialog from "../dialog/create/TaskCreationDialog";
 import { TagItem, StatusTag } from "@/components/custom-ui/Tag";
 import { formatDateTimeKST } from "@/lib/util/dateFormat";
@@ -31,43 +30,6 @@ import { getProjectList } from "@/lib/api/getApi";
 import ProjectDetailDialog from "../dialog/ProjectDetail/ProjectDetailDialog";
 
 const headers = ["이름", "설명", "분류", "시작일", "종료일"];
-
-const TaskSearchBar = ({ onSearch }: { onSearch: (query: string) => void }) => {
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const handleSearch = () => {
-    onSearch(searchQuery);
-  };
-
-  return (
-    <HStack width="40%">
-      <Input
-        padding={2}
-        colorPalette="gray"
-        variant="outline"
-        placeholder="검색하기"
-        size="sm"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            handleSearch();
-          }
-        }}
-      />
-      <IconButton
-        variant="ghost"
-        aria-label="Search"
-        size="sm"
-        boxSizing="border-box"
-        colorPalette="gray"
-        onClick={handleSearch}
-      >
-        <LuSearch size="sm" />{" "}
-      </IconButton>
-    </HStack>
-  );
-};
 
 export default function ProjectTable({ teamId }: { teamId: string }) {
   const [projectList, setProjectList] = useState<ProjectDTO[]>([]);
@@ -125,7 +87,7 @@ export default function ProjectTable({ teamId }: { teamId: string }) {
     >
       <Flex justify="space-between" align="center">
         <TaskCreationDialog />
-        <TaskSearchBar onSearch={handleSearch} />
+        <SearchBox onSearch={handleSearch} />
       </Flex>
       <Separator />
       <TableRoot size="lg" borderRadius="md" border="1px">

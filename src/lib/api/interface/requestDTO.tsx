@@ -12,6 +12,18 @@ export interface ProjectInput {
   end_date?: string;
 }
 
+export interface ScheduleInput {
+  id?: string;
+  team?: string;
+  name?: string;
+  description?: string;
+  members?: string[];
+  place?: string;
+  status?: string;
+  start_date?: string;
+  end_date?: string;
+}
+
 export interface TeamInput {
   id?: string;
   name?: string;

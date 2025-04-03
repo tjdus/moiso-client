@@ -4,13 +4,14 @@ import { useState } from "react";
 import { Box, HStack, Tabs, Text, Skeleton } from "@chakra-ui/react";
 import { ReactNode, useEffect } from "react";
 import { TeamDetailDTO } from "@/lib/api/interface/fetchDTOs";
-import { LuFolder, LuSquareCheck, LuUser, LuSettings } from "react-icons/lu";
+import { LuFolder, LuSquareCheck, LuUser, LuSettings, LuClock } from "react-icons/lu";
 import { useParams } from "next/navigation";
 import { getTeamDetail } from "@/lib/api/getApi";
 import ProjectCardList from "../card/ProjectCardList";
 import ProjectTable from "./ProjectTable";
 import TeamMemberTable from "./TeamMemberTable";
 import RoleCreationDialog from "../dialog/create/RoleCreationDialog";
+import ScheduleTable from "./ScheduleTable";
 
 interface TabContentProps {
   value: string;
@@ -118,6 +119,7 @@ function TeamTabBar() {
             label="Projects"
             icon={<LuSquareCheck />}
           />
+          <TabTrigger value="schedule" label="Schedule" icon={<LuClock />} />
           <TabTrigger value="members" label="Members" icon={<LuUser />} />
           <TabTrigger value="settings" label="Settings" icon={<LuSettings />} />
         </Tabs.List>
@@ -126,6 +128,9 @@ function TeamTabBar() {
         </TabContent>
         <TabContent value="projects">
           <ProjectTable teamId={teamId} />
+        </TabContent>
+        <TabContent value="schedule">
+          <ScheduleTable teamId={teamId} />
         </TabContent>
         <TabContent value="members">
           <TeamMemberTable teamId={teamId} />
