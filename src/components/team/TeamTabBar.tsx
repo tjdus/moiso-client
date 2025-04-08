@@ -11,7 +11,7 @@ import ProjectCardList from "../card/ProjectCardList";
 import ProjectTable from "./ProjectTable";
 import TeamMemberTable from "./TeamMemberTable";
 import RoleCreationDialog from "../dialog/create/RoleCreationDialog";
-import ScheduleTable from "./ScheduleTable";
+import EventTable from "../project/EventTable";
 
 interface TabContentProps {
   value: string;
@@ -119,7 +119,6 @@ function TeamTabBar() {
             label="Projects"
             icon={<LuSquareCheck />}
           />
-          <TabTrigger value="schedule" label="Schedule" icon={<LuClock />} />
           <TabTrigger value="members" label="Members" icon={<LuUser />} />
           <TabTrigger value="settings" label="Settings" icon={<LuSettings />} />
         </Tabs.List>
@@ -128,9 +127,6 @@ function TeamTabBar() {
         </TabContent>
         <TabContent value="projects">
           <ProjectTable teamId={teamId} />
-        </TabContent>
-        <TabContent value="schedule">
-          <ScheduleTable teamId={teamId} />
         </TabContent>
         <TabContent value="members">
           <TeamMemberTable teamId={teamId} />

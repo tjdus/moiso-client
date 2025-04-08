@@ -14,7 +14,8 @@ import {
   TeamDetailDTO,
   ProjectDetailDTO,
   TaskDetailDTO,
-  ScheduleDTO,
+  EventListDTO,
+  EventDTO,
 } from "./interface/fetchDTOs";
 import { PaginationResponse } from "./interface/common";
 
@@ -68,29 +69,29 @@ export async function getProjectList({
   });
 }
 
-export async function getSchduleList({
+export async function getEventList({
   searchQuery,
   page,
   pageSize,
-  name,
-  teamId,
-  status,
+  projectId,
+  location,
+  is_private
 }: {
   searchQuery?: string;
   page?: number;
   pageSize?: number;
-  name?: string;
-  teamId?: string;
-  status?: string;
+  projectId?: string;
+  location?: string;
+  is_private?: number;
 }) {
-  return apiClient.get<PaginationResponse<ScheduleDTO>>("/api/schedule", {
+  return apiClient.get<PaginationResponse<EventDTO>>("/api/events", {
     params: {
       ...(searchQuery && { search: searchQuery }),
       ...(page && { page }),
       ...(pageSize && { page_size: pageSize }),
-      ...(name && { name }),
-      ...(teamId && { team: teamId }),
-      ...(status && { status }),
+      ...(projectId && { project: projectId }),
+      ...(location && { location }),
+      ...(is_private && { is_private }),
     },
     withAuth: true,
   });
@@ -473,6 +474,12 @@ export async function getTagDetail(tagId: string) {
 
 export async function getProjectDetail(projectId: string) {
   return apiClient.get<ProjectDetailDTO>(`/api/projects/${projectId}`, {
+    withAuth: true,
+  });
+}
+
+export async function getEventDetail(eventId: string) {
+  return apiClient.get<EventDTO>(`/api/events/${eventId}`, {
     withAuth: true,
   });
 }

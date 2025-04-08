@@ -12,16 +12,16 @@ export interface ProjectInput {
   end_date?: string;
 }
 
-export interface ScheduleInput {
+export interface EventInput {
   id?: string;
-  team?: string;
-  name?: string;
-  description?: string;
+  project?: string;
   members?: string[];
-  place?: string;
-  status?: string;
-  start_date?: string;
-  end_date?: string;
+  title?: string;
+  description?: string;
+  start_at?: string;
+  end_at?: string;
+  location?: string;
+  is_private?: boolean;
 }
 
 export interface TeamInput {

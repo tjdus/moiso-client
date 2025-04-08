@@ -2,7 +2,7 @@ import apiClient from "./apiClient";
 import {
   TeamInput,
   ProjectInput,
-  ScheduleInput,
+  EventInput,
   CategoryInput,
   TagInput,
   TaskInput,
@@ -26,8 +26,8 @@ export async function createProject(data: Partial<ProjectInput>) {
   });
 }
 
-export async function createSchedule(data: Partial<ScheduleInput>) {
-  return apiClient.post<ScheduleInput, ScheduleInput>("/api/schedule", {
+export async function createEvent(data: Partial<EventInput>) {
+  return apiClient.post<EventInput, EventInput>("/api/events", {
     withAuth: true,
     body: data,
   });

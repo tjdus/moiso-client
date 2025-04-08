@@ -86,14 +86,33 @@ export interface ProjectDetailDTO {
   updated_by: MemberDTO;
 }
 
-export interface ScheduleDTO {
+export interface EventListDTO {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: EventDTO[];
+}
+
+export interface EventDTO {
   id: string;
-  name: string;
+  created_at: string;
+  updated_at: string;
+  created_by: MemberDTO;
+  updated_by: MemberDTO | null;
+  project: ProjectDetailDTO;
+  members: MemberDTO[];
+  title: string;
   description: string;
-  members: TeamMemberDTO[];
-  place: string;
-  start_date: string;
-  end_date: string;
+  start_at: string;
+  end_at: string;
+  location: string;
+  is_private: boolean;
+}
+
+export interface CommentDTO {
+  id: string;
+  member: TeamMemberDTO;
+  content: string;
 }
 
 export interface TagDTO {

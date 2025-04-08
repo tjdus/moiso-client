@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { ScheduleDTO } from "@/lib/api/interface/fetchDTOs";
+import { EventDTO } from "@/lib/api/interface/fetchDTOs";
 import {
   TableRoot,
   TableBody,
@@ -10,8 +10,6 @@ import {
   TableCell,
   Flex,
   HStack,
-  IconButton,
-  Input,
 } from "@chakra-ui/react";
 import {
   PaginationItems,
@@ -20,27 +18,27 @@ import {
   PaginationRoot,
 } from "@/components/ui/pagination";
 import SearchBox from "../custom-ui/SearchBox";
-import ScheduleCreationDialog from "../dialog/create/ScheduleCreationDialog";
+import EventCreationDialog from "../dialog/create/EventCreationDialog";
 import { formatDateTimeKST } from "@/lib/util/dateFormat";
-import { getSchduleList } from "@/lib/api/getApi";
+import { getEventList } from "@/lib/api/getApi";
 import { Avatar, AvatarGroup } from "../ui/avatar";
 
-export default function ScheduleTable({ teamId }: { teamId: string }) {
-  const [scheduleList, setScheduleList] = useState<ScheduleDTO[]>([]);
+export default function EventTable({ projectId }: { projectId: string }) {
+  const [eventList, setEventList] = useState<EventDTO[]>([]);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const pageSize = 10;
 
-  const getSchedules = async () => {
+  const getEvents = async () => {
     try {
-      const response = await getSchduleList({
+      const response = await getEventList({
         searchQuery,
         page,
         pageSize,
-        teamId,
+        projectId,
       });
-      setScheduleList(response.data.results);
+      setEventList(response.data.results);
       setTotalCount(response.data.count);
     } catch (error) {
       console.error("일정 목록 가져오기 실패:", error);
@@ -48,16 +46,16 @@ export default function ScheduleTable({ teamId }: { teamId: string }) {
   };
 
   useEffect(() => {
-    getSchedules();
-  }, [teamId, page, searchQuery]);
+    getEvents();
+  }, [projectId, page, searchQuery]);
 
-  const handleProjectClick = (id: string) => {
+  const handleEventClick = (id: string) => {
     
   };
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setPage(1); // Reset to first page on new search
+    setPage(1);
   };
 
   return (
@@ -71,39 +69,39 @@ export default function ScheduleTable({ teamId }: { teamId: string }) {
       overflow="auto"
     >
       <Flex justify="space-between" align="center">
-        <ScheduleCreationDialog />
+        <EventCreationDialog projectId={projectId} />
         <SearchBox onSearch={handleSearch} />
       </Flex>
       <TableRoot size="lg" borderRadius="md" border="1px">
         <TableBody>
-          {scheduleList.length > 0 ? (
-            scheduleList.map((schedule) => (
+          {eventList.length > 0 ? (
+            eventList.map((event) => (
               <TableRow
-                key={schedule.id}
+                key={event.id}
                 cursor="pointer"
-                onClick={() => handleProjectClick(schedule.id)}
+                onClick={() => handleEventClick(event.id)}
                 _hover={{ backgroundColor: "brand.200" }}
                 borderBottom="1px"
                 fontSize="sm"
               >
-                <TableCell padding={4}>{schedule.name}</TableCell>
+                <TableCell padding={4}>{event.title}</TableCell>
                 <TableCell padding={4}>
-                  {schedule.members.map((member) => {
+                  {event.members.map((member) => {
                     return (
                       <AvatarGroup gap="0" spaceX="-3" size="sm">
-                        <Avatar name={member.member.name} />
+                        <Avatar name={member.name} />
                       </AvatarGroup>
                     )
                   })}
                 </TableCell>
                 <TableCell padding={4} textAlign="center" fontSize="xs">
-                  {schedule.place}
+                  {event.location}
                 </TableCell>
                 <TableCell padding={4} textAlign="center" fontSize="xs">
-                  {formatDateTimeKST({ dateString: schedule.start_date })}
+                  {formatDateTimeKST({ dateString: event.start_at })}
                 </TableCell>
                 <TableCell padding={4} textAlign="center" fontSize="xs">
-                  {formatDateTimeKST({ dateString: schedule.end_date })}
+                  {formatDateTimeKST({ dateString: event.end_at })}
                 </TableCell>
               </TableRow>
             ))
@@ -117,7 +115,7 @@ export default function ScheduleTable({ teamId }: { teamId: string }) {
         </TableBody>
       </TableRoot>
 
-      {scheduleList.length > 0 && (
+      {eventList.length > 0 && (
         <PaginationRoot
           count={totalCount}
           pageSize={pageSize}

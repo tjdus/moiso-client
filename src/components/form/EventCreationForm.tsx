@@ -20,7 +20,7 @@ import {
 import { Avatar } from "../ui/avatar";
 import { toaster } from "@/components/ui/toaster";
 import { useState } from "react";
-import { createSchedule } from "@/lib/api/postApi";
+import { createEvent } from "@/lib/api/postApi";
 import {
   DialogActionTrigger,
   DialogBody,
@@ -28,15 +28,12 @@ import {
   DialogFooter,
   DialogHeader,
 } from "@/components/ui/dialog";
-import { ScheduleInput } from "@/lib/api/interface/requestDTO";
+import { EventInput } from "@/lib/api/interface/requestDTO";
 
-import { TeamMemberDTO } from "@/lib/api/interface/fetchDTOs";
+import { ProjectMemberDTO } from "@/lib/api/interface/fetchDTOs";
 import { createListCollection } from "@chakra-ui/react";
 import { SingleDatepicker } from "../date-picker/DayzedDatepicker";
-import { getTeamMemberList } from "@/lib/api/getApi";
-import { Status } from "@/lib/api/interface/common";
-import { Radio, RadioGroup } from "../ui/radio";
-import { StatusTag } from "../custom-ui/Tag";
+import { getProjectMemberList } from "@/lib/api/getApi";
 
 const SelectMemberItem = () => (
   <SelectValueText placeholder="멤버를 선택하세요">
@@ -52,32 +49,31 @@ const SelectMemberItem = () => (
   </SelectValueText>
 );
 
-const ScheduleCreationForm = () => {
-  const [schedule, setSchedule] = useState<ScheduleInput>({});
-  const [name, setName] = useState<string>("");
+const EventCreationForm = ({ projectId } : { projectId: string }) => {
+  const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [teamMembers, setTeamMembers] = useState<TeamMemberDTO[]>([]);
-  const [status, setStatus] = useState<string>("not_started");
-  const [place, setPlace] = useState<string>("");
-  const [start_date, setStartDate] = useState<Date | null>(null);
-  const [end_date, setEndDate] = useState<Date | null>(null);
-  const teamId = "1";
+  const [projectMembers, setProjectMembers] = useState<ProjectMemberDTO[]>([]);
+  const [members, setMembers] = useState<string[]>([]);
+  const [location, setLocation] = useState<string>("");
+  const [start_at, setStartAt] = useState<Date | null>(null);
+  const [end_at, setEndAt] = useState<Date | null>(null);
 
   useEffect(() => {
-    setSchedule((prev) => ({ ...prev, team: teamId }));
-    getTeamMembers({ teamId });
-  }, [teamId]);
+    getprojectMembers({ projectId });
+  }, [projectId]);
 
-  const handleCreateSchedule = async () => {
-    if (!name || !description || !start_date || !end_date) {
-      toaster.error({
-        title: "일정 생성 실패",
-        description: "필수 항목을 모두 입력해주세요",
-      });
-      return;
-    }
-    
-    const response = createSchedule(schedule);
+  const handleCreateEvent = async () => {
+    const event: EventInput = {
+      project: projectId,
+      members,
+      title,
+      description,
+      start_at: start_at?.toISOString(),
+      end_at: end_at?.toISOString(),
+      location,
+      is_private: true,
+    };
+    const response = createEvent(event);
     toaster.promise(response, {
       success: {
         title: "일정 생성 성공",
@@ -94,25 +90,25 @@ const ScheduleCreationForm = () => {
     });
   };
 
-  const getTeamMembers = async ({ teamId }: { teamId: string }) => {
+  const getprojectMembers = async ({ projectId }: { projectId: string }) => {
     try {
-      const response = await getTeamMemberList({ teamId });
-      setTeamMembers(response.data.results);
+      const response = await getProjectMemberList({ projectId });
+      setProjectMembers(response.data.results);
     } catch (error) {
       toaster.error({
         title: "멤버 불러오기 실패",
-        description: "팀 멤버를 불러오는 데 실패했습니다",
+        description: "프로젝트 멤버를 불러오는 데 실패했습니다",
       });
     }
   };
 
   const memberList = useMemo(() => {
     return createListCollection({
-      items: teamMembers || [],
-      itemToString: (item: TeamMemberDTO) => item.member.name,
-      itemToValue: (item: TeamMemberDTO) => item.member.id,
+      items: projectMembers || [],
+      itemToString: (item: ProjectMemberDTO) => item.member.name,
+      itemToValue: (item: ProjectMemberDTO) => item.member.id,
     });
-  }, [teamMembers]);
+  }, [projectMembers]);
 
   return (
     <Fieldset.Root>
@@ -128,15 +124,11 @@ const ScheduleCreationForm = () => {
             <Field label="이름">
               <Input
                 padding="12px"
-                name="name"
-                value={name}
+                name="title"
+                value={title}
                 placeholder="제목을 입력해주세요"
                 onChange={(e) => {
-                  setName(e.target.value);
-                  setSchedule((prevDetails) => ({
-                    ...prevDetails,
-                    name: e.target.value,
-                  }));
+                  setTitle(e.target.value);
                 }}
               />
             </Field>
@@ -148,10 +140,6 @@ const ScheduleCreationForm = () => {
                 placeholder="설명을 입력해주세요"
                 onChange={(e) => {
                   setDescription(e.target.value);
-                  setSchedule((prevDetails) => ({
-                    ...prevDetails,
-                    description: e.target.value,
-                  }));
                 }}
               />
             </Field>
@@ -162,96 +150,57 @@ const ScheduleCreationForm = () => {
                 width="320px"
                 padding="12px"
                 name="members"
-                value={schedule.members}
+                value={members}
                 collection={memberList}
                 onValueChange={(selectedItems) => {
-                  setSchedule((prevDetails) => ({
-                    ...prevDetails,
-                    members: selectedItems.items.map((item) => item.member.id),
-                  }));
+                  setMembers(selectedItems.items.map((item) => item.member.id));
                 }}
               >
                 <SelectTrigger>
                   <SelectMemberItem />
                 </SelectTrigger>
                 <SelectContent portalled={false}>
-                  {memberList.items.map((teamMember) => (
+                  {memberList.items.map((projectMember) => (
                     <SelectItem
-                      item={teamMember}
-                      key={teamMember.id}
+                      item={projectMember}
+                      key={projectMember.id}
                       justifyContent="flex-start"
                     >
                       <Avatar
                         shape="rounded"
-                        name={teamMember.member.name}
+                        name={projectMember.member.name}
                         size="2xs"
                       />
-                      {teamMember.member.name}
+                      {projectMember.member.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </SelectRoot>
             </Field>
-            <Field label="상태">
-              <RadioGroup
-                value={status}
-                onValueChange={(e) => {
-                  setStatus(e.value);
-                  setSchedule((prevDetails) => ({
-                    ...prevDetails,
-                    status: e.value as Status,
-                  }));
-                }}
-              >
-                <HStack gap={2}>
-                  <Radio value="not_started">
-                    <StatusTag status="not_started" size="md" />
-                  </Radio>
-                  <Radio value="in_progress">
-                    <StatusTag status="in_progress" size="md" />
-                  </Radio>
-                  <Radio value="completed">
-                    <StatusTag status="completed" size="md" />
-                  </Radio>
-                </HStack>
-              </RadioGroup>
-            </Field>
             <Field label="장소">
               <Textarea
                 padding="12px"
-                name="place"
-                value={place}
+                name="location"
+                value={location}
                 placeholder="장소를 입력해주세요"
                 onChange={(e) => {
-                  setPlace(e.target.value);
-                  setSchedule((prevDetails) => ({
-                    ...prevDetails,
-                    place: e.target.value,
-                  }));
+                  setLocation(e.target.value);
                 }}
               />
             </Field>
             <Field label="시작 날짜">
               <SingleDatepicker
-                date={start_date || new Date()}
+                date={start_at || new Date()}
                 onDateChange={(date) => {
-                  setStartDate(date);
-                  setSchedule((prevDetails) => ({
-                    ...prevDetails,
-                    start_date: date.toISOString().split("T")[0],
-                  }));
+                  setStartAt(date);
                 }}
               />
             </Field>
             <Field label="종료 날짜">
               <SingleDatepicker
-                date={end_date || new Date()}
+                date={end_at || new Date()}
                 onDateChange={(date) => {
-                  setEndDate(date);
-                  setSchedule((prevDetails) => ({
-                    ...prevDetails,
-                    end_date: date.toISOString().split("T")[0], // Removed redundant '|| ""'
-                  }));
+                  setEndAt(date);
                 }}
               />
             </Field>
@@ -267,7 +216,7 @@ const ScheduleCreationForm = () => {
           <DialogActionTrigger asChild>
             <Button
               type="submit"
-              onClick={handleCreateSchedule}
+              onClick={handleCreateEvent}
               colorScheme="blue"
               px={4}
             >
@@ -280,4 +229,4 @@ const ScheduleCreationForm = () => {
   );
 };
 
-export default ScheduleCreationForm;
+export default EventCreationForm;
