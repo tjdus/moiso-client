@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { EventDTO } from "@/lib/api/interface/fetchDTOs";
 import {
@@ -29,6 +30,8 @@ export default function EventTable({ projectId }: { projectId: string }) {
   const [totalCount, setTotalCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const pageSize = 10;
+  
+  const router = useRouter();
 
   const getEvents = async () => {
     try {
@@ -50,7 +53,7 @@ export default function EventTable({ projectId }: { projectId: string }) {
   }, [projectId, page, searchQuery]);
 
   const handleEventClick = (id: string) => {
-    
+    router.push(`/workspace/event/${id}`);
   };
 
   const handleSearch = (query: string) => {

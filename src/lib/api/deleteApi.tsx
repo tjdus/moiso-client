@@ -13,6 +13,12 @@ export function deleteProject(id: string) {
   });
 }
 
+export function deleteEvent(id: string) {
+  return apiClient.delete(`/api/events/${id}`, {
+    withAuth: true,
+  });
+}
+
 export function deleteTag(id: string) {
   return apiClient.delete(`/api/tags/${id}`, {
     withAuth: true,

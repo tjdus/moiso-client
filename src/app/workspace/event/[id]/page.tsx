@@ -3,6 +3,7 @@
 import { getEventDetail } from "@/lib/api/getApi";
 import { useEffect, useState, use } from "react";
 import { EventDTO } from "@/lib/api/interface/fetchDTOs";
+import EventTab from "@/components/project/EventTab";
 
 interface Props {
     params: Promise<{ id: string }>;
@@ -22,7 +23,7 @@ const EventDetailPage = ({ params }: Props) => {
     }, [id]);
 
     return (
-        <></>
+        <EventTab event={event} eventId={id} />
     );
 };
 
