@@ -1,6 +1,7 @@
 import apiClient from "./apiClient";
 import {
   CategoryInput,
+  EventInput,
   ProjectInput,
   TagInput,
   TaskAssignmentInput,
@@ -23,6 +24,19 @@ export async function updateProject(
 ) {
   return apiClient.patch<Partial<ProjectInput>, ProjectInput>(
     `/api/projects/${id}`,
+    {
+      withAuth: true,
+      body: updatedData,
+    }
+  );
+}
+
+export async function updateEvent(
+  id: string,
+  updatedData: Partial<EventInput>
+) {
+  return apiClient.patch<Partial<EventInput>, EventInput>(
+    `/api/events/${id}`,
     {
       withAuth: true,
       body: updatedData,

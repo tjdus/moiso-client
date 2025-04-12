@@ -11,6 +11,7 @@ import {
   TableCell,
   Flex,
   HStack,
+  IconButton,
 } from "@chakra-ui/react";
 import {
   PaginationItems,
@@ -23,12 +24,19 @@ import EventCreationDialog from "../dialog/create/EventCreationDialog";
 import { formatDateTimeKST } from "@/lib/util/dateFormat";
 import { getEventList } from "@/lib/api/getApi";
 import { Avatar, AvatarGroup } from "../ui/avatar";
+import EventEditDialog from "../dialog/EventDetail/EventEditDialog";
+import { toaster } from "../ui/toaster";
+import { deleteEvent } from "@/lib/api/deleteApi";
+import { LuTrash2 } from "react-icons/lu";
+import { CiEdit } from "react-icons/ci";
 
-export default function EventTable({ projectId }: { projectId: string }) {
+export default function EventTable({ teamId }: { teamId: string }) {
   const [eventList, setEventList] = useState<EventDTO[]>([]);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [eventId, setEventId] = useState<null | string>(null);
   const pageSize = 10;
   
   const router = useRouter();
@@ -39,7 +47,7 @@ export default function EventTable({ projectId }: { projectId: string }) {
         searchQuery,
         page,
         pageSize,
-        projectId,
+        teamId,
       });
       setEventList(response.data.results);
       setTotalCount(response.data.count);
@@ -50,7 +58,7 @@ export default function EventTable({ projectId }: { projectId: string }) {
 
   useEffect(() => {
     getEvents();
-  }, [projectId, page, searchQuery]);
+  }, [teamId, page, searchQuery]);
 
   const handleEventClick = (id: string) => {
     router.push(`/workspace/event/${id}`);
@@ -59,6 +67,33 @@ export default function EventTable({ projectId }: { projectId: string }) {
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     setPage(1);
+  };
+
+  const handleDelete = async (e: React.MouseEvent<HTMLButtonElement>, id: string) => {
+    e.stopPropagation();
+    try {
+      await deleteEvent(id);
+      toaster.success({
+        title: "일정 삭제 성공",
+        description: "일정이 삭제되었습니다",
+      })
+    } catch (error) {
+      toaster.error({
+        title: "일정 삭제 실패",
+        description: "일정 삭제에 실패하였습니다",
+      });
+    }
+  };
+
+  const handleEdit = (e: React.MouseEvent<HTMLButtonElement>, id: string) => {
+    e.stopPropagation();
+    setIsDialogOpen(true);
+    setEventId(id);
+  };
+
+  const handleDialogClose = () => {
+    setIsDialogOpen(false);
+    setEventId(null);
   };
 
   return (
@@ -72,7 +107,7 @@ export default function EventTable({ projectId }: { projectId: string }) {
       overflow="auto"
     >
       <Flex justify="space-between" align="center">
-        <EventCreationDialog projectId={projectId} />
+        <EventCreationDialog teamId={teamId} />
         <SearchBox onSearch={handleSearch} />
       </Flex>
       <TableRoot size="lg" borderRadius="md" border="1px">
@@ -106,6 +141,22 @@ export default function EventTable({ projectId }: { projectId: string }) {
                 <TableCell padding={4} textAlign="center" fontSize="xs">
                   {formatDateTimeKST({ dateString: event.end_at })}
                 </TableCell>
+                <TableCell padding={4} textAlign="center" fontSize="xs">
+                  <IconButton 
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {handleDelete(e, event.id)}} 
+                    colorPalette="red"
+                  >
+                    <LuTrash2 />
+                  </IconButton>
+                </TableCell>
+                <TableCell padding={4} textAlign="center" fontSize="xs">
+                  <IconButton  
+                    colorPalette="gray" 
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {handleEdit(e, event.id)}}
+                  >
+                    <CiEdit />
+                  </IconButton>
+                </TableCell>
               </TableRow>
             ))
           ) : (
@@ -133,6 +184,14 @@ export default function EventTable({ projectId }: { projectId: string }) {
           </HStack>
         </PaginationRoot>
       )}
+
+      {isDialogOpen && eventId &&
+        <EventEditDialog 
+          teamId={eventId} 
+          isOpen={isDialogOpen} 
+          onClose={handleDialogClose} 
+        />
+      }
     </Flex>
   );
 }

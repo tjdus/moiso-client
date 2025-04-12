@@ -73,14 +73,14 @@ export async function getEventList({
   searchQuery,
   page,
   pageSize,
-  projectId,
+  teamId,
   location,
   is_private
 }: {
   searchQuery?: string;
   page?: number;
   pageSize?: number;
-  projectId?: string;
+  teamId?: string;
   location?: string;
   is_private?: number;
 }) {
@@ -89,7 +89,7 @@ export async function getEventList({
       ...(searchQuery && { search: searchQuery }),
       ...(page && { page }),
       ...(pageSize && { page_size: pageSize }),
-      ...(projectId && { project: projectId }),
+      ...(teamId && { team: teamId }),
       ...(location && { location }),
       ...(is_private && { is_private }),
     },

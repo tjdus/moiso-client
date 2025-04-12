@@ -7,8 +7,7 @@ import {
   Fieldset,
   Stack,
   HStack,
-  Textarea, 
-  createListCollection,
+  Textarea,
 } from "@chakra-ui/react";
 import { Field } from "@/components/ui/field";
 import {
@@ -21,21 +20,21 @@ import {
 import { Avatar } from "../ui/avatar";
 import { toaster } from "@/components/ui/toaster";
 import { useState } from "react";
-import { createEvent } from "@/lib/api/postApi";
+import { updateEvent } from "@/lib/api/patchApi";
 import {
   DialogActionTrigger,
   DialogBody,
   DialogCloseTrigger,
   DialogFooter,
-  DialogHeader,
 } from "@/components/ui/dialog";
 import { EventInput } from "@/lib/api/interface/requestDTO";
-
-import { TeamMemberDTO } from "@/lib/api/interface/fetchDTOs";
-import { SingleDatepicker } from "../date-picker/DayzedDatepicker";
-import { getTeamMemberList } from "@/lib/api/getApi";
 import { Radio, RadioGroup } from "../ui/radio";
 import { TagItem } from "../custom-ui/Tag";
+
+import { TeamMemberDTO } from "@/lib/api/interface/fetchDTOs";
+import { createListCollection } from "@chakra-ui/react";
+import { SingleDatepicker } from "../date-picker/DayzedDatepicker";
+import { getTeamMemberList, getEventDetail } from "@/lib/api/getApi";
 
 const SelectMemberItem = () => (
   <SelectValueText placeholder="멤버를 선택하세요">
@@ -51,7 +50,7 @@ const SelectMemberItem = () => (
   </SelectValueText>
 );
 
-const EventCreationForm = ({ teamId } : { teamId: string }) => {
+const EventEditForm = ({ teamId } : { teamId: string }) => {
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [teamMembers, setTeamMembers] = useState<TeamMemberDTO[]>([]);
@@ -65,29 +64,44 @@ const EventCreationForm = ({ teamId } : { teamId: string }) => {
     getTeamMembers({ teamId });
   }, [teamId]);
 
-  const handleCreateEvent = async () => {
+  useEffect(() => {
+    const getEvent = async () => {
+      const response = await getEventDetail(teamId);
+      const event = response.data;
+      setTitle(event.title);
+      setDescription(event.description);
+      setMembers(event.members.map((member) => member.id));
+      setLocation(event.location);
+      setStartAt(new Date(event.start_at));
+      setEndAt(new Date(event.end_at));
+      setStatus(event.is_private ? "private" : "public");
+    };
+
+    getEvent();
+  }, [teamId]);
+
+  const handleUpdateEvent = async () => {
     const event: EventInput = {
-      team: teamId,
       members,
       title,
       description,
       start_at: start_at?.toISOString(),
       end_at: end_at?.toISOString(),
       location,
-      is_private: status === 'private' ? true : false,
+      is_private: status === "private" ? true : false,
     };
-    const response = createEvent(event);
+    const response = updateEvent(teamId, event);
     toaster.promise(response, {
       success: {
-        title: "일정 생성 성공",
-        description: "새로운 일정이 생성되었습니다",
+        title: "일정 수정 성공",
+        description: "일정이 수정되었습니다",
       },
       error: {
-        title: "일정 생성 실패",
-        description: "일정 생성에 실패했습니다",
+        title: "일정 수정 실패",
+        description: "일정 수정에 실패했습니다",
       },
       loading: {
-        title: "일정 생성 중",
+        title: "일정 수정 중",
         description: "잠시만 기다려주세요...",
       },
     });
@@ -114,8 +128,7 @@ const EventCreationForm = ({ teamId } : { teamId: string }) => {
   }, [teamMembers]);
 
   return (
-    <Fieldset.Root>
-      <DialogHeader>일정 만들기</DialogHeader>
+    <Fieldset.Root padding="5">
       <DialogBody>
         <Fieldset.Content>
           <Stack
@@ -236,7 +249,7 @@ const EventCreationForm = ({ teamId } : { teamId: string }) => {
           <DialogActionTrigger asChild>
             <Button
               type="submit"
-              onClick={handleCreateEvent}
+              onClick={handleUpdateEvent}
               colorScheme="blue"
               px={4}
             >
@@ -249,4 +262,4 @@ const EventCreationForm = ({ teamId } : { teamId: string }) => {
   );
 };
 
-export default EventCreationForm;
+export default EventEditForm;

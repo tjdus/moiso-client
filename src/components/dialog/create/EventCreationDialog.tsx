@@ -11,10 +11,10 @@ const triggerButton = (
   </IconButton>
 );
 
-const EventCreationDialog = ({ projectId } : { projectId: string }) => {
+const EventCreationDialog = ({ teamId } : { teamId: string }) => {
   return (
     <CreationDialog triggerButton={triggerButton}>
-      <EventCreationForm projectId={projectId} />
+      <EventCreationForm teamId={teamId} />
     </CreationDialog>
   );
 };

@@ -14,7 +14,7 @@ export interface ProjectInput {
 
 export interface EventInput {
   id?: string;
-  project?: string;
+  team?: string;
   members?: string[];
   title?: string;
   description?: string;

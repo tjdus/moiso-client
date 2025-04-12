@@ -3,10 +3,9 @@
 import { useState } from "react";
 import { Box, HStack, Tabs, Text, Skeleton } from "@chakra-ui/react";
 import { ReactNode, useEffect } from "react";
-import { ProjectDetailDTO, ProjectDTO } from "@/lib/api/interface/fetchDTOs";
+import { ProjectDetailDTO } from "@/lib/api/interface/fetchDTOs";
 import ProjectMemberTable from "./ProjectMemberTable";
 import TaskList from "./TaskList";
-import EventTable from "./EventTable";
 import { LuFolder, LuSquareCheck, LuUser, LuSettings, LuClock } from "react-icons/lu";
 import { useParams } from "next/navigation";
 import { getProjectDetail } from "@/lib/api/getApi";
@@ -112,7 +111,6 @@ function TabBar() {
         <Tabs.List gap={4}>
           <TabTrigger value="overview" label="Overview" icon={<LuFolder />} />
           <TabTrigger value="tasks" label="Tasks" icon={<LuSquareCheck />} />
-          <TabTrigger value="events" label="Events" icon={<LuClock />} />
           <TabTrigger value="members" label="Members" icon={<LuUser />} />
           <TabTrigger value="settings" label="Settings" icon={<LuSettings />} />
         </Tabs.List>
@@ -123,10 +121,6 @@ function TabBar() {
         <TabContent
           value="tasks"
           children={<TaskList projectId={projectId} />}
-        />
-        <TabContent
-          value="events"
-          children={<EventTable projectId={projectId} />}
         />
         <TabContent
           value="members"

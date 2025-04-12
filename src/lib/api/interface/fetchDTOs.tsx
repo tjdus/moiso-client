@@ -38,15 +38,6 @@ export interface MemberDTO {
   username: string;
 }
 
-export interface TeamMemberDTO {
-  id: string;
-  team: TeamDTO;
-  member: MemberDTO;
-  team_groups: TeamGroupMemberInfoDTO[];
-  role: string;
-  joined_at: string;
-}
-
 export interface ProjectMemberInfoDTO {
   id: string;
   member: MemberDTO;
@@ -99,7 +90,7 @@ export interface EventDTO {
   updated_at: string;
   created_by: MemberDTO;
   updated_by: MemberDTO | null;
-  project: ProjectDetailDTO;
+  team: TeamDetailDTO;
   members: MemberDTO[];
   title: string;
   description: string;
