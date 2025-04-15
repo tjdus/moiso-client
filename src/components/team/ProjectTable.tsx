@@ -23,7 +23,7 @@ import {
   PaginationRoot,
 } from "@/components/ui/pagination";
 import SearchBox from "../custom-ui/SearchBox";
-import TaskCreationDialog from "../dialog/create/TaskCreationDialog";
+import ProjectCreationDialog from "../dialog/create/ProjectCreationDialog";
 import { TagItem, StatusTag } from "@/components/custom-ui/Tag";
 import { formatDateTimeKST } from "@/lib/util/dateFormat";
 import { getProjectList } from "@/lib/api/getApi";
@@ -86,7 +86,7 @@ export default function ProjectTable({ teamId }: { teamId: string }) {
       overflow="auto"
     >
       <Flex justify="space-between" align="center">
-        <TaskCreationDialog />
+        <ProjectCreationDialog teamId={teamId} />
         <SearchBox onSearch={handleSearch} />
       </Flex>
       <Separator />

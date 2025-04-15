@@ -63,7 +63,7 @@ const SelectCategoryItem = () => (
   </SelectValueText>
 );
 
-const ProjectCreationForm = () => {
+const ProjectCreationForm = ({ teamId } : { teamId: string }) => {
   const [project, setProject] = useState<ProjectInput>({});
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -73,7 +73,6 @@ const ProjectCreationForm = () => {
   const [newCategoryName, setNewCategoryName] = useState<string>("");
   const [start_date, setStartDate] = useState<Date | null>(null);
   const [end_date, setEndDate] = useState<Date | null>(null);
-  const teamId = "1";
 
   useEffect(() => {
     setProject((prev) => ({ ...prev, team: teamId }));
@@ -179,7 +178,7 @@ const ProjectCreationForm = () => {
                 padding="12px"
                 name="name"
                 value={name}
-                placeholder="팀 이름을 입력해주세요"
+                placeholder="프로젝트 이름을 입력해주세요"
                 onChange={(e) => {
                   setName(e.target.value);
                   setProject((prevDetails) => ({

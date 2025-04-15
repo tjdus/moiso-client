@@ -16,10 +16,10 @@ const triggerButton = (
   </IconButton>
 );
 
-const ProjectCreationDialog = () => {
+const ProjectCreationDialog = ({ teamId } : { teamId: string }) => {
   return (
     <CreationDialog triggerButton={triggerButton}>
-      <ProjectCreationForm />
+      <ProjectCreationForm teamId={teamId} />
     </CreationDialog>
   );
 };
