@@ -17,7 +17,8 @@
 
 하루 일정을 확인할 수 있다.
 
-![image](https://github.com/user-attachments/assets/2de66897-41e7-4cbc-8c6c-37297e1770f9)
+![image](https://github.com/user-attachments/assets/eac76107-75f9-4904-b0a2-6d4fe375e479)
+
 
 한달 일정을 확인할 수 있다.
 프로젝트를 선택하여 특정 프로젝트의 일정만 따로 확인할 수 있다.
